@@ -1,0 +1,214 @@
+<%- include('../partials/header') %>
+
+<script>
+	$(document).ready(function() {
+        function sq_box() {
+            var widthValue = document.getElementById("width").value;
+			var sout = sbox.replace("{{w}}", widthValue)
+            var sout = sout.replace("{{l}}", document.getElementById("length").value)
+            var sout = sout.replace("{{h}}", document.getElementById("height").value)
+            var sout = sout.replace("{{wt}}", document.getElementById("wallThickness").value)
+            var sout = sout.replace("{{lt}}", document.getElementById("lidThickness").value)
+			document.getElementById("output").value = sout ;
+			
+        }
+		function rd_box() {
+            var widthValue = document.getElementById("width").value;
+			var sout = rbox.replace("{{w}}", widthValue)
+            var sout = sout.replace("{{l}}", document.getElementById("length").value)
+            var sout = sout.replace("{{h}}", document.getElementById("height").value)
+            var sout = sout.replace("{{wt}}", document.getElementById("wallThickness").value)
+            var sout = sout.replace("{{lt}}", document.getElementById("lidThickness").value)
+            var sout = sout.replace("{{cr}}", document.getElementById("cornerRadiusDropdown").value)
+			document.getElementById("output").value = sout ;
+		
+		
+		}
+		
+		$('#myButton').click(function() {
+			if ($('#roundCorners').is(':checked')) {
+				rd_box();
+			} else {
+				sq_box();
+			}
+		});
+		
+		$('#roundCorners').change(function() {
+			if ($(this).is(':checked')) {
+				$('#cornerRadiusDropdownWrapper').show();
+			} else {
+				$('#cornerRadiusDropdownWrapper').hide();
+			}
+		});
+
+
+
+	});
+    </script>
+  <h2>Input Information</h2>
+  <table>
+    <tr>
+      <td><label for="width">Width:</label></td>
+      <td><input type="number" id="width" name="width" value=50></td>
+    </tr>
+    <tr>
+      <td><label for="length">Length:</label></td>
+      <td><input type="number" id="length" name="length" value=50></td>
+    </tr>
+    <tr>
+      <td><label for="height">Height:</label></td>
+      <td><input type="number" id="height" name="height" value=50></td>
+    </tr>
+    <tr>
+      <td><label for="wallThickness">Wall Thickness:</label></td>
+      <td><input type="number" id="wallThickness" name="wallThickness" value=2></td>
+    </tr>
+    <tr>
+      <td><label for="lidThickness">Lid Thickness:</label></td>
+      <td><input type="number" id="lidThickness" name="lidThickness" value=4></td>
+    </tr>
+    <tr>
+      <td><label for="roundCorners">Round Corners</label></td>
+      <td><input type="checkbox" id="roundCorners" name="roundCorners"></td>
+    </tr>
+	<tr id="cornerRadiusDropdownWrapper" style="display: none;">
+	<td>Corner Radius</td>
+	<td >
+		<select id="cornerRadiusDropdown">
+			<option value="1">1</option>
+			<option value="2" selected>2</option>
+			<option value="3">3</option>
+		</select>
+	</td>
+	</tr>
+  </table>
+  <textarea rows=25 cols=70 id="output"></textarea>
+  <br><button id="myButton" name="myButton">Generate OpenSCAD Code</button>  
+  <button id="generateSTL" name="generateSTL">Generate STL File</button>
+
+  <script>
+    $('#generateSTL').click(function () {
+        const scadCode = document.getElementById("output").value;
+        if (!scadCode.trim()) {
+            alert("Please generate OpenSCAD code first.");
+            return;
+        }
+
+        $.ajax({
+            url: '/generate-stl',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ scad: scadCode }),
+            success: function (res) {
+            window.location.href = res.url; // triggers the download
+            },
+            error: function () {
+            alert('Failed to generate STL file');
+            }
+        });
+    });
+
+    var sbox = "w = {{w}} ;\n" +
+    "l = {{l}} ;\n" +
+    "h = {{h}} ;\n" +
+    "wall_thickness = {{wt}};\n\n" +
+    "lid_thickness = 12;\n" +
+    "lid_clearance = 0;\n\n" +
+
+    "// Lid top\n" +
+    "module top_l() {\n" +
+    "    cube([w, l, lid_thickness/2]);\n" +
+    "    translate([w*.5, l, 0])\n" +
+    "    cube([10, 2, lid_thickness/2]); // this is the tab\n" +
+    "}\n" +
+    "// Lid bottom\n" +
+    "module bottom_l() {\n" +
+    "    difference() { // hollow out the lid bottom\n" +
+    "        cube([(w - (wall_thickness*2))- lid_clearance , (l - (wall_thickness*2))-lid_clearance, lid_thickness/2 ]);\n" +
+    "        translate([wall_thickness, wall_thickness, 0])\n" +
+    "        cube([(w - (wall_thickness*4)) , (l - (wall_thickness*4)), (lid_thickness/2)+1]);\n" +
+    "    }\n" +
+    "}\n\n" +
+    
+    
+    "difference() {\n" +
+    "    // Outer box\n" +
+    "    cube([w, l, h]);\n\n" +
+    
+    "    // Inner hollow space\n" +
+    "    translate([wall_thickness, wall_thickness, wall_thickness])\n" +
+    "        cube([\n" +
+    "            w - 2 * wall_thickness,\n" +
+    "            l - 2 * wall_thickness,\n" +
+    "            h\n" +
+    "        ]);\n" +
+    "}\n\n" +
+
+
+    "// Create the lid and put it on the side\n" +
+    "translate([w*1.1, 0, 0])\n" +
+    "{\n" +
+    "top_l();\n" +
+    "translate([wall_thickness, wall_thickness, lid_thickness/2])\n" +
+    "bottom_l();\n" +
+    "}\n"
+    
+    
+    var rbox = "$fn = 100;\n" +
+    "w = {{w}};\n" +
+    "l = {{l}};\n" +
+    "h = {{h}};\n" +
+    "wall_thickness = {{wt}};\n" +
+    "lid_thickness = {{lt}};\n" +
+    "lid_clearance = 0;\n" +
+    "rad = {{cr}};\n\n" +
+    
+    "// Main box body\n" +
+    "module outer_rec() {\n" +
+    "    linear_extrude(height = h)\n" +
+    "    offset(r=rad) offset(delta = -1*rad) square([w, l]);\n" +
+    "}\n\n" +
+    
+    "module inner_rec() {\n" +
+    "    linear_extrude(height = h)\n" +
+    "    offset(r=rad) offset(delta = -1* rad) // round the corners\n" +
+    "		square([w - (wall_thickness*2) , l - (wall_thickness*2) ]);\n" +
+    "}\n" +
+    "// Lid top\n" +
+    "module top_l() {\n" +
+    "    linear_extrude(height = lid_thickness/2)\n" +
+    "    offset(r=rad) offset(delta = -1*rad) square([w, l]);\n" +
+    "    translate([w*.5, l, 0])\n" +
+    "    cube([10, 2, lid_thickness/2]);\n" +
+    "}\n" +
+    "// Lid bottom\n" +
+    "module bottom_l() {\n" +
+    "    difference() { // hollow out the lid bottom\n" +
+    "        linear_extrude(height = lid_thickness/2)\n" +
+    "        offset(r=rad) offset(delta = -1* rad) // round the corners\n" +
+    "			square([(w - (wall_thickness*2))- lid_clearance , (l - (wall_thickness*2))-lid_clearance ]);\n" +
+    "        translate([wall_thickness, wall_thickness, 0])\n" +
+    "        linear_extrude(height = (lid_thickness/2)+1)\n" +
+    "        offset(r=rad) offset(delta = -1* rad) square([(w - (wall_thickness*4)) , (l - (wall_thickness*4))]);\n" +
+    "    }\n" +
+    "}\n\n" +
+    
+    "// Hollow out the main box body\n" +
+    "difference () {\n" +
+    "outer_rec();\n" +
+    "translate([wall_thickness,  wall_thickness, wall_thickness])\n" +
+    "inner_rec();\n" +
+    "}\n" +
+    
+    "// Create the lid and put it on the side\n" +
+    "translate([w*1.1, 0, 0])\n" +
+    "{\n" +
+    "top_l();\n" +
+    "translate([wall_thickness, wall_thickness, lid_thickness/2])\n" +
+    "bottom_l();\n" +
+    "}\n"
+    
+    </script>
+
+
+<%- include('../partials/footer.ejs') %>
