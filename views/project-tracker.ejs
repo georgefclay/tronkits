@@ -1,0 +1,58 @@
+<% var currentPage = 'utilities'; %>
+<%- include('../partials/header') %>
+
+<section class="tk-hero--tight" style="padding-bottom:28px">
+  <div class="tk-breadcrumb">// HOME / TOOLBOX / PROJECT TRACKER</div>
+  <h1 class="tk-h1" style="font-size:64px">Project tracker.</h1>
+  <p class="tk-lede" style="margin-top:12px; max-width:680px">
+    Lightweight tracker for projects and their bugs, features, tasks, and notes. Two flavors — pick the one that fits how you work.
+  </p>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-2col">
+    <div class="tk-card-headed">
+      <div class="tk-card-headed__head">
+        <span>// FILE-BASED TRACKER</span>
+        <span class="yellow">JSON · CHROMIUM</span>
+      </div>
+      <div class="tk-card-headed__body" style="padding:26px 28px; display:flex; flex-direction:column; gap:14px">
+        <p class="tk-body" style="font-size:15px; margin:0">
+          Stores your projects in a single <code class="tk-inline">.json</code> file. Drop the file in Dropbox, OneDrive, or iCloud Drive to keep projects in sync across machines.
+        </p>
+        <ul style="font-family:'JetBrains Mono',monospace; font-size:12px; padding-left:18px; color:var(--ink-soft); margin:0">
+          <li style="margin-bottom:4px">Best for: multi-machine workflows</li>
+          <li style="margin-bottom:4px">Needs Chrome / Edge (File System Access API)</li>
+          <li>Download to use fully offline — self-contained HTML</li>
+        </ul>
+        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:6px">
+          <a href="/project-tracker-file.html" class="tk-btn tk-btn--accent" target="_blank" rel="noopener">Open →</a>
+          <a href="/project-tracker-file.html" class="tk-btn tk-btn--ghost" download="project-tracker-file.html">↓ Download</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="tk-card-headed">
+      <div class="tk-card-headed__head">
+        <span>// BROWSER TRACKER</span>
+        <span class="yellow">LOCALSTORAGE · ANY BROWSER</span>
+      </div>
+      <div class="tk-card-headed__body" style="padding:26px 28px; display:flex; flex-direction:column; gap:14px">
+        <p class="tk-body" style="font-size:15px; margin:0">
+          Zero setup — open and start tracking. Your data lives in this browser on this device, and persists between visits.
+        </p>
+        <ul style="font-family:'JetBrains Mono',monospace; font-size:12px; padding-left:18px; color:var(--ink-soft); margin:0">
+          <li style="margin-bottom:4px">Best for: single-machine, no-fuss tracker</li>
+          <li style="margin-bottom:4px">Works in any modern browser</li>
+          <li>Tied to this browser — clearing site data erases it</li>
+        </ul>
+        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:6px">
+          <a href="/project-tracker-local.html" class="tk-btn tk-btn--accent" target="_blank" rel="noopener">Open →</a>
+          <a href="/project-tracker-local.html" class="tk-btn tk-btn--ghost" download="project-tracker-local.html">↓ Download</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

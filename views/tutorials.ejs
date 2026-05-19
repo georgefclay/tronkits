@@ -1,24 +1,361 @@
-// views/tutorials.ejs
-<% layout('partials/layout') -%>
-<% title = 'Tutorials - TechTuts' %>
-<h2 class="mb-4">Tutorials</h2>
-<div class="row">
-  <div class="col-md-4">
-    <div class="card mb-4">
-      <img src="https://via.placeholder.com/350x150" class="card-img-top" alt="Arduino">
-      <div class="card-body">
-        <h5 class="card-title">Getting Started with Arduino</h5>
-        <p class="card-text">Learn how to set up and program an Arduino board.</p>
-      </div>
-    </div>
+<% var currentPage = 'tutorials'; %>
+<%- include('../partials/header') %>
+
+<section class="tk-hero--tight">
+  <div class="tk-breadcrumb">// HOME / TUTORIALS</div>
+
+  <div class="tk-flex-between tk-mb-32">
+    <h1 class="tk-h1">
+      Tutorials.<br>
+      <span class="tk-h1__sub">Read once, ship forever.</span>
+    </h1>
+    <div class="tk-stamp tk-stamp--accent" style="transform:rotate(-6deg); width:88px; height:88px">SHELF · 01 · 2026</div>
   </div>
-  <div class="col-md-4">
-    <div class="card mb-4">
-      <img src="https://via.placeholder.com/350x150" class="card-img-top" alt="JavaScript">
-      <div class="card-body">
-        <h5 class="card-title">Intro to JavaScript</h5>
-        <p class="card-text">Understand JavaScript basics and start building web apps.</p>
-      </div>
-    </div>
+
+  <div class="tk-filter-bar">
+    <div class="tk-filter-bar__label">FILTER</div>
+    <button type="button" class="tk-filter-bar__btn is-active" data-filter="all">All</button>
+    <button type="button" class="tk-filter-bar__btn" data-filter="openscad">OpenSCAD</button>
+    <button type="button" class="tk-filter-bar__btn" data-filter="pi">Raspberry Pi</button>
+    <button type="button" class="tk-filter-bar__btn" data-filter="electronics">Electronics</button>
+    <button type="button" class="tk-filter-bar__btn" data-filter="linux">Linux</button>
+    <div class="tk-filter-bar__search"><span>🔍</span><span>search...</span></div>
   </div>
-</div>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-tut-list">
+    <a href="#tut-simple-box" class="tk-tut-row" data-cat="openscad">
+      <div class="tk-tut-row__visual tk-graph-paper-mini">
+        <span class="tk-tut-row__badge">#01</span>
+        <svg width="110" height="80" viewBox="0 0 110 80" aria-hidden="true">
+          <g stroke="#15263A" stroke-width="1.5" fill="none" stroke-linejoin="round">
+            <rect x="20" y="30" width="70" height="40" fill="#EDE5CD" />
+            <line x1="20" y1="42" x2="90" y2="42" stroke-dasharray="2 2" />
+          </g>
+        </svg>
+      </div>
+      <div class="tk-tut-row__body">
+        <div class="tk-tut-row__meta-row">
+          <span class="tk-tag tk-tag--accent">OPENSCAD</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-faint)">2026-04-18</span>
+        </div>
+        <h3 class="tk-h3">Build a parametric box</h3>
+        <p>The hello-world of OpenSCAD. Walls, lids, and a couple of variables you can poke.</p>
+        <div class="tk-tut-row__footer">
+          <span>6 STEPS · ~15 MIN · <span style="color:var(--accent); font-weight:700">★☆☆</span></span>
+          <span style="color:var(--ink); font-weight:700">READ →</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="#tut-rounded-box" class="tk-tut-row" data-cat="openscad">
+      <div class="tk-tut-row__visual tk-graph-paper-mini">
+        <span class="tk-tut-row__badge">#02</span>
+        <svg width="110" height="80" viewBox="0 0 110 80" aria-hidden="true">
+          <g stroke="#15263A" stroke-width="1.5" fill="none" stroke-linejoin="round">
+            <rect x="20" y="30" width="70" height="40" rx="12" fill="#EDE5CD" />
+            <line x1="20" y1="42" x2="90" y2="42" stroke-dasharray="2 2" />
+          </g>
+        </svg>
+      </div>
+      <div class="tk-tut-row__body">
+        <div class="tk-tut-row__meta-row">
+          <span class="tk-tag tk-tag--accent">OPENSCAD</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-faint)">2026-04-21</span>
+        </div>
+        <h3 class="tk-h3">Rounded corners with offset()</h3>
+        <p>Two-pass offset trick: expand then contract. Cleaner than minkowski(), no slow renders.</p>
+        <div class="tk-tut-row__footer">
+          <span>4 STEPS · ~12 MIN · <span style="color:var(--accent); font-weight:700">★☆☆</span></span>
+          <span style="color:var(--ink); font-weight:700">READ →</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="#tut-pi-node" class="tk-tut-row" data-cat="pi">
+      <div class="tk-tut-row__visual tk-graph-paper-mini">
+        <span class="tk-tut-row__badge">#03</span>
+        <svg width="120" height="80" viewBox="0 0 160 120" aria-hidden="true">
+          <rect x="20" y="25" width="120" height="80" rx="4" fill="#2D8F60" stroke="#15263A" stroke-width="1.5" />
+          <rect x="60" y="50" width="40" height="40" fill="#15263A" />
+          <text x="80" y="74" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#F5EFDD">BCM</text>
+        </svg>
+      </div>
+      <div class="tk-tut-row__body">
+        <div class="tk-tut-row__meta-row">
+          <span class="tk-tag tk-tag--green">RASPBERRY PI</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-faint)">2026-04-04</span>
+        </div>
+        <h3 class="tk-h3">Pi → Node → Nginx, end to end</h3>
+        <p>From SD-card image to public website. Includes the firewall bits people forget.</p>
+        <div class="tk-tut-row__footer">
+          <span>11 STEPS · ~45 MIN · <span style="color:var(--green); font-weight:700">★★★</span></span>
+          <span style="color:var(--ink); font-weight:700">READ →</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="/resistor" class="tk-tut-row" data-cat="electronics">
+      <div class="tk-tut-row__visual tk-graph-paper-mini">
+        <span class="tk-tut-row__badge">#04</span>
+        <svg width="120" height="80" viewBox="0 0 170 120" aria-hidden="true">
+          <path d="M 20 60 L 50 60" stroke="#15263A" stroke-width="1.5" fill="none" />
+          <path d="M 110 60 L 150 60" stroke="#15263A" stroke-width="1.5" fill="none" />
+          <polyline points="50,60 56,52 64,68 72,52 80,68 88,52 96,68 104,52 110,60" fill="none" stroke="#15263A" stroke-width="1.5" />
+          <g transform="translate(150 60)">
+            <polygon points="-2,-12 -2,12 14,0" fill="#E25C2C" stroke="#15263A" stroke-width="1.5" stroke-linejoin="round" />
+            <line x1="14" y1="-12" x2="14" y2="12" stroke="#15263A" stroke-width="1.5" />
+          </g>
+        </svg>
+      </div>
+      <div class="tk-tut-row__body">
+        <div class="tk-tut-row__meta-row">
+          <span class="tk-tag tk-tag--blue">ELECTRONICS</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-faint)">2026-03-22</span>
+        </div>
+        <h3 class="tk-h3">Blink an LED, properly</h3>
+        <p>Why you need a resistor. How to pick one. And why your LED keeps dying when you forget.</p>
+        <div class="tk-tut-row__footer">
+          <span>4 STEPS · ~10 MIN · <span style="color:var(--blue); font-weight:700">★☆☆</span></span>
+          <span style="color:var(--ink); font-weight:700">READ →</span>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- Tutorial body — preserved content, restyled with tk-prose -->
+<section class="tk-section">
+  <article id="tut-simple-box" class="tk-card tk-card--solid" style="padding:36px 40px; margin-bottom:48px">
+    <div class="tk-tut-card__meta-row" style="margin-bottom:18px">
+      <span class="tk-tag tk-tag--accent">● OPENSCAD · 3D MODELING</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); font-weight:700">★ ☆ ☆ BEGINNER</span>
+    </div>
+    <h2 class="tk-h2" style="margin-bottom:10px">🧰 Creating a Simple Box in OpenSCAD</h2>
+    <p class="tk-lede" style="margin-bottom:24px">This tutorial shows how to design a basic, parametric box using <a href="https://openscad.org" style="color:var(--accent)">OpenSCAD</a>. Perfect for 3D printing or as a base for more complex designs.</p>
+
+    <div class="tk-prose" style="max-width:none">
+      <h3>Set up your parameters</h3>
+      <p>We define variables for the box's size and wall thickness so we can easily tweak it later:</p>
+      <pre><code>w = 25;     // Outer width of the box
+d = 15;     // Outer depth/length of the box
+h = 10;     // Outer height of the box
+wall = 2;   // Wall thickness</code></pre>
+      <p>Statements must end with a <code>;</code> (semicolon).</p>
+
+      <h3>Create the outer shell</h3>
+      <pre><code>cube([width, length, height]);</code></pre>
+      <p>If all sides are the same you could do <code>cube(size)</code>. You don't need the brackets for a single value.</p>
+
+      <h3>Hollow out the middle</h3>
+      <pre><code>difference(){
+  cube([w, d, h]);
+  translate([wall, wall, wall])
+  cube([w-2*wall, d-2*wall, h]);
+}</code></pre>
+      <p><code>difference()</code> removes the second object from the first. <code>translate()</code> moves the second object. The first cube is the outer shell, the second is the hollow part.</p>
+
+      <h3>Make it a module</h3>
+      <pre><code>module box() {
+  difference(){
+    cube([w, d, h]);
+    translate([wall, wall, wall])
+    cube([w-2*wall, d-2*wall, h]);
+  }
+}</code></pre>
+      <p><code>module</code> acts like a function. You must call the module for it to run with <code>box();</code>.</p>
+
+      <h3>Add a lid</h3>
+      <pre><code>module lid() {
+  cube([w, d, wall]);
+  translate([wall, wall, wall])
+  cube([w-2*wall, d-2*wall, wall]);
+}
+lid();</code></pre>
+
+      <h3>Final code</h3>
+      <pre><code>// Simple Box Design
+w = 25; d = 15; h = 10; wall = 2;
+
+module box() {
+  difference(){
+    cube([w, d, h]);
+    translate([wall, wall, wall])
+    cube([w-2*wall, d-2*wall, h]);
+  }
+}
+
+module lid() {
+  cube([w, d, wall]);
+  translate([wall, wall, wall])
+  cube([w-2*wall, d-2*wall, wall]);
+}
+
+box();
+translate([w+5, 0, 0]) { lid(); }</code></pre>
+    </div>
+  </article>
+
+  <article id="tut-rounded-box" class="tk-card tk-card--solid" style="padding:36px 40px; margin-bottom:48px">
+    <div class="tk-tut-card__meta-row" style="margin-bottom:18px">
+      <span class="tk-tag tk-tag--accent">● OPENSCAD · ROUNDED</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); font-weight:700">★ ☆ ☆ BEGINNER</span>
+    </div>
+    <h2 class="tk-h2" style="margin-bottom:10px">🌀 Creating a Rounded Box in OpenSCAD</h2>
+    <p class="tk-lede" style="margin-bottom:24px">Make a box with rounded corners using the <code class="tk-inline">offset()</code> technique.</p>
+
+    <div class="tk-prose" style="max-width:none">
+      <h3>Step 1: Define the rounded rectangle</h3>
+      <p>Create a 2D shape with rounded corners using a two-pass offset technique.</p>
+      <pre><code>w = 60;
+l = 40;
+h = 20;
+rad = 3;
+
+module rounded_rect() {
+  offset(r=rad)
+  offset(delta=-rad)
+  square([w, l]);
+}
+rounded_rect();</code></pre>
+      <p>This <a href="https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Transformations#offset" target="_blank">offset technique</a> expands then contracts the base shape to create rounded corners.</p>
+
+      <h3>Step 2: Extrude to 3D</h3>
+      <p>Use <code>linear_extrude()</code> to give the shape depth.</p>
+      <pre><code>linear_extrude(height=20)
+rounded_rect();</code></pre>
+
+      <h3>Final code</h3>
+      <pre><code>$fn = 100;
+w = 60; l = 40; h = 20;
+wall_thickness = 2;
+lid_thickness = 4;
+lid_clearance = 0;
+rad = 2;
+
+module outer_rec() {
+  linear_extrude(height = h)
+  offset(r=rad) offset(delta = -1*rad) square([w, l]);
+}
+
+module inner_rec() {
+  linear_extrude(height = h)
+  offset(r=rad) offset(delta = -1*rad)
+  square([w - (wall_thickness*2), l - (wall_thickness*2)]);
+}
+
+difference() {
+  outer_rec();
+  translate([wall_thickness, wall_thickness, wall_thickness])
+  inner_rec();
+}</code></pre>
+      <blockquote><strong>Tip:</strong> The <code>offset()</code> method is lightweight and efficient — perfect for clean rounded edges without the complexity of <code>minkowski()</code>.</blockquote>
+    </div>
+  </article>
+
+  <article id="tut-pi-node" class="tk-card tk-card--solid" style="padding:36px 40px">
+    <div class="tk-tut-card__meta-row" style="margin-bottom:18px">
+      <span class="tk-tag tk-tag--green">● RASPBERRY PI · SERVER</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--green); font-weight:700">★ ★ ★ ADVANCED</span>
+    </div>
+    <h2 class="tk-h2" style="margin-bottom:10px">Raspberry Pi Colocation Setup</h2>
+    <p class="tk-lede" style="margin-bottom:24px">Node.js Server with Nginx Reverse Proxy (Debian 12 Bookworm).</p>
+
+    <div class="tk-prose" style="max-width:none">
+      <h3>1. Initial OS Setup</h3>
+      <ul>
+        <li>Install <strong>Raspberry Pi OS Lite (Debian 12 Bookworm)</strong> using Raspberry Pi Imager.</li>
+        <li>Enable <strong>SSH</strong> and set a hostname during imaging.</li>
+        <li>Boot and SSH into the Pi.</li>
+      </ul>
+
+      <h3>2. Disable Wi-Fi and Bluetooth</h3>
+      <pre><code>sudo nano /boot/firmware/config.txt
+# Add at the bottom
+dtoverlay=disable-wifi
+dtoverlay=disable-bt
+
+sudo reboot</code></pre>
+
+      <h3>3. Update and upgrade</h3>
+      <pre><code>sudo apt update
+sudo apt upgrade -y</code></pre>
+
+      <h3>4. Install Node.js and NPM</h3>
+      <pre><code>curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt install -y nodejs
+node -v && npm -v</code></pre>
+
+      <h3>5. Install project dependencies</h3>
+      <pre><code>cd ~/tronkits
+npm install</code></pre>
+
+      <h3>6. Install OpenSCAD (for STL generation)</h3>
+      <pre><code>sudo apt install -y openscad</code></pre>
+
+      <h3>7. PM2 process manager</h3>
+      <pre><code>sudo npm install -g pm2
+cd ~/tronkits
+pm2 start app.js --name tronkits
+pm2 save
+pm2 startup</code></pre>
+
+      <h3>8. Nginx reverse proxy</h3>
+      <pre><code>sudo apt install nginx -y
+sudo nano /etc/nginx/sites-available/default</code></pre>
+      <pre><code>server {
+  listen 80;
+  server_name _;
+  location / {
+    proxy_pass http://localhost:8080;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+  }
+}</code></pre>
+      <pre><code>sudo systemctl restart nginx</code></pre>
+
+      <h3>9. UFW firewall</h3>
+      <pre><code>sudo apt install ufw
+sudo ufw allow 22/tcp
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw limit 22/tcp
+sudo ufw logging on
+sudo ufw enable
+sudo ufw status verbose</code></pre>
+
+      <h3>10. Static IP for colocation</h3>
+      <pre><code>sudo nmcli con add type ethernet ifname eth0 con-name static-eth0 ipv4.method manual \
+  ipv4.addresses 154.9.0.34/30 ipv4.gateway 154.9.0.33 \
+  ipv4.dns "8.8.8.8 1.1.1.1" ipv6.method ignore
+sudo nmcli con up static-eth0</code></pre>
+
+      <h3>11. Pre-ship checklist</h3>
+      <ul>
+        <li>Confirm all services running.</li>
+        <li>Shutdown cleanly: <code>sudo shutdown now</code></li>
+        <li>Package your Pi securely for shipment.</li>
+      </ul>
+    </div>
+  </article>
+</section>
+
+<script>
+  // Simple anchor-filter for the tutorials list
+  document.querySelectorAll('.tk-filter-bar__btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.tk-filter-bar__btn').forEach(function(b){ b.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+      var f = btn.dataset.filter;
+      document.querySelectorAll('.tk-tut-row').forEach(function(r){
+        r.style.display = (f === 'all' || r.dataset.cat === f) ? '' : 'none';
+      });
+    });
+  });
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,100 @@
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .banner {
+    background: url('/images/banner.jpg') no-repeat center center/cover;
+    color: #ffffff;
+    position: relative;
+  }
+  
+  .banner-overlay {
+    background-color: rgba(0, 0, 0, 0.6); /* adds contrast for text */
+    padding: 100px 20px;
+  }
+  
+  .banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .logo {
+    width: 80px;
+    height: auto;
+  }
+  
+  .text-content {
+    text-align: center;
+  }
+  
+  .banner h1 {
+    margin: 0;
+    font-size: 2.5rem;
+  }
+  
+  .tagline {
+    margin: 5px 0 15px;
+    font-style: italic;
+    color: #a8dadc;
+  }
+  
+  .nav-bar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap;
+  }
+  
+  .nav-bar a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+  }
+  
+  .nav-bar a:hover {
+    color: #00bcd4;
+  }
+  
+  @media (max-width: 800px) {
+    .banner-content {
+      flex-direction: column;
+    }
+  
+    .logo {
+      width: 60px;
+    }
+  
+    .banner h1 {
+      font-size: 2rem;
+    }
+  
+    .nav-bar ul {
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+  
+  .main-content {
+    padding: 40px 20px;
+    max-width: 1000px;
+    margin: auto;
+    color: #333;
+    background-color: #f8f9fa;
+  }
+  
+  .site-footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #001f3f; /* dark blue */
+    color: #ccc;
+    font-size: 0.9rem;
+  }
+  

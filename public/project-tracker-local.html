@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f4f3f0;
+    --surface: #ffffff;
+    --surface2: #f9f8f6;
+    --border: #e8e6e1;
+    --border-strong: #d0cdc6;
+    --text: #1a1917;
+    --text-2: #6b6860;
+    --text-3: #9c9a95;
+    --accent: #2a6f97;
+    --accent-light: #e8f1f7;
+    --accent-hover: #1f5478;
+    --green: #2d7d4f;
+    --green-light: #e6f4ec;
+    --red: #c0392b;
+    --red-light: #fdecea;
+    --yellow: #b8860b;
+    --yellow-light: #fdf6e3;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.07);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --radius-lg: 14px;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.5; }
+
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 28px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .logo-mark { width: 28px; height: 28px; background: var(--text); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+  .logo-mark svg { color: white; }
+  .app-title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; color: var(--text); }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .storage-note { font-size: 11.5px; color: var(--text-3); font-family: var(--mono); }
+
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-sm); font-family: var(--font); font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all 0.15s ease; white-space: nowrap; text-decoration: none; }
+  .btn-primary { background: var(--text); color: white; border-color: var(--text); }
+  .btn-primary:hover { background: #333; }
+  .btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border-strong); }
+  .btn-secondary:hover { background: var(--bg); border-color: var(--text-3); }
+  .btn-ghost { background: transparent; color: var(--text-2); border-color: transparent; }
+  .btn-ghost:hover { background: var(--bg); color: var(--text); }
+  .btn-danger { background: var(--red-light); color: var(--red); border-color: #f5c6c1; }
+  .btn-danger:hover { background: #f8d7d4; }
+  .btn-accent { background: var(--accent); color: white; border-color: var(--accent); }
+  .btn-accent:hover { background: var(--accent-hover); }
+  .btn-sm { padding: 4px 10px; font-size: 12px; gap: 4px; }
+
+  .main { padding: 28px; max-width: 1400px; margin: 0 auto; }
+
+  .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; gap: 12px; flex-wrap: wrap; }
+  .toolbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .toolbar-right { display: flex; align-items: center; gap: 8px; }
+  .search-wrap { position: relative; }
+  .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; }
+  .search-input { font-family: var(--font); font-size: 13px; padding: 7px 12px 7px 32px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); outline: none; width: 220px; transition: border-color 0.15s; }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text-3); }
+  .filter-tabs { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 3px; gap: 2px; }
+  .filter-tab { padding: 4px 12px; font-size: 12.5px; font-weight: 500; border-radius: 4px; cursor: pointer; color: var(--text-2); transition: all 0.15s; border: none; background: none; font-family: var(--font); white-space: nowrap; }
+  .filter-tab.active { background: var(--text); color: white; }
+  .filter-tab:hover:not(.active) { color: var(--text); background: var(--bg); }
+
+  .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .project-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; cursor: pointer; transition: all 0.18s ease; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 12px; }
+  .project-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .project-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .project-title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; color: var(--text); }
+  .project-desc { font-size: 13px; color: var(--text-2); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .project-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--border); margin-top: auto; }
+  .task-count { font-size: 12px; color: var(--text-3); display: flex; align-items: center; gap: 4px; }
+  .updated-date { font-size: 11px; color: var(--text-3); font-family: var(--mono); }
+
+  .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 11.5px; font-weight: 500; white-space: nowrap; }
+  .status-badge .dot { width: 5px; height: 5px; border-radius: 50%; }
+  .status-Planning { background: #f0eeff; color: #5b4fcf; } .status-Planning .dot { background: #5b4fcf; }
+  .status-In-process { background: var(--accent-light); color: var(--accent); } .status-In-process .dot { background: var(--accent); }
+  .status-QA { background: var(--yellow-light); color: var(--yellow); } .status-QA .dot { background: var(--yellow); }
+  .status-Complete { background: var(--green-light); color: var(--green); } .status-Complete .dot { background: var(--green); }
+  .status-Deleted { background: #f5f5f5; color: var(--text-3); } .status-Deleted .dot { background: var(--text-3); }
+
+  .priority-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; }
+  .priority-Low { background: var(--green-light); color: var(--green); }
+  .priority-Med { background: var(--yellow-light); color: var(--yellow); }
+  .priority-High { background: var(--red-light); color: var(--red); }
+
+  .type-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; background: var(--surface2); color: var(--text-2); border: 1px solid var(--border); }
+
+  .empty-state { grid-column: 1 / -1; text-align: center; padding: 72px 20px; color: var(--text-3); }
+  .empty-state svg { margin-bottom: 14px; opacity: 0.4; }
+  .empty-state h3 { font-size: 16px; font-weight: 500; color: var(--text-2); margin-bottom: 6px; }
+  .empty-state p { font-size: 13px; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(20,19,17,0.45); backdrop-filter: blur(3px); z-index: 300; display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px; overflow-y: auto; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 100%; transform: translateY(12px); transition: transform 0.22s ease; border: 1px solid var(--border); }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-sm { max-width: 520px; }
+  .modal-lg { max-width: 820px; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--border); }
+  .modal-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+  .modal-close { width: 28px; height: 28px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-3); background: none; border: none; transition: all 0.15s; }
+  .modal-close:hover { background: var(--bg); color: var(--text); }
+  .modal-body { padding: 24px; }
+  .modal-footer { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 16px 24px; border-top: 1px solid var(--border); background: var(--surface2); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+
+  .form-group { margin-bottom: 16px; }
+  .form-group:last-child { margin-bottom: 0; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  label { display: block; font-size: 12.5px; font-weight: 500; color: var(--text-2); margin-bottom: 5px; letter-spacing: 0.01em; }
+  input[type=text], textarea, select { width: 100%; font-family: var(--font); font-size: 14px; padding: 8px 11px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); outline: none; transition: border-color 0.15s; appearance: none; }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+  textarea { resize: vertical; line-height: 1.5; }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239c9a95' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; }
+  .checkbox-row { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .checkbox-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+  .project-detail-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .project-detail-info { flex: 1; }
+  .project-detail-title { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 6px; line-height: 1.3; }
+  .project-detail-desc { font-size: 14px; color: var(--text-2); line-height: 1.6; margin-bottom: 10px; }
+  .project-detail-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .meta-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-3); font-family: var(--mono); }
+  .project-detail-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .details-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .details-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .details-filters { display: flex; gap: 6px; align-items: center; }
+  .detail-filter-btn { font-size: 11.5px; padding: 3px 8px; border-radius: 4px; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-2); font-family: var(--font); font-weight: 500; transition: all 0.12s; }
+  .detail-filter-btn.active { background: var(--text); color: white; border-color: var(--text); }
+  .detail-filter-btn:hover:not(.active) { border-color: var(--text-3); }
+
+  .details-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .detail-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; transition: all 0.15s; }
+  .detail-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
+  .detail-card.complete { opacity: 0.6; }
+  .detail-card.complete .detail-card-title { text-decoration: line-through; color: var(--text-3); }
+  .detail-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; gap: 8px; }
+  .detail-card-title { font-size: 13.5px; font-weight: 500; line-height: 1.35; color: var(--text); }
+  .detail-card-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+  .detail-card:hover .detail-card-actions { opacity: 1; }
+  .detail-card-action { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-3); background: none; border: none; transition: all 0.12s; }
+  .detail-card-action:hover { background: var(--border); color: var(--text); }
+  .detail-card-action.danger:hover { background: var(--red-light); color: var(--red); }
+  .detail-card-desc { font-size: 12px; color: var(--text-2); line-height: 1.5; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .detail-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
+  .detail-card-badges { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+  .complete-toggle { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-3); cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: background 0.12s; border: none; background: none; font-family: var(--font); }
+  .complete-toggle:hover { background: var(--border); color: var(--text); }
+  .complete-toggle.done { color: var(--green); }
+  .complete-toggle.done:hover { background: var(--green-light); }
+  .empty-details { grid-column: 1 / -1; text-align: center; padding: 36px; color: var(--text-3); font-size: 13px; }
+
+  .confirm-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--red-light); color: var(--red); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+  .confirm-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .confirm-msg { font-size: 13.5px; color: var(--text-2); line-height: 1.55; }
+
+  #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+  .toast { background: var(--text); color: white; padding: 10px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500; box-shadow: var(--shadow-md); animation: toastIn 0.2s ease; display: flex; align-items: center; gap: 8px; }
+  .toast.success { background: var(--green); }
+  .toast.error { background: var(--red); }
+  @keyframes toastIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+  .site-footer { text-align: center; padding: 24px 16px; margin-top: 32px; border-top: 1px solid var(--border); background: var(--surface); font-size: 12px; color: var(--text-3); line-height: 1.7; }
+  .site-footer a { color: var(--accent); text-decoration: none; font-weight: 500; }
+  .site-footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    .main { padding: 16px; } header { padding: 0 16px; }
+    .form-row { grid-template-columns: 1fr; }
+    .project-detail-top { flex-direction: column; }
+    .details-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo-mark">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+    </div>
+    <span class="app-title">Project Tracker</span>
+  </div>
+  <div class="header-right">
+    <span class="storage-note">● Saved in browser</span>
+  </div>
+</header>
+
+<div class="main">
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search projects…" oninput="renderProjects()">
+      </div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="setFilter('active',this)">Active</button>
+        <button class="filter-tab" onclick="setFilter('Planning',this)">Planning</button>
+        <button class="filter-tab" onclick="setFilter('In process',this)">In Process</button>
+        <button class="filter-tab" onclick="setFilter('QA',this)">QA</button>
+        <button class="filter-tab" onclick="setFilter('Complete',this)">Complete</button>
+        <button class="filter-tab" onclick="setFilter('Deleted',this)">Deleted</button>
+        <button class="filter-tab" onclick="setFilter('all',this)">All</button>
+      </div>
+    </div>
+    <div class="toolbar-right">
+      <button class="btn btn-primary btn-sm" onclick="openProjectModal()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Project
+      </button>
+    </div>
+  </div>
+  <div class="projects-grid" id="projectsGrid"></div>
+</div>
+
+<!-- PROJECT FORM MODAL -->
+<div class="modal-overlay" id="projectFormModal" onclick="closeModalOnOverlay(event,'projectFormModal')">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <span class="modal-title" id="projectFormTitle">New Project</span>
+      <button class="modal-close" onclick="closeModal('projectFormModal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="pf-id">
+      <div class="form-group"><label>Title *</label><input type="text" id="pf-title" placeholder="Project name…"></div>
+      <div class="form-group"><label>Description</label><textarea id="pf-desc" placeholder="What's this project about?" style="min-height:80px"></textarea></div>
+      <div class="form-group"><label>Status</label>
+        <select id="pf-status">
+          <option value="Planning">Planning</option><option value="In process">In process</option>
+          <option value="QA">QA</option><option value="Complete">Complete</option><option value="Deleted">Deleted</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('projectFormModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProject()">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROJECT DETAIL MODAL -->
+<div class="modal-overlay" id="projectDetailModal" onclick="closeModalOnOverlay(event,'projectDetailModal')">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">Project Details</span>
+      <button class="modal-close" onclick="closeProjectDetail()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="project-detail-top">
+        <div class="project-detail-info">
+          <div class="project-detail-title" id="pd-title"></div>
+          <div class="project-detail-desc" id="pd-desc"></div>
+          <div class="project-detail-meta">
+            <span class="status-badge" id="pd-status-badge"></span>
+            <span class="meta-item" id="pd-created"></span>
+            <span class="meta-item" id="pd-updated"></span>
+          </div>
+        </div>
+        <div class="project-detail-actions">
+          <button class="btn btn-secondary btn-sm" onclick="editCurrentProject()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCurrentProject()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M10,11v6"/><path d="M14,11v6"/><path d="M9,6V4h6v2"/></svg>
+            Delete
+          </button>
+        </div>
+      </div>
+      <div class="details-header">
+        <div class="details-title">Details</div>
+        <div class="details-filters">
+          <button class="detail-filter-btn active" id="dfb-all" onclick="setDetailFilter('all',this)">All</button>
+          <button class="detail-filter-btn" id="dfb-open" onclick="setDetailFilter('open',this)">Open</button>
+          <button class="detail-filter-btn" id="dfb-done" onclick="setDetailFilter('done',this)">Done</button>
+          <button class="btn btn-accent btn-sm" onclick="openDetailModal()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Detail
+          </button>
+        </div>
+      </div>
+      <div class="details-grid" id="detailsGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL FORM MODAL -->
+<div class="modal-overlay" id="detailFormModal" onclick="closeModalOnOverlay(event,'detailFormModal')">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <span class="modal-title" id="detailFormTitle">New Detail</span>
+      <button class="modal-close" onclick="closeModal('detailFormModal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="df-id">
+      <div class="form-group"><label>Title *</label><input type="text" id="df-title" placeholder="Detail title…"></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Type</label>
+          <input type="text" id="df-type" placeholder="bug, feature, task…" list="typeList" oninput="toggleCompleteVisibility()">
+          <datalist id="typeList">
+            <option value="Bug"><option value="New Feature"><option value="Note"><option value="Task">
+          </datalist>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="df-priority"><option value="Low">Low</option><option value="Med">Med</option><option value="High">High</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <!-- Fix #3: 12 rows tall, 80 chars wide -->
+        <textarea id="df-desc" placeholder="Add more detail…" rows="12" cols="80" style="min-height:unset; width:100%"></textarea>
+      </div>
+      <!-- Fix #2: hidden when Type = Note -->
+      <div class="form-group" id="completeGroup">
+        <label class="checkbox-row">
+          <input type="checkbox" id="df-complete">
+          Mark as complete
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('detailFormModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDetail()">Save Detail</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal" onclick="closeModalOnOverlay(event,'confirmModal')">
+  <div class="modal modal-sm">
+    <div class="modal-body" style="padding:28px 24px 24px">
+      <div class="confirm-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M9,6V4h6v2"/></svg></div>
+      <div class="confirm-title" id="confirmTitle">Are you sure?</div>
+      <div class="confirm-msg" id="confirmMsg"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-danger" id="confirmBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div>Brought to you by <a href="https://tronkits.com" target="_blank" rel="noopener">Tronkits.com</a></div>
+  <div>George Clay <a href="https://linkedin.com/in/georgefclay" target="_blank" rel="noopener">LinkedIn</a> linkedin.com/in/georgefclay</div>
+</footer>
+
+<div id="toast-container"></div>
+
+<script>
+const STORAGE_KEY = 'projectTracker_v1';
+let db = { projects: [], details: [] };
+let currentFilter = 'active';
+let currentDetailFilter = 'all';
+let currentProjectId = null;
+let nextProjectId = 1;
+let nextDetailId = 1;
+
+// ── STORAGE ──────────────────────────────────────────────────────
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      db = JSON.parse(raw);
+      if (!db.projects) db.projects = [];
+      if (!db.details)  db.details  = [];
+      nextProjectId = db.projects.length ? Math.max(...db.projects.map(p => p.ProjectId)) + 1 : 1;
+      nextDetailId  = db.details.length  ? Math.max(...db.details.map(d => d.DetailId))   + 1 : 1;
+    }
+  } catch(e) { console.error('Load error', e); }
+}
+
+// Fix #1: auto-save (instant for localStorage)
+function autoSave() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  } catch(e) {
+    toast('Save failed', 'error');
+  }
+}
+
+// ── UTILS ────────────────────────────────────────────────────────
+function now() { return new Date().toISOString(); }
+function fmtDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function statusClass(s) { return 'status-' + (s||'').replace(/\s+/g,'-'); }
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function toast(msg, type='') {
+  const tc = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const icon = type==='success' ? '<polyline points="20,6 9,17 4,12"/>' : type==='error' ? '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' : '<circle cx="12" cy="12" r="10"/>';
+  el.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">${icon}</svg>${msg}`;
+  tc.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// Fix #2: toggle complete checkbox visibility based on Type
+function toggleCompleteVisibility() {
+  const type = document.getElementById('df-type').value.trim().toLowerCase();
+  document.getElementById('completeGroup').style.display = type === 'note' ? 'none' : '';
+}
+
+// ── FILTER ───────────────────────────────────────────────────────
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderProjects();
+}
+
+function getFilteredProjects() {
+  const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  return db.projects.filter(p => {
+    if (q && !p.Title.toLowerCase().includes(q) && !(p.Description||'').toLowerCase().includes(q)) return false;
+    if (currentFilter === 'all') return true;
+    if (currentFilter === 'active') return p.Status !== 'Deleted' && p.Status !== 'Complete';
+    return p.Status === currentFilter;
+  });
+}
+
+// ── PROJECTS ─────────────────────────────────────────────────────
+function renderProjects() {
+  const grid = document.getElementById('projectsGrid');
+  const projects = getFilteredProjects();
+  if (!projects.length) {
+    grid.innerHTML = `<div class="empty-state">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <h3>No projects found</h3><p>Try a different filter or create a new project.</p></div>`;
+    return;
+  }
+  grid.innerHTML = projects.map(p => {
+    const details = db.details.filter(d => d.ProjectId === p.ProjectId);
+    const openCount = details.filter(d => !d.Complete).length;
+    const sc = statusClass(p.Status);
+    return `<div class="project-card" onclick="openProjectDetail(${p.ProjectId})">
+      <div class="project-card-header">
+        <div class="project-title">${escHtml(p.Title)}</div>
+        <span class="status-badge ${sc}"><span class="dot"></span>${escHtml(p.Status)}</span>
+      </div>
+      ${p.Description ? `<div class="project-desc">${escHtml(p.Description)}</div>` : ''}
+      <div class="project-card-footer">
+        <span class="task-count">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,11 12,14 22,4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          ${openCount} open / ${details.length} total
+        </span>
+        <span class="updated-date">${fmtDate(p.UpdateDate)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openProjectModal(id) {
+  document.getElementById('projectFormTitle').textContent = id ? 'Edit Project' : 'New Project';
+  document.getElementById('pf-id').value = id || '';
+  if (id) {
+    const p = db.projects.find(x => x.ProjectId === id);
+    document.getElementById('pf-title').value  = p.Title || '';
+    document.getElementById('pf-desc').value   = p.Description || '';
+    document.getElementById('pf-status').value = p.Status || 'Planning';
+  } else {
+    document.getElementById('pf-title').value  = '';
+    document.getElementById('pf-desc').value   = '';
+    document.getElementById('pf-status').value = 'Planning';
+  }
+  openModal('projectFormModal');
+  setTimeout(() => document.getElementById('pf-title').focus(), 100);
+}
+
+function saveProject() {
+  const title = document.getElementById('pf-title').value.trim();
+  if (!title) { toast('Title is required', 'error'); return; }
+  const id = parseInt(document.getElementById('pf-id').value) || null;
+  const n = now();
+  if (id) {
+    const p = db.projects.find(x => x.ProjectId === id);
+    p.Title = title; p.Description = document.getElementById('pf-desc').value.trim();
+    p.Status = document.getElementById('pf-status').value; p.UpdateDate = n;
+  } else {
+    db.projects.push({ ProjectId: nextProjectId++, Title: title,
+      Description: document.getElementById('pf-desc').value.trim(),
+      Status: document.getElementById('pf-status').value, CreateDate: n, UpdateDate: n });
+  }
+  autoSave();
+  closeModal('projectFormModal');
+  renderProjects();
+  if (id && currentProjectId === id) renderProjectDetail(id);
+  toast(id ? 'Project updated' : 'Project created', 'success');
+}
+
+function deleteCurrentProject() {
+  showConfirm('Delete Project?', 'This will permanently delete the project and all its details. This cannot be undone.', () => {
+    db.projects = db.projects.filter(p => p.ProjectId !== currentProjectId);
+    db.details  = db.details.filter(d => d.ProjectId !== currentProjectId);
+    autoSave();
+    closeModal('projectDetailModal');
+    renderProjects();
+    toast('Project deleted');
+  });
+}
+
+function editCurrentProject() {
+  closeModal('projectDetailModal');
+  setTimeout(() => openProjectModal(currentProjectId), 150);
+}
+
+// ── PROJECT DETAIL ────────────────────────────────────────────────
+function openProjectDetail(id) {
+  currentProjectId = id;
+  currentDetailFilter = 'all';
+  document.querySelectorAll('.detail-filter-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('dfb-all').classList.add('active');
+  renderProjectDetail(id);
+  openModal('projectDetailModal');
+}
+
+// Fix #1: close + auto-save (localStorage saves immediately on all changes, but
+// we still call autoSave here to be consistent between both versions)
+function closeProjectDetail() {
+  autoSave();
+  closeModal('projectDetailModal');
+}
+
+function renderProjectDetail(id) {
+  const p = db.projects.find(x => x.ProjectId === id);
+  if (!p) return;
+  document.getElementById('pd-title').textContent = p.Title;
+  document.getElementById('pd-desc').textContent  = p.Description || '';
+  const badge = document.getElementById('pd-status-badge');
+  badge.className = 'status-badge ' + statusClass(p.Status);
+  badge.innerHTML = `<span class="dot"></span>${escHtml(p.Status)}`;
+  document.getElementById('pd-created').innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg> Created ${fmtDate(p.CreateDate)}`;
+  document.getElementById('pd-updated').innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Updated ${fmtDate(p.UpdateDate)}`;
+  renderDetailsGrid(id);
+}
+
+function renderDetailsGrid(projectId) {
+  const grid = document.getElementById('detailsGrid');
+  let details = db.details.filter(d => d.ProjectId === projectId);
+  if (currentDetailFilter === 'open') details = details.filter(d => !d.Complete);
+  if (currentDetailFilter === 'done') details = details.filter(d =>  d.Complete);
+  if (!details.length) { grid.innerHTML = `<div class="empty-details">No details yet — add one above.</div>`; return; }
+  details.sort((a,b) => (a.Complete?1:0) - (b.Complete?1:0));
+  grid.innerHTML = details.map(d => {
+    const pc = d.Priority ? `priority-${d.Priority}` : '';
+    const isNote = (d.Type||'').toLowerCase() === 'note';
+    return `<div class="detail-card ${d.Complete ? 'complete' : ''}">
+      <div class="detail-card-top">
+        <div class="detail-card-title">${escHtml(d.Title)}</div>
+        <div class="detail-card-actions">
+          <button class="detail-card-action" onclick="openDetailModal(${d.DetailId})" title="Edit">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="detail-card-action danger" onclick="deleteDetail(${d.DetailId})" title="Delete">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M9,6V4h6v2"/></svg>
+          </button>
+        </div>
+      </div>
+      ${d.Description ? `<div class="detail-card-desc">${escHtml(d.Description)}</div>` : ''}
+      <div class="detail-card-footer">
+        <div class="detail-card-badges">
+          ${d.Type ? `<span class="type-badge">${escHtml(d.Type)}</span>` : ''}
+          ${d.Priority ? `<span class="priority-badge ${pc}">${d.Priority}</span>` : ''}
+        </div>
+        ${!isNote ? `<button class="complete-toggle ${d.Complete?'done':''}" onclick="toggleComplete(${d.DetailId})">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">${d.Complete ? '<polyline points="20,6 9,17 4,12"/>' : '<circle cx="12" cy="12" r="10"/>'}</svg>
+          ${d.Complete ? 'Done' : 'Open'}
+        </button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setDetailFilter(f, el) {
+  currentDetailFilter = f;
+  document.querySelectorAll('.detail-filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderDetailsGrid(currentProjectId);
+}
+
+// ── DETAILS ──────────────────────────────────────────────────────
+function openDetailModal(id) {
+  document.getElementById('detailFormTitle').textContent = id ? 'Edit Detail' : 'New Detail';
+  document.getElementById('df-id').value = id || '';
+  if (id) {
+    const d = db.details.find(x => x.DetailId === id);
+    document.getElementById('df-title').value    = d.Title || '';
+    document.getElementById('df-type').value     = d.Type || '';
+    document.getElementById('df-priority').value = d.Priority || 'Med';
+    document.getElementById('df-desc').value     = d.Description || '';
+    document.getElementById('df-complete').checked = !!d.Complete;
+  } else {
+    document.getElementById('df-title').value    = '';
+    document.getElementById('df-type').value     = '';
+    document.getElementById('df-priority').value = 'Med';
+    document.getElementById('df-desc').value     = '';
+    document.getElementById('df-complete').checked = false;
+  }
+  toggleCompleteVisibility();
+  openModal('detailFormModal');
+  setTimeout(() => document.getElementById('df-title').focus(), 100);
+}
+
+function saveDetail() {
+  const title = document.getElementById('df-title').value.trim();
+  if (!title) { toast('Title is required', 'error'); return; }
+  const id = parseInt(document.getElementById('df-id').value) || null;
+  const n  = now();
+  const type = document.getElementById('df-type').value.trim();
+  const isNote = type.toLowerCase() === 'note';
+  if (id) {
+    const d = db.details.find(x => x.DetailId === id);
+    d.Title = title; d.Type = type;
+    d.Priority = document.getElementById('df-priority').value;
+    d.Description = document.getElementById('df-desc').value.trim();
+    d.Complete = isNote ? false : document.getElementById('df-complete').checked;
+    d.UpdateDate = n;
+  } else {
+    db.details.push({
+      DetailId: nextDetailId++, ProjectId: currentProjectId, Title: title, Type: type,
+      Priority: document.getElementById('df-priority').value,
+      Description: document.getElementById('df-desc').value.trim(),
+      Complete: isNote ? false : document.getElementById('df-complete').checked,
+      CreateDate: n, UpdateDate: n
+    });
+  }
+  const p = db.projects.find(x => x.ProjectId === currentProjectId);
+  if (p) p.UpdateDate = n;
+  autoSave();
+  closeModal('detailFormModal');
+  renderDetailsGrid(currentProjectId);
+  renderProjects();
+  toast(id ? 'Detail updated' : 'Detail added', 'success');
+}
+
+function deleteDetail(id) {
+  showConfirm('Delete Detail?', 'This detail will be permanently removed.', () => {
+    db.details = db.details.filter(d => d.DetailId !== id);
+    const p = db.projects.find(x => x.ProjectId === currentProjectId);
+    if (p) p.UpdateDate = now();
+    autoSave();
+    renderDetailsGrid(currentProjectId);
+    renderProjects();
+    toast('Detail deleted');
+  });
+}
+
+function toggleComplete(id) {
+  const d = db.details.find(x => x.DetailId === id);
+  if (!d) return;
+  d.Complete = !d.Complete; d.UpdateDate = now();
+  const p = db.projects.find(x => x.ProjectId === currentProjectId);
+  if (p) p.UpdateDate = now();
+  autoSave();
+  renderDetailsGrid(currentProjectId);
+  renderProjects();
+}
+
+// ── MODALS ───────────────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (!document.querySelector('.modal-overlay.open')) document.body.style.overflow = '';
+}
+
+function closeModalOnOverlay(e, id) {
+  if (e.target === document.getElementById(id)) {
+    if (id === 'projectDetailModal') closeProjectDetail();
+    else closeModal(id);
+  }
+}
+
+function showConfirm(title, msg, cb) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent   = msg;
+  const btn = document.getElementById('confirmBtn');
+  btn.onclick = () => { closeModal('confirmModal'); cb(); };
+  openModal('confirmModal');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const open = document.querySelector('.modal-overlay.open');
+    if (open) {
+      if (open.id === 'projectDetailModal') closeProjectDetail();
+      else closeModal(open.id);
+    }
+  }
+});
+
+// ── INIT ─────────────────────────────────────────────────────────
+loadFromStorage();
+renderProjects();
+</script>
+</body>
+</html>

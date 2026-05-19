@@ -6,3 +6,21 @@ npm-debug.log
 # OS-specific
 .DS_Store
 Thumbs.db
+
+# Tooling
+.claude/
+
+# Runtime data (PII / logs)
+data/*.json
+data/*.log
+
+# Generated STL artifacts
+public/stl_output/*.scad
+public/stl_output/*.stl
+
+# Backups and scratch
+*.bak
+*.bak2
+*.pi3
+*.del
+* copy.*

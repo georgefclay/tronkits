@@ -1,7 +1,60 @@
   </main>
-  <footer class="bg-dark text-white text-center p-3 mt-5">
-    &copy; 2025 TechTuts - All Rights Reserved
+
+  <footer class="tk-footer">
+    <svg class="tk-footer__circuit" preserveAspectRatio="none" viewBox="0 0 100 20" aria-hidden="true">
+      <line x1="0" y1="10" x2="100" y2="10" stroke="#15263A" stroke-width="1.5" />
+      <circle cx="10" cy="10" r="2.5" fill="#F5EFDD" stroke="#15263A" stroke-width="1.5" />
+      <circle cx="30" cy="10" r="2.5" fill="#F5EFDD" stroke="#15263A" stroke-width="1.5" />
+      <circle cx="50" cy="10" r="2.5" fill="#F5EFDD" stroke="#15263A" stroke-width="1.5" />
+      <circle cx="70" cy="10" r="2.5" fill="#F5EFDD" stroke="#15263A" stroke-width="1.5" />
+      <circle cx="90" cy="10" r="2.5" fill="#F5EFDD" stroke="#15263A" stroke-width="1.5" />
+    </svg>
+
+    <div class="tk-footer__grid">
+      <div>
+        <a href="/" class="tk-wordmark" style="color:var(--paper)">
+          <svg width="29" height="26" viewBox="0 0 28 24" aria-hidden="true">
+            <rect x="4" y="4" width="20" height="16" rx="1.5" fill="#F5EFDD" />
+            <circle cx="8" cy="8" r="1.2" fill="#15263A" />
+            <rect x="6" y="0" width="2" height="6" fill="#F5EFDD" />
+            <rect x="13" y="0" width="2" height="6" fill="#F5EFDD" />
+            <rect x="20" y="0" width="2" height="6" fill="#F5EFDD" />
+            <rect x="6" y="18" width="2" height="6" fill="#F5EFDD" />
+            <rect x="13" y="18" width="2" height="6" fill="#F5EFDD" />
+            <rect x="20" y="18" width="2" height="6" fill="#F5EFDD" />
+            <circle cx="22" cy="16" r="2" fill="#E25C2C" />
+          </svg>
+          <span class="tk-wordmark__text" style="color:var(--paper)">Tron<span class="slash">/</span>Kits</span>
+        </a>
+        <p class="tk-footer__tagline">A workbench for tinkerers. Tutorials, calculators &amp; field notes from the breadboard.</p>
+      </div>
+      <div class="tk-footer__col">
+        <div class="tk-footer__col-title">// Learn</div>
+        <a href="/tutorials">Tutorials</a>
+        <a href="/blog">Blog</a>
+        <a href="/utility">Utilities</a>
+        <a href="/scad">OpenSCAD Box</a>
+      </div>
+      <div class="tk-footer__col">
+        <div class="tk-footer__col-title">// Tools</div>
+        <a href="/resistor">Resistor</a>
+        <a href="/555">555 Timer</a>
+        <a href="/voltage-divider">Voltage Divider</a>
+        <a href="/led-resistor">LED Resistor</a>
+      </div>
+      <div class="tk-footer__col">
+        <div class="tk-footer__col-title">// More</div>
+        <a href="/contact">Contact</a>
+        <a href="/passphrases">Passphrases</a>
+        <a href="/csv-viewer">CSV Viewer</a>
+        <a href="/ohms-law">Ohm's Law</a>
+      </div>
+    </div>
+
+    <div class="tk-footer__bottom">
+      <span>© <%= new Date().getFullYear() %> TRONKITS · ALL RIGHTS RESERVED</span>
+      <span>BUILT WITH SOLDER &amp; CURIOSITY · v2.0.0</span>
+    </div>
   </footer>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

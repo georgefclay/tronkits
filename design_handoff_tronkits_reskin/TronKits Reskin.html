@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TronKits · Reskin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" />
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #2a2419; font-family: 'Space Grotesk', sans-serif; }
+    * { box-sizing: border-box; }
+    button { font-family: inherit; }
+    a { color: inherit; }
+  </style>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="tk-system.jsx"></script>
+  <script type="text/babel" src="tk-shell.jsx"></script>
+  <script type="text/babel" src="tk-home.jsx"></script>
+  <script type="text/babel" src="tk-tutorials.jsx"></script>
+  <script type="text/babel" src="tk-detail.jsx"></script>
+  <script type="text/babel" src="tk-blog.jsx"></script>
+  <script type="text/babel" src="tk-utilities.jsx"></script>
+  <script type="text/babel" src="tk-resistor.jsx"></script>
+  <script type="text/babel">
+    const DEFAULTS = /*EDITMODE-BEGIN*/{
+      "accent": "#E25C2C",
+      "density": 24
+    }/*EDITMODE-END*/;
+
+    function App() {
+      const [t, setTweak] = useTweaks(DEFAULTS);
+      const accent = t.accent;
+      const density = t.density;
+
+      const W = 1320;
+      const H = 2400;
+
+      return (
+        <React.Fragment>
+          <DesignCanvas>
+            <DCSection id="primary" title="TronKits · v2 reskin" subtitle="Playful blueprint — graph paper, friendly mono, hand-drawn schematics. Drag artboards to reorder, double-click to focus.">
+              <DCArtboard id="home" label="01 · Home" width={W} height={2520}>
+                <TKBrowserFrame url="tronkits.com" width={W} height={2520} currentPage="home">
+                  <HomePage accent={accent} density={density} />
+                </TKBrowserFrame>
+              </DCArtboard>
+              <DCArtboard id="tutorials" label="02 · Tutorials index" width={W} height={1880}>
+                <TKBrowserFrame url="tronkits.com/tutorials" width={W} height={1880} currentPage="tutorials">
+                  <TutorialsPage accent={accent} density={density} />
+                </TKBrowserFrame>
+              </DCArtboard>
+              <DCArtboard id="detail" label="03 · Tutorial detail" width={W} height={2700}>
+                <TKBrowserFrame url="tronkits.com/tutorials/openscad-parametric-box" width={W} height={2700} currentPage="tutorials">
+                  <TutorialDetailPage accent={accent} density={density} />
+                </TKBrowserFrame>
+              </DCArtboard>
+              <DCArtboard id="blog" label="04 · Blog" width={W} height={2100}>
+                <TKBrowserFrame url="tronkits.com/blog" width={W} height={2100} currentPage="blog">
+                  <BlogPage accent={accent} density={density} />
+                </TKBrowserFrame>
+              </DCArtboard>
+              <DCArtboard id="utilities" label="05 · Utilities" width={W} height={1860}>
+                <TKBrowserFrame url="tronkits.com/utility" width={W} height={1860} currentPage="utilities">
+                  <UtilitiesPage accent={accent} density={density} />
+                </TKBrowserFrame>
+              </DCArtboard>
+              <DCArtboard id="resistor" label="06 · Resistor tool" width={W} height={2600}>
+                <TKBrowserFrame url="tronkits.com/resistor" width={W} height={2600} currentPage="utilities">
+                  <ResistorPage accent={accent} density={density} />
+                </TKBrowserFrame>
+              </DCArtboard>
+            </DCSection>
+          </DesignCanvas>
+
+          <TweaksPanel title="Tweaks">
+            <TweakSection title="Accent color">
+              <TweakColor
+                value={t.accent}
+                onChange={(v) => setTweak('accent', v)}
+                options={['#E25C2C', '#2E6DA4', '#2D8F60', '#6B47B8', '#C9442C']}
+              />
+            </TweakSection>
+            <TweakSection title="Grid density" hint="Cell size of the graph paper.">
+              <TweakSlider min={16} max={40} step={4} value={t.density} onChange={(v) => setTweak('density', v)} />
+            </TweakSection>
+          </TweaksPanel>
+        </React.Fragment>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

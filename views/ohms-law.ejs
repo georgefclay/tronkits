@@ -1,0 +1,228 @@
+<% var currentPage = 'utilities'; %>
+<%- include('../partials/header') %>
+
+<section class="tk-hero--tight" style="padding-bottom:28px">
+  <div class="tk-breadcrumb">// HOME / TOOLBOX / OHM'S LAW</div>
+  <h1 class="tk-h1" style="font-size:64px">Ohm's law.</h1>
+  <p class="tk-lede" style="margin-top:12px; max-width:680px">
+    Enter any two of voltage, current, resistance, or power. The other two auto-calculate.
+  </p>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-2col">
+    <div class="tk-card">
+      <div class="tk-kicker tk-mb-18">// MNEMONIC</div>
+      <p class="tk-body" style="font-size:15px; margin-bottom:12px">
+        <strong style="color:var(--accent)">"Eagles fly over rabbits and Indians."</strong>
+      </p>
+      <p class="tk-body" style="font-size:14px; margin-bottom:14px">
+        The <strong>Eagle (E)</strong> flies over the <strong>Rabbits (R)</strong> and <strong>Indians (I)</strong> — that's how they sit in the circles. Cover the value you want:
+      </p>
+      <ul style="font-family:'JetBrains Mono',monospace; font-size:12px; padding-left:18px; color:var(--ink); margin:0">
+        <li style="margin-bottom:6px">Cover <span style="color:var(--blue); font-weight:700">E</span> → <span style="color:var(--green); font-weight:700">I</span> × <span style="color:var(--red); font-weight:700">R</span>  &nbsp;(E = I × R)</li>
+        <li style="margin-bottom:6px">Cover <span style="color:var(--green); font-weight:700">I</span> → <span style="color:var(--blue); font-weight:700">E</span> / <span style="color:var(--red); font-weight:700">R</span>  &nbsp;(I = E / R)</li>
+        <li>Cover <span style="color:var(--red); font-weight:700">R</span> → <span style="color:var(--blue); font-weight:700">E</span> / <span style="color:var(--green); font-weight:700">I</span>  &nbsp;(R = E / I)</li>
+      </ul>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px">
+      <div style="display:grid; place-items:center; text-align:center">
+        <svg viewBox="0 0 200 200" width="180" height="180" aria-label="Ohm's law circle">
+          <circle cx="100" cy="100" r="80" fill="var(--white)" stroke="var(--ink)" stroke-width="2"/>
+          <line x1="20" y1="100" x2="180" y2="100" stroke="var(--ink)" stroke-width="1.5"/>
+          <line x1="100" y1="100" x2="100" y2="180" stroke="var(--ink)" stroke-width="1.5"/>
+          <text x="100" y="78" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="44" font-weight="700" fill="#2E6DA4">E</text>
+          <text x="60" y="155" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="44" font-weight="700" fill="#2D8F60">I</text>
+          <text x="140" y="155" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="44" font-weight="700" fill="#C9442C">R</text>
+        </svg>
+        <div class="tk-mono" style="text-transform:none; margin-top:6px"><strong>Ohm's Law:</strong> E = I × R</div>
+      </div>
+      <div style="display:grid; place-items:center; text-align:center">
+        <svg viewBox="0 0 200 200" width="180" height="180" aria-label="Watt's law circle">
+          <circle cx="100" cy="100" r="80" fill="var(--white)" stroke="var(--ink)" stroke-width="2"/>
+          <line x1="20" y1="100" x2="180" y2="100" stroke="var(--ink)" stroke-width="1.5"/>
+          <line x1="100" y1="100" x2="100" y2="180" stroke="var(--ink)" stroke-width="1.5"/>
+          <text x="100" y="78" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="44" font-weight="700" fill="#E25C2C">P</text>
+          <text x="60" y="155" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="44" font-weight="700" fill="#2E6DA4">E</text>
+          <text x="140" y="155" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="44" font-weight="700" fill="#2D8F60">I</text>
+        </svg>
+        <div class="tk-mono" style="text-transform:none; margin-top:6px"><strong>Watt's Law:</strong> P = E × I</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-card-headed">
+    <div class="tk-card-headed__head">
+      <span>// CALCULATOR · INPUT ANY TWO</span>
+      <span class="yellow" id="ohmStatus">FILL ANY TWO FIELDS</span>
+    </div>
+    <div class="tk-card-headed__body" style="padding:24px 26px">
+      <div class="tk-calc-grid">
+        <div class="tk-form-group">
+          <label class="tk-label" for="inp-E" style="color:var(--blue)">// E — Voltage</label>
+          <div class="tk-input-group">
+            <input type="number" step="any" id="inp-E" class="tk-input" data-key="E" placeholder="e.g. 9">
+            <span class="tk-input-suffix">V</span>
+          </div>
+        </div>
+        <div class="tk-form-group">
+          <label class="tk-label" for="inp-I" style="color:var(--green)">// I — Current</label>
+          <div class="tk-input-group">
+            <input type="number" step="any" id="inp-I" class="tk-input" data-key="I" placeholder="e.g. 0.02">
+            <span class="tk-input-suffix">A</span>
+          </div>
+        </div>
+        <div class="tk-form-group">
+          <label class="tk-label" for="inp-R" style="color:var(--red)">// R — Resistance</label>
+          <div class="tk-input-group">
+            <input type="number" step="any" id="inp-R" class="tk-input" data-key="R" placeholder="e.g. 470">
+            <span class="tk-input-suffix">Ω</span>
+          </div>
+        </div>
+        <div class="tk-form-group">
+          <label class="tk-label" for="inp-P" style="color:var(--accent)">// P — Power</label>
+          <div class="tk-input-group">
+            <input type="number" step="any" id="inp-P" class="tk-input" data-key="P" placeholder="e.g. 0.18">
+            <span class="tk-input-suffix">W</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:18px">
+        <button type="button" id="clear-btn" class="tk-btn tk-btn--ghost">Clear</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">02</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// All 12</div>
+      <h2 class="tk-h2">Formulas worth memorizing</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+  <div class="tk-formula-grid">
+    <div class="tk-formula"><code>E = I × R</code></div>
+    <div class="tk-formula"><code>E = P / I</code></div>
+    <div class="tk-formula"><code>E = √(P × R)</code></div>
+    <div class="tk-formula"><code>I = E / R</code></div>
+    <div class="tk-formula"><code>I = P / E</code></div>
+    <div class="tk-formula"><code>I = √(P / R)</code></div>
+    <div class="tk-formula"><code>R = E / I</code></div>
+    <div class="tk-formula"><code>R = E² / P</code></div>
+    <div class="tk-formula"><code>R = P / I²</code></div>
+    <div class="tk-formula"><code>P = E × I</code></div>
+    <div class="tk-formula"><code>P = E² / R</code></div>
+    <div class="tk-formula"><code>P = I² × R</code></div>
+  </div>
+</section>
+
+<script>
+(function() {
+  const keys = ['E', 'I', 'R', 'P'];
+  const inputs = {};
+  const state = {};
+  keys.forEach(k => {
+    inputs[k] = document.getElementById('inp-' + k);
+    state[k] = 'empty';
+  });
+  const statusMsg = document.getElementById('ohmStatus');
+
+  function fmt(n) {
+    if (!isFinite(n)) return '';
+    if (Math.abs(n) < 1e-12) return '0';
+    return parseFloat(n.toPrecision(6)).toString();
+  }
+  function clearCalculated() {
+    keys.forEach(k => {
+      if (state[k] === 'calculated') {
+        inputs[k].value = '';
+        inputs[k].classList.remove('is-calculated');
+        state[k] = 'empty';
+      }
+    });
+  }
+  function setStatus(text, kind='') {
+    statusMsg.textContent = text;
+    statusMsg.style.color = kind === 'error' ? 'var(--red)' : kind === 'ok' ? 'var(--green)' : 'var(--yellow)';
+  }
+  function compute() {
+    clearCalculated();
+    const userKeys = keys.filter(k => state[k] === 'user');
+    if (userKeys.length < 2) { setStatus('FILL ANY TWO FIELDS'); return; }
+    if (userKeys.length > 2) { setStatus('CLEAR ONE — ONLY TWO INPUTS NEEDED'); return; }
+
+    const v = {};
+    for (const k of userKeys) {
+      const n = parseFloat(inputs[k].value);
+      if (isNaN(n)) { setStatus('ENTER VALID NUMBERS', 'error'); return; }
+      v[k] = n;
+    }
+
+    let E, I, R, P, err = null;
+    const pair = userKeys.slice().sort().join('');
+    switch (pair) {
+      case 'EI':
+        E = v.E; I = v.I;
+        if (I === 0) { err = 'Current cannot be 0 to derive R.'; break; }
+        R = E / I; P = E * I; break;
+      case 'ER':
+        E = v.E; R = v.R;
+        if (R === 0) { err = 'Resistance cannot be 0.'; break; }
+        I = E / R; P = (E * E) / R; break;
+      case 'EP':
+        E = v.E; P = v.P;
+        if (E === 0) { err = 'Voltage cannot be 0 with power given.'; break; }
+        I = P / E; R = (E * E) / P;
+        if (P === 0) R = Infinity; break;
+      case 'IR':
+        I = v.I; R = v.R;
+        E = I * R; P = I * I * R; break;
+      case 'IP':
+        I = v.I; P = v.P;
+        if (I === 0) { err = 'Current cannot be 0 with power given.'; break; }
+        E = P / I; R = P / (I * I); break;
+      case 'PR':
+        P = v.P; R = v.R;
+        if (R === 0) { err = 'Resistance cannot be 0.'; break; }
+        if (P < 0 || R < 0 || (P / R) < 0) { err = 'P and R must be positive here.'; break; }
+        I = Math.sqrt(P / R); E = Math.sqrt(P * R); break;
+    }
+    if (err) { setStatus(err.toUpperCase(), 'error'); return; }
+
+    const results = { E, I, R, P };
+    keys.forEach(k => {
+      if (!userKeys.includes(k)) {
+        inputs[k].value = fmt(results[k]);
+        inputs[k].classList.add('is-calculated');
+        state[k] = 'calculated';
+      }
+    });
+    setStatus('CALCULATED · LIVE', 'ok');
+  }
+
+  keys.forEach(k => {
+    inputs[k].addEventListener('input', () => {
+      inputs[k].classList.remove('is-calculated');
+      state[k] = inputs[k].value === '' ? 'empty' : 'user';
+      compute();
+    });
+  });
+
+  document.getElementById('clear-btn').addEventListener('click', () => {
+    keys.forEach(k => {
+      inputs[k].value = '';
+      inputs[k].classList.remove('is-calculated');
+      state[k] = 'empty';
+    });
+    setStatus('FILL ANY TWO FIELDS');
+  });
+})();
+</script>
+
+<%- include('../partials/footer') %>

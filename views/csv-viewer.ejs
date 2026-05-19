@@ -1,0 +1,134 @@
+<% var currentPage = 'utilities'; %>
+<%- include('../partials/header') %>
+
+<section class="tk-hero--tight" style="padding-bottom:28px">
+  <div class="tk-breadcrumb">// HOME / TOOLBOX / CSV VIEWER</div>
+  <h1 class="tk-h1" style="font-size:64px">CSV viewer.</h1>
+  <p class="tk-lede" style="margin-top:12px; max-width:680px">
+    Drop a CSV in your browser, preview, sort, search, filter columns, and re-export. Nothing is uploaded.
+  </p>
+</section>
+
+<section class="tk-section-tight">
+  <div style="display:grid; grid-template-columns:380px 1fr; gap:28px; align-items:start" class="tk-csv-layout">
+
+    <!-- LEFT controls -->
+    <div class="tk-card-headed">
+      <div class="tk-card-headed__head">
+        <span>// CONTROLS</span>
+        <span class="yellow">LOCAL · OFFLINE</span>
+      </div>
+      <div class="tk-card-headed__body" style="padding:22px 24px">
+
+        <div class="tk-kicker tk-mb-18">// 1 · LOAD CSV</div>
+        <div class="tk-form-group">
+          <label class="tk-label" for="csvFile">// File</label>
+          <input type="file" class="tk-input" id="csvFile" accept=".csv,text/csv">
+          <div class="tk-mono" style="text-transform:none; letter-spacing:0.03em; margin-top:6px; font-size:11px">
+            Preview is limited to 200 rows. Downloads include all filtered rows.
+          </div>
+        </div>
+
+        <hr style="border:none; border-top:1px dashed rgba(21,38,58,0.3); margin:18px 0">
+
+        <div class="tk-kicker tk-mb-18">// 2 · PARSE</div>
+        <div class="tk-form-group">
+          <label class="tk-label" for="delimiter">// Delimiter</label>
+          <select class="tk-select" id="delimiter">
+            <option value="auto" selected>Auto-detect</option>
+            <option value=",">Comma (,)</option>
+            <option value=";">Semicolon (;)</option>
+            <option value="\t">Tab (\t)</option>
+            <option value="|">Pipe (|)</option>
+          </select>
+        </div>
+        <div class="tk-form-group">
+          <label class="tk-label" for="newline">// Newline (output)</label>
+          <select class="tk-select" id="newline">
+            <option value="CRLF" selected>Windows (CRLF)</option>
+            <option value="LF">Unix (LF)</option>
+          </select>
+        </div>
+        <label class="tk-check" style="margin-bottom:8px">
+          <input type="checkbox" id="hasHeader" checked>
+          <span>First row is header</span>
+        </label>
+
+        <hr style="border:none; border-top:1px dashed rgba(21,38,58,0.3); margin:18px 0">
+
+        <div class="tk-kicker tk-mb-18">// 3 · CLEAN</div>
+        <label class="tk-check" style="display:flex; margin-bottom:8px">
+          <input type="checkbox" id="trimCells" checked>
+          <span>Trim whitespace</span>
+        </label>
+        <label class="tk-check" style="display:flex; margin-bottom:8px">
+          <input type="checkbox" id="removeEmptyRows" checked>
+          <span>Remove empty rows</span>
+        </label>
+        <label class="tk-check" style="display:flex; margin-bottom:8px">
+          <input type="checkbox" id="removeEmptyCols">
+          <span>Remove empty cols</span>
+        </label>
+        <label class="tk-check" style="display:flex">
+          <input type="checkbox" id="normalizeHeader">
+          <span>Normalize headers</span>
+        </label>
+
+        <hr style="border:none; border-top:1px dashed rgba(21,38,58,0.3); margin:18px 0">
+
+        <div class="tk-kicker tk-mb-18">// 4 · COLUMNS</div>
+        <div class="tk-form-group">
+          <label class="tk-label" for="columnFilter">// Keep only these (optional)</label>
+          <select class="tk-select" id="columnFilter" multiple size="8" disabled></select>
+          <div class="tk-mono" style="text-transform:none; letter-spacing:0.03em; margin-top:6px; font-size:11px">
+            Ctrl/Shift-click for multi-select.
+          </div>
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:18px">
+          <button class="tk-btn tk-btn--ghost tk-btn--sm" id="applyBtn" disabled>Reset</button>
+          <button class="tk-btn tk-btn--accent tk-btn--sm" id="downloadBtn" disabled>↓ CSV</button>
+          <button class="tk-btn tk-btn--sm" id="downloadXlsxBtn" disabled>↓ XLSX</button>
+        </div>
+
+        <div class="tk-mono" id="stats" style="margin-top:14px; text-transform:none; letter-spacing:0.04em; color:var(--ink-soft)"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT preview -->
+    <div class="tk-card-headed">
+      <div class="tk-card-headed__head">
+        <span>// PREVIEW</span>
+        <span class="yellow" id="previewBadge">CLICK A HEADER TO SORT</span>
+      </div>
+      <div class="tk-card-headed__body" style="padding:18px 20px">
+        <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap">
+          <select class="tk-select" id="searchColumn" style="max-width:200px" disabled>
+            <option value="__all__" selected>All columns</option>
+          </select>
+          <input class="tk-input" id="searchBox" placeholder="Search preview..." disabled style="max-width:280px">
+        </div>
+
+        <div class="tk-csv-preview">
+          <table id="previewTable">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="tk-mono" id="previewNote" style="margin-top:10px; text-transform:none; letter-spacing:0.04em; color:var(--ink-soft); font-size:11px"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @media (max-width: 1100px) {
+    .tk-csv-layout { grid-template-columns: 1fr !important; }
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="/js/csv-viewer.js"></script>
+
+<%- include('../partials/footer') %>

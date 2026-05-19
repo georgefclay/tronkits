@@ -1,0 +1,94 @@
+<% var currentPage = 'blog'; %>
+<%- include('../../partials/header') %>
+
+<section class="tk-hero--tight">
+  <div class="tk-breadcrumb">// HOME / FIELD NOTES</div>
+  <div class="tk-flex-between">
+    <h1 class="tk-h1">
+      Field notes<br>
+      <span class="tk-h1__sub tk-h1__sub--accent">from the bench.</span>
+    </h1>
+    <div class="tk-counter-block">
+      <div class="tk-counter-block__label">SCRATCH-PAD ENTRIES</div>
+      <div class="tk-counter-block__n"><%= posts && posts.length ? String(posts.length).padStart(2,'0') : '00' %></div>
+      <div class="tk-counter-block__note">↻ updated weekly-ish</div>
+    </div>
+  </div>
+</section>
+
+<% if (posts && posts.length > 0) {
+     var featured = posts[0];
+     var fmtDate = function(d){
+       return d ? d.toISOString().slice(0,10) : '';
+     };
+%>
+  <section class="tk-section-tight">
+    <article class="tk-featured-post">
+      <div class="tk-featured-post__body">
+        <div style="display:flex; gap:10px; margin-bottom:20px">
+          <span class="tk-tag tk-tag--accent">● FEATURED</span>
+          <% (featured.tags || []).slice(0,2).forEach(function(t){ %>
+            <span class="tk-tag"><%= String(t).toUpperCase() %></span>
+          <% }) %>
+        </div>
+        <div class="tk-featured-post__date"><%= fmtDate(featured.date) %></div>
+        <h2><%= featured.title %></h2>
+        <p><%= featured.excerpt %></p>
+        <a href="/blog/<%= featured.slug %>" class="tk-btn tk-btn--accent">Read the full write-up →</a>
+      </div>
+      <div class="tk-featured-post__visual">
+        <svg viewBox="0 0 320 280" width="100%" style="max-width:360px" aria-hidden="true">
+          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#F5EFDD">
+            <rect x="20" y="120" width="80" height="50" rx="3" fill="#2D8F60" stroke="#F5EFDD" stroke-width="1.5" />
+            <text x="60" y="142" text-anchor="middle" fill="#15263A" font-weight="700">🥧 PI</text>
+            <text x="60" y="158" text-anchor="middle" fill="#15263A">node + nginx</text>
+            <rect x="140" y="60" width="80" height="30" fill="none" stroke="#E25C2C" stroke-width="1.5" stroke-dasharray="4 3" />
+            <text x="180" y="80" text-anchor="middle" fill="#E25C2C">NGINX :80</text>
+            <rect x="140" y="180" width="80" height="30" fill="none" stroke="#E5B043" stroke-width="1.5" stroke-dasharray="4 3" />
+            <text x="180" y="200" text-anchor="middle" fill="#E5B043">NODE :8080</text>
+            <circle cx="280" cy="140" r="26" fill="none" stroke="#F5EFDD" stroke-width="1.5" />
+            <text x="280" y="145" text-anchor="middle" fill="#F5EFDD">WWW</text>
+            <path d="M 100 140 L 140 80 M 100 150 L 140 195" stroke="#F5EFDD" stroke-width="1" fill="none" />
+            <path d="M 220 75 L 256 130" stroke="#F5EFDD" stroke-width="1" fill="none" />
+            <text x="240" y="100" fill="#F5EFDD">:443</text>
+            <text x="60" y="195" text-anchor="middle" fill="#B8C2D0">eth0 static</text>
+          </g>
+        </svg>
+      </div>
+    </article>
+  </section>
+
+  <% if (posts.length > 1) { %>
+    <section class="tk-section-tight" style="padding-top:0">
+      <div class="tk-kicker tk-mb-18">// ALL ENTRIES · CHRONOLOGICAL</div>
+      <div class="tk-post-list">
+        <%
+          var __tagClasses = ['tk-tag--accent','tk-tag--blue','tk-tag--green','tk-tag--violet','tk-tag--red','tk-tag--copper'];
+          posts.slice(1).forEach(function(p, i){
+            var tagClass = __tagClasses[i % __tagClasses.length];
+            var tagText = (p.tags && p.tags[0]) ? String(p.tags[0]).toUpperCase() : 'NOTES';
+        %>
+          <a class="tk-post-row" href="/blog/<%= p.slug %>">
+            <span class="tk-post-row__num"><%= String(i + 2).padStart(2,'0') %></span>
+            <span class="tk-post-row__date"><%= fmtDate(p.date) %></span>
+            <span class="tk-tag <%= tagClass %>"><%= tagText %></span>
+            <div>
+              <h3><%= p.title %></h3>
+              <p><%= p.excerpt %></p>
+            </div>
+            <span class="tk-post-row__read">READ →</span>
+          </a>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+<% } else { %>
+  <section class="tk-section-tight">
+    <div class="tk-card tk-card--solid" style="text-align:center; padding:48px">
+      <h2 class="tk-h2" style="margin-bottom:8px">No posts yet</h2>
+      <p class="tk-body">Field notes will appear here as I write them.</p>
+    </div>
+  </section>
+<% } %>
+
+<%- include('../../partials/footer') %>

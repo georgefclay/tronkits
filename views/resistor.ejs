@@ -1,0 +1,390 @@
+<% var currentPage = 'utilities'; %>
+<%- include('../partials/header') %>
+
+<section class="tk-hero--tight" style="padding-bottom:28px">
+  <div class="tk-breadcrumb">// HOME / TOOLBOX / RESISTOR COLOR CODE</div>
+  <div class="tk-flex-between">
+    <div>
+      <h1 class="tk-h1" style="font-size:64px">Resistor decoder.</h1>
+      <p class="tk-lede" style="margin-top:12px; margin-bottom:0; max-width:600px">
+        Pick band colors, get resistance. Or work backwards from a target value.
+      </p>
+    </div>
+    <div class="tk-mode-btns">
+      <button type="button" class="tk-mode-btn" data-mode="4">4-BAND</button>
+      <button type="button" class="tk-mode-btn is-active" data-mode="5">5-BAND</button>
+      <button type="button" class="tk-mode-btn" data-mode="6">6-BAND</button>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-resistor-grid">
+    <!-- Input -->
+    <div class="tk-card-headed">
+      <div class="tk-card-headed__head">
+        <span>INPUT · COLOR BANDS</span>
+        <span class="yellow" id="rkModeLabel">5-BAND MODE</span>
+      </div>
+      <div class="tk-card-headed__body" id="rkPickerHost">
+        <!-- band pickers injected by JS -->
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="tk-card-headed tk-card-headed--ink">
+      <div class="tk-card-headed__head">
+        <span>// COMPUTED · RESISTANCE</span>
+        <span>↻ LIVE</span>
+      </div>
+      <div class="tk-card-headed__body" style="padding:28px 24px 24px">
+        <div class="tk-result-mini-label">NOMINAL VALUE</div>
+        <div class="tk-result-value" id="rkNominal">—</div>
+        <div class="tk-result-tol" id="rkTol">± 0% tolerance</div>
+
+        <div class="tk-result-minmax">
+          <div>
+            <div class="tk-result-mini-label">MIN</div>
+            <div class="tk-result-mini-value" id="rkMin">—</div>
+          </div>
+          <div>
+            <div class="tk-result-mini-label">MAX</div>
+            <div class="tk-result-mini-value" id="rkMax">—</div>
+          </div>
+        </div>
+
+        <div class="tk-result-terminal" id="rkTerm">
+          <span class="accent">$ </span><span id="rkTermCmd">—</span><br>
+          <span class="muted">→ </span><span id="rkTermOut">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-resistor-preview">
+    <div class="tk-resistor-preview__caption">FIG. 02 · YOUR RESISTOR · 1:5</div>
+    <div style="display:grid; place-items:center; padding:20px 0">
+      <svg viewBox="0 0 700 200" width="100%" style="max-width:760px" id="rkPreview" aria-hidden="true">
+        <line x1="20" y1="100" x2="180" y2="100" stroke="#15263A" stroke-width="3" />
+        <line x1="520" y1="100" x2="680" y2="100" stroke="#15263A" stroke-width="3" />
+        <rect x="180" y="60" width="340" height="80" rx="40" fill="#D9A36A" stroke="#15263A" stroke-width="2" />
+        <g id="rkPreviewBands"></g>
+        <line x1="180" y1="190" x2="520" y2="190" stroke="#15263A" stroke-width="1" />
+        <path d="M 180 190 L 188 184 M 180 190 L 188 196" stroke="#15263A" stroke-width="1" />
+        <path d="M 520 190 L 512 184 M 520 190 L 512 196" stroke="#15263A" stroke-width="1" />
+        <rect x="324" y="184" width="52" height="14" fill="#FFFCF2" />
+        <text x="350" y="194" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#15263A">~ 9.5 mm</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">04</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// Cheat sheet</div>
+      <h2 class="tk-h2">How resistor color codes actually work</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-3col">
+    <div class="tk-edu-card">
+      <div class="tk-edu-card__num">01</div>
+      <h4>Read left to right</h4>
+      <p>The end with bands packed closer is the start. The lone band at the other end is usually tolerance.</p>
+    </div>
+    <div class="tk-edu-card">
+      <div class="tk-edu-card__num">02</div>
+      <h4>Digits, then multiplier</h4>
+      <p>The first 2 (or 3) bands are digits 0–9. The next band is the multiplier — how many zeros to add.</p>
+    </div>
+    <div class="tk-edu-card">
+      <div class="tk-edu-card__num">03</div>
+      <h4>Last band is tolerance</h4>
+      <p>Gold = ±5%, silver = ±10%, brown = ±1%. Most modern resistors are 5% or 1%.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:36px; background:var(--white); border:1.5px solid var(--ink); overflow:hidden">
+    <div class="tk-card-headed__head">
+      <span>// FULL COLOR TABLE</span>
+      <span class="yellow">REFERENCE</span>
+    </div>
+    <table class="tk-table" id="rkTable">
+      <thead>
+        <tr>
+          <th>COLOR</th>
+          <th>DIGIT</th>
+          <th>MULTIPLIER</th>
+          <th>TOLERANCE</th>
+          <th>TEMPCO (ppm/K)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+// ── Resistor color reference (matches design handoff) ───────────────────────
+var RESISTOR_COLORS = [
+  { name:'BLACK',  hex:'#1a1a1a', digit:0,    mult:1,     tol:null, pcc:null },
+  { name:'BROWN',  hex:'#7A4012', digit:1,    mult:10,    tol:1,    pcc:100 },
+  { name:'RED',    hex:'#C9442C', digit:2,    mult:100,   tol:2,    pcc:50  },
+  { name:'ORANGE', hex:'#E25C2C', digit:3,    mult:1e3,   tol:null, pcc:15  },
+  { name:'YELLOW', hex:'#E5B043', digit:4,    mult:1e4,   tol:null, pcc:25  },
+  { name:'GREEN',  hex:'#2D8F60', digit:5,    mult:1e5,   tol:0.5,  pcc:null },
+  { name:'BLUE',   hex:'#2E6DA4', digit:6,    mult:1e6,   tol:0.25, pcc:10  },
+  { name:'VIOLET', hex:'#6B47B8', digit:7,    mult:1e7,   tol:0.1,  pcc:5   },
+  { name:'GREY',   hex:'#888888', digit:8,    mult:1e8,   tol:0.05, pcc:null },
+  { name:'WHITE',  hex:'#F0EAD9', digit:9,    mult:1e9,   tol:null, pcc:null },
+  { name:'GOLD',   hex:'#C9A227', digit:null, mult:0.1,   tol:5,    pcc:null },
+  { name:'SILVER', hex:'#B8B8B8', digit:null, mult:0.01,  tol:10,   pcc:null }
+];
+
+// ── State: bands as indices into RESISTOR_COLORS ────────────────────────────
+// default: orange, orange, brown, brown, brown, gold = 330 Ω ± 5% 5-band
+var state = {
+  mode: 5,
+  bands: [3, 3, 1, 1, 10, 0]
+};
+
+// ── Pure helpers ────────────────────────────────────────────────────────────
+function fmtOhms(v) {
+  if (!isFinite(v)) return '—';
+  if (v >= 1e6) return strip(v / 1e6) + ' MΩ';
+  if (v >= 1e3) return strip(v / 1e3) + ' kΩ';
+  return strip(v) + ' Ω';
+}
+function strip(v) {
+  return v.toFixed(2).replace(/\.?0+$/, '');
+}
+function compute() {
+  var m = state.mode;
+  var b = state.bands;
+  var d1 = RESISTOR_COLORS[b[0]].digit;
+  var d2 = RESISTOR_COLORS[b[1]].digit;
+  var multIdx = m === 4 ? 2 : 3;
+  var tolIdx  = m === 4 ? 3 : 4;
+  var mult = RESISTOR_COLORS[b[multIdx]].mult;
+  var tol  = RESISTOR_COLORS[b[tolIdx]].tol;
+  var d3   = m >= 5 ? RESISTOR_COLORS[b[2]].digit : 0;
+  var value = m >= 5
+    ? (d1 * 100 + d2 * 10 + d3) * mult
+    : (d1 * 10 + d2) * mult;
+  var tolPct = tol || 0;
+  return {
+    value: value,
+    tol: tolPct,
+    min: value * (1 - tolPct / 100),
+    max: value * (1 + tolPct / 100)
+  };
+}
+
+// ── Rendering ───────────────────────────────────────────────────────────────
+var bandLabels = {
+  4: ['BAND 1 · DIGIT', 'BAND 2 · DIGIT', 'BAND 3 · MULTIPLIER', 'BAND 4 · TOLERANCE'],
+  5: ['BAND 1 · DIGIT', 'BAND 2 · DIGIT', 'BAND 3 · DIGIT', 'BAND 4 · MULTIPLIER', 'BAND 5 · TOLERANCE'],
+  6: ['BAND 1 · DIGIT', 'BAND 2 · DIGIT', 'BAND 3 · DIGIT', 'BAND 4 · MULTIPLIER', 'BAND 5 · TOLERANCE', 'BAND 6 · TEMPCO']
+};
+
+function renderPickers() {
+  var host = document.getElementById('rkPickerHost');
+  host.innerHTML = '';
+  for (var i = 0; i < state.mode; i++) {
+    host.appendChild(renderPicker(i));
+  }
+}
+function renderPicker(idx) {
+  var wrap = document.createElement('div');
+  wrap.className = 'tk-band-picker';
+
+  var label = document.createElement('div');
+  label.style.fontFamily = "'JetBrains Mono', monospace";
+  label.style.fontSize = '10px';
+  label.style.letterSpacing = '0.15em';
+  label.style.color = 'var(--ink-soft)';
+  label.style.marginBottom = '8px';
+  label.textContent = bandLabels[state.mode][idx];
+  wrap.appendChild(label);
+
+  var sw = document.createElement('div');
+  sw.className = 'tk-band-picker__swatches';
+
+  var isDigit  = idx < (state.mode === 4 ? 2 : 3);
+  var multBand = idx === (state.mode === 4 ? 2 : 3);
+  var tolBand  = idx === (state.mode === 4 ? 3 : 4);
+  var tempcoBand = state.mode === 6 && idx === 5;
+
+  RESISTOR_COLORS.forEach(function(c, ci){
+    var valid =
+      isDigit      ? c.digit !== null :
+      tolBand      ? c.tol   !== null :
+      tempcoBand   ? c.pcc   !== null :
+      /* multiplier */ true;
+    if (!valid) return;
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tk-band-swatch' + (ci === state.bands[idx] ? ' is-selected' : '');
+    btn.style.background = c.hex;
+    btn.title = c.name;
+    btn.addEventListener('click', function(){
+      state.bands[idx] = ci;
+      renderAll();
+    });
+    if (ci === state.bands[idx]) {
+      var lab = document.createElement('span');
+      lab.className = 'tk-band-swatch__label';
+      lab.textContent =
+        isDigit    ? String(c.digit) :
+        tolBand    ? ('±' + c.tol) :
+        tempcoBand ? String(c.pcc) :
+        (c.mult >= 1 ? '×' : '/');
+      btn.appendChild(lab);
+    }
+    sw.appendChild(btn);
+  });
+  wrap.appendChild(sw);
+
+  var live = document.createElement('div');
+  live.className = 'tk-band-picker__live';
+  var c = RESISTOR_COLORS[state.bands[idx]];
+  var extra =
+    isDigit    ? ' · digit ' + c.digit :
+    tolBand    ? ' · ±' + c.tol + '%' :
+    tempcoBand ? ' · ' + c.pcc + ' ppm/K' :
+    /* mult */   ' · ×' + (c.mult >= 1 ? c.mult.toExponential(0).replace('e+', 'e') : c.mult);
+  live.textContent = '→ ' + c.name + extra;
+  wrap.appendChild(live);
+
+  return wrap;
+}
+
+function renderResult() {
+  var r = compute();
+  document.getElementById('rkNominal').textContent = fmtOhms(r.value);
+  document.getElementById('rkTol').textContent = '± ' + r.tol + '% tolerance';
+  document.getElementById('rkMin').textContent = fmtOhms(r.min);
+  document.getElementById('rkMax').textContent = fmtOhms(r.max);
+
+  var inputCount = state.mode === 4 ? 2 : 3;
+  var names = state.bands.slice(0, inputCount).map(function(b){ return RESISTOR_COLORS[b].name.toLowerCase(); }).join(', ');
+  document.getElementById('rkTermCmd').textContent = names;
+  document.getElementById('rkTermOut').textContent = fmtOhms(r.value) + ' ± ' + r.tol + '%';
+  document.getElementById('rkModeLabel').textContent = state.mode + '-BAND MODE';
+}
+
+function renderPreview() {
+  var g = document.getElementById('rkPreviewBands');
+  g.innerHTML = '';
+  var m = state.mode;
+  var padding = m === 4 ? 60 : 50;
+  var gap = m === 4 ? 50 : m === 5 ? 38 : 30;
+  var bandW = 18;
+  var start = 180 + padding;
+
+  for (var i = 0; i < m; i++) {
+    var c = RESISTOR_COLORS[state.bands[i]];
+    var x = (i === m - 1)
+      ? 180 + 340 - padding - bandW
+      : start + i * (bandW + gap);
+    g.insertAdjacentHTML('beforeend',
+      '<rect x="'+ x +'" y="60" width="'+ bandW +'" height="80" fill="'+ c.hex +'"/>' +
+      '<line x1="'+ (x + bandW/2) +'" y1="50" x2="'+ (x + bandW/2) +'" y2="20" stroke="#4A5B72" stroke-width="1" stroke-dasharray="2 2"/>' +
+      '<text x="'+ (x + bandW/2) +'" y="16" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#15263A" font-weight="700">B'+ (i+1) +'</text>' +
+      '<text x="'+ (x + bandW/2) +'" y="170" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#4A5B72">'+ c.name +'</text>'
+    );
+  }
+}
+
+function renderTable() {
+  var tbody = document.querySelector('#rkTable tbody');
+  tbody.innerHTML = '';
+  RESISTOR_COLORS.forEach(function(c){
+    var tr = document.createElement('tr');
+    var mult = c.mult >= 1 ? c.mult.toExponential(0).replace('e+0', '').replace('e+', 'e') : c.mult;
+    tr.innerHTML =
+      '<td><span class="swatch" style="background:'+ c.hex +'"></span><span style="font-weight:600">'+ c.name +'</span></td>' +
+      '<td>'+ (c.digit !== null ? c.digit : '—') +'</td>' +
+      '<td>×'+ mult +'</td>' +
+      '<td class="'+ (c.tol !== null ? 'tol-active' : 'muted') +'">'+ (c.tol !== null ? '±' + c.tol + '%' : '—') +'</td>' +
+      '<td class="muted">'+ (c.pcc !== null ? c.pcc : '—') +'</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function renderAll() {
+  renderPickers();
+  renderResult();
+  renderPreview();
+}
+
+// ── Mode switching ──────────────────────────────────────────────────────────
+function setMode(m) {
+  state.mode = m;
+  // Ensure band indices are valid for new mode
+  // 4-band: [d, d, mult, tol]
+  // 5-band: [d, d, d, mult, tol]
+  // 6-band: [d, d, d, mult, tol, tempco]
+  while (state.bands.length < m) state.bands.push(0);
+  if (m === 4) {
+    // Keep d1, d2; move mult/tol from prior positions if shrinking
+    state.bands = [state.bands[0], state.bands[1], state.bands[2], state.bands[3]];
+  } else if (m === 5) {
+    state.bands = [state.bands[0], state.bands[1], state.bands[2] || 1, state.bands[3] || 1, state.bands[4] || 10];
+  } else {
+    state.bands = [state.bands[0], state.bands[1], state.bands[2] || 1, state.bands[3] || 1, state.bands[4] || 10, state.bands[5] || 1];
+  }
+  // Coerce each band into a valid color for its role
+  validateBands();
+  document.querySelectorAll('.tk-mode-btn').forEach(function(b){ b.classList.toggle('is-active', Number(b.dataset.mode) === m); });
+  renderAll();
+}
+
+function validateBands() {
+  for (var i = 0; i < state.mode; i++) {
+    var role = roleFor(i);
+    var c = RESISTOR_COLORS[state.bands[i]];
+    var ok =
+      role === 'digit'  ? c.digit !== null :
+      role === 'tol'    ? c.tol !== null :
+      role === 'tempco' ? c.pcc !== null :
+      /* mult */ true;
+    if (!ok) {
+      state.bands[i] = firstValidIndex(role);
+    }
+  }
+}
+function roleFor(i) {
+  var m = state.mode;
+  if (i < (m === 4 ? 2 : 3)) return 'digit';
+  if (i === (m === 4 ? 2 : 3)) return 'mult';
+  if (i === (m === 4 ? 3 : 4)) return 'tol';
+  return 'tempco';
+}
+function firstValidIndex(role) {
+  for (var i = 0; i < RESISTOR_COLORS.length; i++) {
+    var c = RESISTOR_COLORS[i];
+    if (role === 'digit'  && c.digit  !== null) return i;
+    if (role === 'tol'    && c.tol    !== null) return i;
+    if (role === 'tempco' && c.pcc    !== null) return i;
+    if (role === 'mult') return i;
+  }
+  return 0;
+}
+
+document.querySelectorAll('.tk-mode-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){ setMode(Number(btn.dataset.mode)); });
+});
+
+// initial render
+renderTable();
+setMode(5);
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,296 @@
+<% var currentPage = 'utilities'; %>
+<%- include('../partials/header') %>
+
+<section class="tk-hero--tight" style="padding-bottom:28px">
+  <div class="tk-breadcrumb">// HOME / TOOLBOX / VOLTAGE DIVIDER</div>
+  <h1 class="tk-h1" style="font-size:64px">Voltage divider.</h1>
+  <p class="tk-lede" style="margin-top:12px; max-width:680px">
+    Three of <code class="tk-inline">Vin</code>, <code class="tk-inline">Vout</code>, <code class="tk-inline">R1</code>, <code class="tk-inline">R2</code> solves the fourth. Toggle the load resistor option to factor in <code class="tk-inline">R_L</code>.
+  </p>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-card-headed">
+    <div class="tk-card-headed__head">
+      <span>// INPUT · DIVIDER PARAMETERS</span>
+      <span class="yellow" id="vdModeLabel">NO LOAD · 3 OF 4</span>
+    </div>
+    <div class="tk-card-headed__body" style="padding:24px 26px">
+      <form id="vdForm" onsubmit="return false">
+        <div style="margin-bottom:18px">
+          <label class="tk-check">
+            <input type="checkbox" id="useLoad">
+            <span>Include load resistor (R_L)</span>
+          </label>
+        </div>
+
+        <div class="tk-calc-grid">
+          <div class="tk-form-group">
+            <label class="tk-label" for="vin">// Vin</label>
+            <div class="tk-input-group">
+              <input type="number" step="any" id="vin" class="tk-input" placeholder="e.g. 12">
+              <span class="tk-input-suffix">V</span>
+            </div>
+          </div>
+          <div class="tk-form-group">
+            <label class="tk-label" for="vout">// Vout</label>
+            <div class="tk-input-group">
+              <input type="number" step="any" id="vout" class="tk-input" placeholder="e.g. 5">
+              <span class="tk-input-suffix">V</span>
+            </div>
+          </div>
+          <div class="tk-form-group">
+            <label class="tk-label" for="r1">// R1 (top)</label>
+            <div class="tk-input-group">
+              <input type="number" step="any" min="0" id="r1" class="tk-input" placeholder="e.g. 4.7">
+              <select id="r1Unit" class="tk-select">
+                <option value="1">Ω</option>
+                <option value="1e3" selected>kΩ</option>
+                <option value="1e6">MΩ</option>
+              </select>
+            </div>
+          </div>
+          <div class="tk-form-group">
+            <label class="tk-label" for="r2">// R2 (bottom)</label>
+            <div class="tk-input-group">
+              <input type="number" step="any" min="0" id="r2" class="tk-input" placeholder="e.g. 10">
+              <select id="r2Unit" class="tk-select">
+                <option value="1">Ω</option>
+                <option value="1e3" selected>kΩ</option>
+                <option value="1e6">MΩ</option>
+              </select>
+            </div>
+          </div>
+          <div class="tk-form-group" id="rlWrap" style="display:none">
+            <label class="tk-label" for="rl">// Load R_L</label>
+            <div class="tk-input-group">
+              <input type="number" step="any" min="0" id="rl" class="tk-input" placeholder="e.g. 47">
+              <select id="rlUnit" class="tk-select">
+                <option value="1">Ω</option>
+                <option value="1e3" selected>kΩ</option>
+                <option value="1e6">MΩ</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="tk-hero__btns" style="margin-top:24px; gap:10px">
+          <button type="button" id="calcBtn" class="tk-btn tk-btn--accent">Calculate →</button>
+          <button type="button" id="clearBtn" class="tk-btn tk-btn--ghost">Clear</button>
+        </div>
+        <div id="msg" class="tk-status-msg"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section-tight" id="detailsWrap" style="display:none">
+  <div class="tk-2col">
+    <div class="tk-card-headed tk-card-headed--ink">
+      <div class="tk-card-headed__head">
+        <span>// COMPUTED · RESULTS</span>
+        <span>↻ LIVE</span>
+      </div>
+      <div class="tk-card-headed__body" style="padding:24px 26px">
+        <ul class="tk-results-list" id="resultsList" style="color:var(--paper)"></ul>
+      </div>
+    </div>
+    <div class="tk-card">
+      <div class="tk-kicker tk-mb-18">// NOTES & FORMULAS</div>
+      <div class="tk-formula"><code>Vout = Vin · R2 / (R1 + R2)</code></div>
+      <div class="tk-formula"><code>R2′ = R2 ∥ R_L  (with load)</code></div>
+      <div class="tk-formula"><code>R1 = R2 · (Vin/Vout − 1)</code></div>
+      <div class="tk-formula"><code>R2 = R1 · Vout/(Vin − Vout)</code></div>
+      <div class="tk-formula"><code>Vin = Vout · (R1 + R2)/R2</code></div>
+      <p class="tk-body" style="font-size:13px; margin-top:14px">
+        With load: solve <code class="tk-inline">R2′ = Vout·R1/(Vin − Vout)</code>, then recover R2 or R_L from
+        <code class="tk-inline">R2 = R2′·R_L/(R_L − R2′)</code> / <code class="tk-inline">R_L = R2′·R2/(R2 − R2′)</code>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+(() => {
+  const getVal = (id, unitId=null) => {
+    const el = document.getElementById(id);
+    if (!el) return null;
+    const raw = parseFloat(el.value);
+    if (isNaN(raw)) return null;
+    if (!unitId) return raw;
+    const u = parseFloat(document.getElementById(unitId).value);
+    return raw * u;
+  };
+  const setVal = (id, unitId, siValue) => {
+    const unit = unitId ? parseFloat(document.getElementById(unitId).value) : 1;
+    const num = siValue / unit;
+    document.getElementById(id).value = Number.isFinite(num) ? num : "";
+  };
+  const showMsg = (text, type="error") => {
+    const msg = document.getElementById("msg");
+    msg.className = "tk-status-msg is-" + type;
+    msg.textContent = text;
+  };
+  const clearMsg = () => { const m = document.getElementById("msg"); m.className="tk-status-msg"; m.textContent=""; };
+
+  const pretty = (x, unit="") => {
+    if (!Number.isFinite(x)) return "—";
+    const exps = [
+      {k:1e-12, s:"p"}, {k:1e-9, s:"n"}, {k:1e-6, s:"µ"}, {k:1e-3, s:"m"},
+      {k:1, s:""}, {k:1e3, s:"k"}, {k:1e6, s:"M"}
+    ];
+    let best = exps.reduce((acc,e)=>{
+      const v = x/e.k; return (Math.abs(v)>=1 && Math.abs(v)<1000 && Math.abs(v)<Math.abs(acc.v))?{v,s:e.s}:acc;
+    }, {v:x, s:""});
+    return (Math.abs(best.v)>=1000? x.toExponential(3): best.v.toFixed(3)) + (unit? " "+best.s+unit : "");
+  };
+
+  const calc = () => {
+    clearMsg();
+    document.getElementById("detailsWrap").style.display="none";
+
+    const useLoad = document.getElementById("useLoad").checked;
+    const vin_filled  = document.getElementById("vin").value.trim() !== "";
+    const vout_filled = document.getElementById("vout").value.trim() !== "";
+    const r1_filled   = document.getElementById("r1").value.trim() !== "";
+    const r2_filled   = document.getElementById("r2").value.trim() !== "";
+    const rl_filled   = document.getElementById("rl").value.trim() !== "";
+
+    if (!useLoad) {
+      if ((vin_filled + vout_filled + r1_filled + r2_filled) !== 3) {
+        showMsg("Provide exactly three of Vin, Vout, R1, R2 (no load).");
+        return;
+      }
+    } else {
+      if ((vin_filled + vout_filled + r1_filled + r2_filled + rl_filled) !== 4) {
+        showMsg("With load enabled, provide exactly four of Vin, Vout, R1, R2, RL.");
+        return;
+      }
+    }
+
+    let Vin = getVal("vin");
+    let Vout = getVal("vout");
+    let R1 = getVal("r1", "r1Unit");
+    let R2 = getVal("r2", "r2Unit");
+    let RL = useLoad ? getVal("rl", "rlUnit") : Infinity;
+
+    try {
+      if (!useLoad) {
+        if (!vin_filled) {
+          if (R1<=0 || R2<=0) throw new Error();
+          Vin = Vout * (R1 + R2) / R2;
+          setVal("vin", null, Vin);
+        } else if (!vout_filled) {
+          if (R1<=0 || R2<=0) throw new Error();
+          Vout = Vin * R2 / (R1 + R2);
+          setVal("vout", null, Vout);
+        } else if (!r1_filled) {
+          if (Vout===0) throw new Error();
+          R1 = R2 * (Vin / Vout - 1);
+          if (R1<=0) throw new Error();
+          setVal("r1","r1Unit", R1);
+        } else if (!r2_filled) {
+          if (Vin - Vout === 0) throw new Error();
+          R2 = R1 * Vout / (Vin - Vout);
+          if (R2<=0) throw new Error();
+          setVal("r2","r2Unit", R2);
+        }
+      } else {
+        const R2eq_from_divider = () => {
+          if (Vin - Vout === 0) throw new Error();
+          return (Vout * R1) / (Vin - Vout);
+        };
+
+        if (!vin_filled) {
+          const R2eq = (R2 && isFinite(RL)) ? (R2*RL)/(R2+RL) : R2eq_from_divider();
+          Vin = Vout * (R1 + R2eq) / R2eq;
+          setVal("vin", null, Vin);
+        } else if (!vout_filled) {
+          const R2eq = (R2 && isFinite(RL)) ? (R2*RL)/(R2+RL) : R2eq_from_divider();
+          Vout = Vin * R2eq / (R1 + R2eq);
+          setVal("vout", null, Vout);
+        } else if (!r1_filled) {
+          const R2eq = (R2 && isFinite(RL)) ? (R2*RL)/(R2+RL) : R2eq_from_divider();
+          R1 = (Vin / Vout - 1) * R2eq;
+          if (R1<=0) throw new Error();
+          setVal("r1", "r1Unit", R1);
+        } else if (!r2_filled) {
+          const R2eq = R2eq_from_divider();
+          if (!isFinite(RL)) throw new Error();
+          const denom = (RL - R2eq);
+          if (denom <= 0) throw new Error();
+          R2 = (R2eq * RL) / denom;
+          if (R2<=0) throw new Error();
+          setVal("r2", "r2Unit", R2);
+        } else if (!rl_filled) {
+          const R2eq = R2eq_from_divider();
+          const denom = (R2 - R2eq);
+          if (denom <= 0) throw new Error();
+          RL = (R2eq * R2) / denom;
+          if (RL<=0) throw new Error();
+          setVal("rl", "rlUnit", RL);
+        }
+      }
+    } catch(e) {
+      showMsg("Those values lead to an impossible result. Check units and ensure Vin > Vout > 0, resistances > 0.");
+      return;
+    }
+
+    Vin = getVal("vin");
+    Vout = getVal("vout");
+    R1 = getVal("r1","r1Unit");
+    R2 = getVal("r2","r2Unit");
+    RL = useLoad ? getVal("rl","rlUnit") : Infinity;
+
+    const R2eq = isFinite(RL) ? (R2*RL)/(R2+RL) : R2;
+    const I_R2 = Vout / R2;
+    const I_RL = isFinite(RL) ? Vout / RL : 0;
+    const I_total = I_R2 + I_RL;
+    const P_R1 = (I_total**2) * R1;
+    const P_R2 = (I_R2**2) * R2;
+    const P_RL = isFinite(RL) ? (I_RL**2) * RL : 0;
+
+    const rows = [
+      ['Effective R2 (R2′)', pretty(R2eq, 'Ω')],
+      ['Vin', pretty(Vin, 'V')],
+      ['Vout', pretty(Vout, 'V')],
+      ['Current through R1', pretty(I_total, 'A')],
+      ['Current through R2', pretty(I_R2, 'A')]
+    ];
+    if (isFinite(RL)) rows.push(['Current through RL', pretty(I_RL, 'A')]);
+    rows.push(['Power in R1', pretty(P_R1, 'W')]);
+    rows.push(['Power in R2', pretty(P_R2, 'W')]);
+    if (isFinite(RL)) rows.push(['Power in RL', pretty(P_RL, 'W')]);
+
+    const ul = document.getElementById("resultsList");
+    ul.innerHTML = rows.map(r=>`<li><span>${r[0]}</span><strong>${r[1]}</strong></li>`).join("");
+    document.getElementById("detailsWrap").style.display="";
+    showMsg("Calculation complete.", "success");
+  };
+
+  const clearAll = () => {
+    ["vin","vout","r1","r2","rl"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+    document.getElementById("r1Unit").value="1e3";
+    document.getElementById("r2Unit").value="1e3";
+    document.getElementById("rlUnit").value="1e3";
+    document.getElementById("useLoad").checked=false;
+    document.getElementById("rlWrap").style.display="none";
+    document.getElementById("vdModeLabel").textContent="NO LOAD · 3 OF 4";
+    clearMsg();
+    document.getElementById("detailsWrap").style.display="none";
+  };
+
+  document.getElementById("useLoad").addEventListener("change", (e)=>{
+    document.getElementById("rlWrap").style.display = e.target.checked ? "" : "none";
+    document.getElementById("vdModeLabel").textContent = e.target.checked ? "WITH LOAD · 4 OF 5" : "NO LOAD · 3 OF 4";
+  });
+  document.getElementById("calcBtn").addEventListener("click", calc);
+  document.getElementById("clearBtn").addEventListener("click", clearAll);
+  ["vin","vout","r1","r2","rl"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("focus", () => { el.value=""; clearMsg(); });
+  });
+})();
+</script>
+
+<%- include('../partials/footer') %>

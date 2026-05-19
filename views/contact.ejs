@@ -1,20 +1,66 @@
+<% var currentPage = 'contact'; %>
+<%- include('../partials/header') %>
 
-// views/contact.ejs
-<% layout('partials/layout') -%>
-<% title = 'Contact Me - TechTuts' %>
-<h2 class="mb-4">Contact Me</h2>
-<form>
-  <div class="form-group">
-    <label for="name">Name</label>
-    <input type="text" class="form-control" id="name" placeholder="Your Name">
+<section class="tk-hero--tight">
+  <div class="tk-breadcrumb">// HOME / CONTACT</div>
+  <h1 class="tk-h1">
+    Send a signal.<br>
+    <span class="tk-h1__sub">Bug report, idea, kind word — all welcome.</span>
+  </h1>
+</section>
+
+<section class="tk-section-tight">
+  <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:36px; align-items:start">
+    <div class="tk-card-headed">
+      <div class="tk-card-headed__head">
+        <span>// MESSAGE · NEW ENTRY</span>
+        <span class="yellow">REPLY-EXPECTED</span>
+      </div>
+      <div class="tk-card-headed__body" style="padding:28px 28px 32px">
+        <% if (typeof success !== 'undefined' && success) { %>
+          <div class="tk-alert tk-alert--success">✓ <%= success %></div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="tk-alert tk-alert--error">! <%= error %></div>
+        <% } %>
+
+        <form method="POST" action="/contact">
+          <div class="tk-form-group">
+            <label for="name" class="tk-label">// Name</label>
+            <input type="text" id="name" name="name" class="tk-input" required maxlength="120" placeholder="Your name" />
+          </div>
+          <div class="tk-form-group">
+            <label for="email" class="tk-label">// Email</label>
+            <input type="email" id="email" name="email" class="tk-input" required maxlength="200" placeholder="you@somewhere.net" />
+          </div>
+          <div class="tk-form-group">
+            <label for="message" class="tk-label">// Message</label>
+            <textarea id="message" name="message" class="tk-textarea" required maxlength="5000" placeholder="What's on your bench?"></textarea>
+          </div>
+          <button type="submit" class="tk-btn tk-btn--accent">Send signal →</button>
+        </form>
+      </div>
+    </div>
+
+    <aside>
+      <div class="tk-card" style="margin-bottom:24px">
+        <div class="tk-kicker tk-mb-18">// PRIVACY NOTICE</div>
+        <p class="tk-body" style="font-size:14px">
+          Your information is submitted directly to this site and stored locally for the sole purpose of responding to your message.
+          We do <strong>not</strong> sell, share, or distribute your personal information to third parties.
+        </p>
+      </div>
+      <div class="tk-card" style="background:var(--paper-deep)">
+        <div class="tk-kicker tk-mb-18">// RESPONSE TIME</div>
+        <p class="tk-body" style="font-size:14px; margin-bottom:8px">
+          Usually within a few days. Sometimes faster if I'm at the bench.
+        </p>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--green); letter-spacing:0.08em">
+          ● ACCEPTING NEW SIGNALS
+        </div>
+      </div>
+    </aside>
   </div>
-  <div class="form-group">
-    <label for="email">Email</label>
-    <input type="email" class="form-control" id="email" placeholder="Your Email">
-  </div>
-  <div class="form-group">
-    <label for="message">Message</label>
-    <textarea class="form-control" id="message" rows="5" placeholder="Your Message"></textarea>
-  </div>
-  <button type="submit" class="btn btn-primary">Send</button>
-</form>
+</section>
+
+<%- include('../partials/footer') %>

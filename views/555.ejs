@@ -1,0 +1,233 @@
+<% var currentPage = 'utilities'; %>
+<%- include('../partials/header') %>
+
+<section class="tk-hero--tight" style="padding-bottom:28px">
+  <div class="tk-breadcrumb">// HOME / TOOLBOX / 555 TIMER</div>
+  <h1 class="tk-h1" style="font-size:64px">555 timer.</h1>
+  <p class="tk-lede" style="margin-top:12px; max-width:640px">
+    Astable mode. Fill any three of <code class="tk-inline">R1</code>, <code class="tk-inline">R2</code>, <code class="tk-inline">C</code>, <code class="tk-inline">f</code> — solve the fourth, plus duty cycle and timing.
+  </p>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-card-headed">
+    <div class="tk-card-headed__head">
+      <span>// INPUT · ASTABLE PARAMETERS</span>
+      <span class="yellow">3 OF 4 REQUIRED</span>
+    </div>
+    <div class="tk-card-headed__body" style="padding:24px 26px">
+      <form id="calcForm" onsubmit="return false">
+        <div class="tk-calc-grid">
+          <div class="tk-form-group">
+            <label class="tk-label" for="r1">// R1</label>
+            <div class="tk-input-group">
+              <input type="number" step="any" min="0" id="r1" class="tk-input" placeholder="e.g. 10">
+              <select id="r1Unit" class="tk-select" aria-label="R1 unit">
+                <option value="1">Ω</option>
+                <option value="1e3" selected>kΩ</option>
+                <option value="1e6">MΩ</option>
+              </select>
+            </div>
+          </div>
+          <div class="tk-form-group">
+            <label class="tk-label" for="r2">// R2</label>
+            <div class="tk-input-group">
+              <input type="number" step="any" min="0" id="r2" class="tk-input" placeholder="e.g. 100">
+              <select id="r2Unit" class="tk-select" aria-label="R2 unit">
+                <option value="1">Ω</option>
+                <option value="1e3" selected>kΩ</option>
+                <option value="1e6">MΩ</option>
+              </select>
+            </div>
+          </div>
+          <div class="tk-form-group">
+            <label class="tk-label" for="c">// Capacitance C</label>
+            <div class="tk-input-group">
+              <input type="number" step="any" min="0" id="c" class="tk-input" placeholder="e.g. 100">
+              <select id="cUnit" class="tk-select" aria-label="C unit">
+                <option value="1">F</option>
+                <option value="1e-3">mF</option>
+                <option value="1e-6" selected>µF</option>
+                <option value="1e-9">nF</option>
+                <option value="1e-12">pF</option>
+              </select>
+            </div>
+          </div>
+          <div class="tk-form-group">
+            <label class="tk-label" for="f">// Frequency f</label>
+            <div class="tk-input-group">
+              <input type="number" step="any" min="0" id="f" class="tk-input" placeholder="e.g. 1">
+              <select id="fUnit" class="tk-select" aria-label="f unit">
+                <option value="1" selected>Hz</option>
+                <option value="1e3">kHz</option>
+                <option value="1e6">MHz</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="tk-hero__btns" style="margin-top:24px; gap:10px">
+          <button type="button" id="calcBtn" class="tk-btn tk-btn--accent">Calculate →</button>
+          <button type="button" id="clearBtn" class="tk-btn tk-btn--ghost">Clear</button>
+        </div>
+
+        <div id="msg" class="tk-status-msg"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section-tight" id="detailsWrap" style="display:none">
+  <div class="tk-2col">
+    <div class="tk-card-headed tk-card-headed--ink">
+      <div class="tk-card-headed__head">
+        <span>// COMPUTED · TIMING</span>
+        <span>↻ LIVE</span>
+      </div>
+      <div class="tk-card-headed__body" style="padding:24px 26px">
+        <ul class="tk-results-list" id="resultsList" style="color:var(--paper)"></ul>
+      </div>
+    </div>
+    <div class="tk-card">
+      <div class="tk-kicker tk-mb-18">// ASTABLE FORMULAS</div>
+      <div>
+        <div class="tk-formula"><code>f = 1 / (ln(2) · C · (R1 + 2·R2))</code></div>
+        <div class="tk-formula"><code>C = 1 / (ln(2) · f · (R1 + 2·R2))</code></div>
+        <div class="tk-formula"><code>R1 = 1/(ln(2) · f · C) − 2·R2</code></div>
+        <div class="tk-formula"><code>R2 = (1/(ln(2) · f · C) − R1) / 2</code></div>
+        <div class="tk-formula"><code>T = 1/f</code></div>
+        <div class="tk-formula"><code>t_HIGH = ln(2) · (R1 + R2) · C</code></div>
+        <div class="tk-formula"><code>t_LOW  = ln(2) · R2 · C</code></div>
+        <div class="tk-formula"><code>Duty = (R1 + R2) / (R1 + 2·R2)</code></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(() => {
+  const LN2 = Math.log(2);
+
+  const getVal = (id, unitId) => {
+    const v = parseFloat(document.getElementById(id).value);
+    if (isNaN(v)) return null;
+    const u = parseFloat(document.getElementById(unitId).value);
+    return v * u;
+  };
+  const setVal = (id, unitId, siValue) => {
+    const unit = parseFloat(document.getElementById(unitId).value);
+    const num = siValue / unit;
+    document.getElementById(id).value = Number.isFinite(num) ? num : "";
+  };
+  const pretty = (x, unit) => {
+    if (!Number.isFinite(x)) return "—";
+    const exps = [
+      {k:1e-12, s:"p"},{k:1e-9, s:"n"},{k:1e-6, s:"µ"},{k:1e-3, s:"m"},
+      {k:1, s:""},{k:1e3, s:"k"},{k:1e6, s:"M"},{k:1e9, s:"G"}
+    ];
+    let best = exps.reduce((acc, e) => {
+      const v = x / e.k;
+      return (Math.abs(v) >= 1 && Math.abs(v) < 1000 && Math.abs(v) < Math.abs(acc.v)) ? {v, s:e.s} : acc;
+    }, {v:x, s:""});
+    return (Math.abs(best.v) >= 1000 ? x.toExponential(3) : best.v.toFixed(3)) + " " + best.s + unit;
+  };
+  const showMsg = (text, type="error") => {
+    const msg = document.getElementById("msg");
+    msg.className = "tk-status-msg is-" + type;
+    msg.textContent = text;
+  };
+  const clearMsg = () => {
+    const msg = document.getElementById("msg");
+    msg.className = "tk-status-msg";
+    msg.textContent = "";
+  };
+
+  const calc = () => {
+    clearMsg();
+    document.getElementById("detailsWrap").style.display = "none";
+    const filled = {
+      r1: document.getElementById("r1").value.trim() !== "",
+      r2: document.getElementById("r2").value.trim() !== "",
+      c:  document.getElementById("c").value.trim()  !== "",
+      f:  document.getElementById("f").value.trim()  !== ""
+    };
+    const count = Object.values(filled).filter(Boolean).length;
+    if (count !== 3) {
+      showMsg("Provide exactly three values — leave the one you want solved empty.");
+      return;
+    }
+
+    let R1 = getVal("r1","r1Unit");
+    let R2 = getVal("r2","r2Unit");
+    let C  = getVal("c","cUnit");
+    let f  = getVal("f","fUnit");
+
+    try {
+      if (!filled.f) {
+        if (C <= 0 || (R1 + 2*R2) <= 0) throw new Error();
+        f = 1 / (LN2 * C * (R1 + 2*R2));
+        setVal("f","fUnit", f);
+      } else if (!filled.c) {
+        if (f <= 0 || (R1 + 2*R2) <= 0) throw new Error();
+        C = 1 / (LN2 * f * (R1 + 2*R2));
+        setVal("c","cUnit", C);
+      } else if (!filled.r1) {
+        if (f <= 0 || C <= 0) throw new Error();
+        R1 = (1/(LN2 * f * C)) - 2*R2;
+        if (R1 <= 0) throw new Error();
+        setVal("r1","r1Unit", R1);
+      } else if (!filled.r2) {
+        if (f <= 0 || C <= 0) throw new Error();
+        R2 = ((1/(LN2 * f * C)) - R1) / 2;
+        if (R2 <= 0) throw new Error();
+        setVal("r2","r2Unit", R2);
+      }
+    } catch(e) {
+      showMsg("Those values lead to an impossible result. Check signs/units and try again.");
+      return;
+    }
+
+    R1 = getVal("r1","r1Unit");
+    R2 = getVal("r2","r2Unit");
+    C  = getVal("c","cUnit");
+    f  = getVal("f","fUnit");
+
+    const T = 1/f;
+    const tH = LN2 * (R1 + R2) * C;
+    const tL = LN2 * R2 * C;
+    const duty = (R1 + R2) / (R1 + 2*R2);
+
+    const results = [
+      ['Frequency',     pretty(f, "Hz")],
+      ['Period (T)',    pretty(T, "s")],
+      ['t HIGH',        pretty(tH, "s")],
+      ['t LOW',         pretty(tL, "s")],
+      ['Duty cycle',    (duty*100).toFixed(2) + ' %']
+    ];
+
+    const ul = document.getElementById("resultsList");
+    ul.innerHTML = results.map(r => `<li><span>${r[0]}</span><strong>${r[1]}</strong></li>`).join("");
+    document.getElementById("detailsWrap").style.display = "";
+    showMsg("Calculation complete.", "success");
+  };
+
+  const clearAll = () => {
+    ["r1","r2","c","f"].forEach(id => document.getElementById(id).value = "");
+    document.getElementById("r1Unit").value = "1e3";
+    document.getElementById("r2Unit").value = "1e3";
+    document.getElementById("cUnit").value  = "1e-6";
+    document.getElementById("fUnit").value  = "1";
+    document.getElementById("detailsWrap").style.display = "none";
+    clearMsg();
+  };
+
+  document.getElementById("calcBtn").addEventListener("click", calc);
+  document.getElementById("clearBtn").addEventListener("click", clearAll);
+  ["r1","r2","c","f"].forEach(function(id) {
+    var el = document.getElementById(id);
+    el.addEventListener('focus', function() { el.value = ""; clearMsg(); });
+  });
+})();
+</script>
+
+<%- include('../partials/footer') %>

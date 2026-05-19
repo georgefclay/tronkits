@@ -1,0 +1,73 @@
+<% var currentPage = 'utilities'; %>
+<%- include('../partials/header') %>
+
+<section class="tk-hero--tight" style="padding-bottom:28px">
+  <div class="tk-breadcrumb">// HOME / TOOLBOX / PASSPHRASES</div>
+  <h1 class="tk-h1" style="font-size:64px">Passphrases.</h1>
+  <p class="tk-lede" style="margin-top:12px; max-width:680px">
+    Memorable adjective → noun → verb → adverb passphrases, peppered with digits and symbols.
+  </p>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-card" style="background:var(--paper-deep); margin-bottom:24px">
+    <div class="tk-kicker" style="color:var(--green); margin-bottom:6px">// PRIVACY</div>
+    <p class="tk-body" style="font-size:14px; margin:0">
+      Generated on demand. TronKits does not store or log generated passphrases.
+    </p>
+  </div>
+
+  <div class="tk-card-headed">
+    <div class="tk-card-headed__head">
+      <span>// CONTROLS</span>
+      <span class="yellow">LENGTH ≥ 12</span>
+    </div>
+    <div class="tk-card-headed__body" style="padding:24px 26px">
+      <div class="tk-calc-grid--3">
+        <div class="tk-form-group">
+          <label class="tk-label" for="length">// Length</label>
+          <input id="length" type="number" class="tk-input" min="12" value="20">
+        </div>
+        <div class="tk-form-group">
+          <label class="tk-label" for="count">// Count (1–50)</label>
+          <input id="count" type="number" class="tk-input" min="1" max="50" value="10">
+        </div>
+        <div class="tk-form-group" style="display:flex; align-items:flex-end">
+          <label class="tk-check">
+            <input id="exact" type="checkbox">
+            <span>Exact length</span>
+          </label>
+        </div>
+      </div>
+
+      <div style="margin-top:18px">
+        <div class="tk-kicker" style="margin-bottom:8px">// PRESETS</div>
+        <div class="tk-chip-row">
+          <button type="button" class="tk-chip preset" data-len="12">12</button>
+          <button type="button" class="tk-chip preset" data-len="16">16</button>
+          <button type="button" class="tk-chip preset" data-len="20">20</button>
+          <button type="button" class="tk-chip preset" data-len="24">24</button>
+          <button type="button" class="tk-chip preset" data-len="32">32</button>
+        </div>
+      </div>
+
+      <div class="tk-hero__btns" style="margin-top:24px; gap:10px">
+        <button id="go" class="tk-btn tk-btn--accent" type="button">Generate →</button>
+        <button id="copyAll" type="button" class="tk-btn tk-btn--ghost" disabled>Copy all</button>
+        <button id="clear" type="button" class="tk-btn tk-btn--ghost" disabled>Clear</button>
+      </div>
+      <div id="status" class="tk-status-msg"></div>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section-tight">
+  <ul id="list" class="tk-row-list" style="display:none"></ul>
+  <p class="tk-mono" style="margin-top:18px; color:var(--ink-soft); text-transform:none; letter-spacing:0.04em">
+    Tip: use a password manager and avoid reusing passphrases across sites. <a href="/utility" style="color:var(--accent); text-decoration:underline">More utilities →</a>
+  </p>
+</section>
+
+<script src="/js/passphrases.js"></script>
+
+<%- include('../partials/footer') %>

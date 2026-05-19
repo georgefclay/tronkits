@@ -1,0 +1,112 @@
+<% var currentPage = 'utilities'; %>
+<%- include('../partials/header') %>
+
+<section class="tk-hero--tight" style="padding-bottom:40px">
+  <div class="tk-flex-between">
+    <div>
+      <div class="tk-breadcrumb">// HOME / TOOLBOX</div>
+      <h1 class="tk-h1">
+        The toolbox.<br>
+        <span class="tk-h1__sub">Eight calculators that earn their drawer space.</span>
+      </h1>
+    </div>
+    <div class="tk-stamp tk-stamp--green" style="transform:rotate(-4deg); width:108px; height:108px">
+      OPEN-SOURCE · FREE · NO LOGIN
+    </div>
+  </div>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-util-grid">
+    <%
+      var __utils = [
+        {
+          href:'/resistor', name:'Resistor Color Code', sub:'4 / 5 / 6 band decoder',
+          desc:'Pick band colors, get resistance, tolerance, and tempco. Reverse-lookup also works.',
+          icon:'resistor', color:'#E25C2C', popular:true,
+          meta:['● BAND COLORS','● TOLERANCE','● TEMPCO']
+        },
+        {
+          href:'/555', name:'555 Timer Calculator', sub:'Astable / Monostable',
+          desc:'Enter any three values, solve for the fourth. Duty cycle, frequency, and component values.',
+          icon:'ic', color:'#6B47B8',
+          meta:['● f, T, DUTY','● R1, R2, C','● ASTABLE/MONO']
+        },
+        {
+          href:'/voltage-divider', name:'Voltage Divider', sub:'with load option',
+          desc:'Solve Vin, Vout, R1, R2 (and RL). Currents and power dissipation included.',
+          icon:'divider', color:'#2E6DA4',
+          meta:['● Vin → Vout','● LOAD-AWARE','● POWER']
+        },
+        {
+          href:'/led-resistor', name:'LED Series Resistor', sub:'E-series rounding',
+          desc:'Resistor for 1 to N LEDs in series. Power rating suggestion baked in.',
+          icon:'led', color:'#C9442C',
+          meta:['● E12/E24/E96','● POWER','● MULTI-LED']
+        },
+        {
+          href:'/passphrases', name:'Passphrase Generator', sub:'Length / exact / bulk',
+          desc:'Generate memorable passphrases with digits + symbols. One-click copy.',
+          icon:'lock', color:'#2D8F60',
+          meta:['● MEMORABLE','● + DIGITS','● BULK MODE']
+        },
+        {
+          href:'/csv-viewer', name:'CSV Viewer', sub:'Preview · filter · export',
+          desc:'Drop a CSV, preview rows, filter columns, export the slice you actually wanted.',
+          icon:'csv', color:'#B87333',
+          meta:['● DRAG & DROP','● FILTER','● RE-EXPORT']
+        },
+        {
+          href:'/ohms-law', name:"Ohm's Law", sub:'E · I · R · P',
+          desc:'Enter any two of voltage, current, resistance, or power — get the other two.',
+          icon:'ohm', color:'#E5B043',
+          meta:['● V = IR','● P = VI','● MNEMONIC']
+        },
+        {
+          href:'/project-tracker', name:'Project Tracker', sub:'File or browser storage',
+          desc:'Track projects, bugs, features, tasks, and notes. File-based or browser-based.',
+          icon:'project', color:'#15263A',
+          meta:['● TASKS','● BUGS','● NOTES']
+        }
+      ];
+    %>
+    <% __utils.forEach(function(u){ %>
+      <a class="tk-util-card" href="<%= u.href %>">
+        <div class="tk-util-card__icon tk-graph-paper-mini">
+          <%- include('../partials/util_icon', { kind: u.icon, color: u.color }) %>
+        </div>
+        <div class="tk-util-card__body">
+          <div class="tk-util-card__top">
+            <div>
+              <h3 class="tk-h3"><%= u.name %></h3>
+              <div class="tk-util-card__sub"><%= u.sub %></div>
+            </div>
+            <% if (u.popular) { %>
+              <span class="tk-util-card__popular" style="border-color:<%= u.color %>; color:<%= u.color %>">★ POPULAR</span>
+            <% } %>
+          </div>
+          <p class="tk-util-card__desc"><%= u.desc %></p>
+          <div class="tk-util-card__footer">
+            <div class="tk-util-card__meta-list">
+              <% u.meta.forEach(function(m){ %><span><%= m %></span><% }) %>
+            </div>
+            <span class="tk-util-card__cta" style="color:<%= u.color %>">OPEN →</span>
+          </div>
+        </div>
+      </a>
+    <% }) %>
+  </div>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-cta-strip">
+    <div style="flex:1">
+      <div class="tk-cta-strip__kicker">// SUGGEST A TOOL</div>
+      <h3>Missing the calculator you reach for every day?</h3>
+      <p>Drop a note. If three people ask for the same thing, I build it.</p>
+    </div>
+    <a href="/contact" class="tk-btn tk-btn--accent" style="flex-shrink:0">Suggest a tool →</a>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

@@ -1,14 +1,91 @@
-// views/blog.ejs
-<% layout('partials/layout') -%>
-<% title = 'Blog - TechTuts' %>
-<h2 class="mb-4">Blog Posts</h2>
-<div class="list-group">
-  <a href="#" class="list-group-item list-group-item-action">
-    <h5 class="mb-1">How I Fixed My Breadboard Circuit</h5>
-    <p class="mb-1">A practical guide to troubleshooting your electronics setup.</p>
-  </a>
-  <a href="#" class="list-group-item list-group-item-action">
-    <h5 class="mb-1">My Favorite JavaScript Debugging Tools</h5>
-    <p class="mb-1">A tour of the best tools to fix bugs faster.</p>
-  </a>
-</div>
+<%- include('../partials/header') %>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.6; margin: 0; }
+    header, main, footer { max-width: 920px; margin: 0 auto; padding: 1.25rem; }
+    header { padding-top: 2rem; }
+    h1 { line-height: 1.2; margin: 0 0 .5rem; }
+    .meta { color: #555; font-size: .95rem; margin-bottom: 1.5rem; }
+    .callout { border: 1px solid #ddd; border-left-width: 6px; padding: 1rem; border-radius: 10px; background: #fafafa; }
+    code { padding: .1rem .3rem; border-radius: 6px; background: #f3f3f3; }
+    ul { padding-left: 1.2rem; }
+    .links a { word-break: break-word; }
+    footer { color: #666; font-size: .9rem; padding-bottom: 2rem; }
+  </style>
+    <h1>Why Strong Passwords Matter (and Why Passphrases Are Easier)</h1>
+    <div class="meta">
+      Posted on <time datetime="2026-01-05">January 5, 2026</time> • TronKits Utilities
+    </div>
+    <p>
+      Passwords are still one of the most common ways we protect accounts—email, banking, social media,
+      developer tools, and everything in between. The problem is that attackers don’t “hack” passwords
+      the way Hollywood shows it. They guess. They reuse leaked credentials. They run automated attacks
+      at scale. And weak or reused passwords make that job easy.
+    </p>
+
+    <h2>What actually makes a password strong?</h2>
+    <p>
+      A strong password is primarily about <strong>length</strong> and <strong>unpredictability</strong>.
+      Each additional character increases the search space an attacker must try, which quickly makes brute-force
+      guessing impractical. Modern guidance also emphasizes avoiding commonly used or compromised passwords and
+      focusing on secrets that are hard to guess.
+    </p>
+
+    <div class="callout">
+      <strong>Practical takeaway:</strong>
+      If you have to memorize a password, you’re usually better off choosing a <em>long</em> secret than a short,
+      “complex-looking” one.
+    </div>
+
+    <h2>Why passphrases are a great fit for humans</h2>
+    <p>
+      A <strong>passphrase</strong> is a password made from multiple words—often unrelated—sometimes with separators
+      (like numbers or symbols). The magic is that passphrases tend to be long by nature, which boosts strength,
+      while still being readable and memorable.
+    </p>
+
+    <p>Compare these two examples:</p>
+    <ul>
+      <li><code>T9!x4Q@</code> (short and easy to mistype)</li>
+      <li><code>Big3sigma%prime^</code> (longer and easier to read)</li>
+    </ul>
+
+    <h2>How to build a strong passphrase (without making it painful)</h2>
+    <ul>
+      <li><strong>Go long:</strong> aim for 14+ characters (and more for high-value accounts).</li>
+      <li><strong>Use uncommon combinations:</strong> avoid famous quotes, lyrics, or predictable patterns.</li>
+      <li><strong>Add variety:</strong> include at least one number and one symbol to meet many site requirements.</li>
+      <li><strong>Make it unique per site:</strong> reuse is where breaches multiply.</li>
+      <li><strong>Use Multi-factor authentication:</strong> strong passwords + MFA is better than either alone.</li>
+    </ul>
+
+    <h2>Why readability matters (security is a people problem, too)</h2>
+    <p>
+      If a password is too hard to type or remember, people do predictable things: reuse it, write it down,
+      simplify it, or store it insecurely. Passphrases reduce that friction. They’re easier to read, easier to type,
+      and easier to keep unique—without sacrificing strength.
+    </p>
+
+    <h2>Try it: TronKits Passphrase Generator</h2>
+    <p>
+      I built a small utility to generate passphrases using a consistent pattern (adjective → noun → verb → adverb),
+      with digits/symbols between words and at the end—so you get strong, readable results that still meet common
+      complexity rules.
+    </p>
+    <p class="links">
+      <a href="https://tronkits.com/passphrases">https://tronkits.com/passphrases</a>
+    </p>
+
+    <h2>Further reading</h2>
+    <ul class="links">
+      <li>
+        NIST Digital Identity Guidelines (SP 800-63B): Passwords / Memorized Secrets<br />
+        <a href="https://pages.nist.gov/800-63-4/sp800-63b.html" target="_blank">https://pages.nist.gov/800-63-4/sp800-63b.html</a>
+      </li>
+      <li>
+        CISA Secure Our World: Use Strong Passwords<br />
+        <a href="https://www.cisa.gov/secure-our-world/use-strong-passwords" target="_blank">https://www.cisa.gov/secure-our-world/use-strong-passwords</a>
+      </li>
+    </ul>
+
+
+<%- include('../partials/footer.ejs') %>

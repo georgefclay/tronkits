@@ -1,0 +1,252 @@
+<% var currentPage = 'utilities'; %>
+<%- include('../partials/header') %>
+
+<section class="tk-hero--tight" style="padding-bottom:28px">
+  <div class="tk-breadcrumb">// HOME / TOOLBOX / LED SERIES RESISTOR</div>
+  <h1 class="tk-h1" style="font-size:64px">LED resistor.</h1>
+  <p class="tk-lede" style="margin-top:12px; max-width:680px">
+    Pick a supply, drop, and target current. Get the series resistor for N LEDs — plus power and a standard-value rounding.
+  </p>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-card-headed">
+    <div class="tk-card-headed__head">
+      <span>// INPUT · LED + SUPPLY</span>
+      <span class="yellow">ALL REQUIRED</span>
+    </div>
+    <div class="tk-card-headed__body" style="padding:24px 26px">
+      <form id="ledForm" onsubmit="return false">
+        <div class="tk-calc-grid">
+          <div class="tk-form-group">
+            <label class="tk-label" for="vs">// Supply Vs</label>
+            <div class="tk-input-group">
+              <input type="number" step="any" id="vs" class="tk-input" placeholder="e.g. 5">
+              <span class="tk-input-suffix">V</span>
+            </div>
+          </div>
+          <div class="tk-form-group">
+            <label class="tk-label" for="vf">// Vf per LED</label>
+            <div class="tk-input-group">
+              <input type="number" step="any" id="vf" class="tk-input" placeholder="e.g. 2.0">
+              <span class="tk-input-suffix">V</span>
+            </div>
+          </div>
+          <div class="tk-form-group">
+            <label class="tk-label" for="i">// LED current I</label>
+            <div class="tk-input-group">
+              <input type="number" step="any" id="i" class="tk-input" placeholder="e.g. 20">
+              <select id="iUnit" class="tk-select">
+                <option value="1">A</option>
+                <option value="1e-3" selected>mA</option>
+                <option value="1e-6">µA</option>
+              </select>
+            </div>
+          </div>
+          <div class="tk-form-group">
+            <label class="tk-label" for="nled">// LEDs in series N</label>
+            <input type="number" id="nled" min="1" step="1" value="1" class="tk-input">
+          </div>
+        </div>
+
+        <div class="tk-form-group" style="margin-top:18px; max-width:380px">
+          <label class="tk-label" for="esel">// Snap R to E-series (rounded up)</label>
+          <select id="esel" class="tk-select">
+            <option value="none" selected>None (exact value)</option>
+            <option value="E12">E12 (±10%)</option>
+            <option value="E24">E24 (±5%)</option>
+          </select>
+        </div>
+
+        <div class="tk-hero__btns" style="margin-top:18px; gap:10px">
+          <button type="button" id="calcBtn" class="tk-btn tk-btn--accent">Calculate →</button>
+          <button type="button" id="clearBtn" class="tk-btn tk-btn--ghost">Clear</button>
+        </div>
+        <div id="msg" class="tk-status-msg"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section-tight" id="detailsWrap" style="display:none">
+  <div class="tk-2col">
+    <div class="tk-card-headed tk-card-headed--ink">
+      <div class="tk-card-headed__head">
+        <span>// COMPUTED · RESISTOR</span>
+        <span>↻ LIVE</span>
+      </div>
+      <div class="tk-card-headed__body" style="padding:24px 26px">
+        <ul class="tk-results-list" id="resultsList" style="color:var(--paper)"></ul>
+      </div>
+    </div>
+    <div class="tk-card">
+      <div class="tk-kicker tk-mb-18">// FORMULAS</div>
+      <div class="tk-formula"><code>Vdrop = Vs − N·Vf</code></div>
+      <div class="tk-formula"><code>R = Vdrop / I</code></div>
+      <div class="tk-formula"><code>P_R = I² · R</code></div>
+      <div class="tk-formula"><code>P_LEDs ≈ I · (N·Vf)</code></div>
+      <p class="tk-body" style="font-size:13px; margin-top:14px">
+        E-series rounding goes <strong>upwards</strong> to keep current at or below target. Suggested resistor wattage: ~2× actual dissipation.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">02</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// Reference</div>
+      <h2 class="tk-h2">Typical Vf by LED color</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-card" style="padding:0">
+    <table class="tk-table" id="colorTable">
+      <thead>
+        <tr>
+          <th>Color</th>
+          <th>Vf (≈20 mA)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="tk-mono" style="margin-top:14px; color:var(--ink-soft); text-transform:none; letter-spacing:0.04em">
+    Approximate values. Always verify with your LED's datasheet at your operating current and temperature.
+  </p>
+</section>
+
+<script>
+(() => {
+  const E12 = [1.0,1.2,1.5,1.8,2.2,2.7,3.3,3.9,4.7,5.6,6.8,8.2];
+  const E24 = [1.0,1.1,1.13,1.21,1.27,1.33,1.43,1.5,1.6,1.69,1.78,1.87,2.0,2.1,2.21,2.32,2.43,2.55,2.67,2.8,2.94,3.09,3.24,3.4,3.57,3.74,3.92,4.12,4.32,4.53,4.75,4.99,5.23,5.49,5.76,6.04,6.34,6.65,6.98,7.32,7.68,8.06,8.45,8.87,9.31,9.76];
+
+  const getVal = (id, unitId=null) => {
+    const el = document.getElementById(id);
+    const raw = parseFloat(el.value);
+    if (isNaN(raw)) return null;
+    if (!unitId) return raw;
+    const u = parseFloat(document.getElementById(unitId).value);
+    return raw * u;
+  };
+  const showMsg = (t, type="error") => { const m=document.getElementById("msg"); m.className="tk-status-msg is-"+type; m.textContent=t; };
+  const clearMsg = () => { const m=document.getElementById("msg"); m.className="tk-status-msg"; m.textContent=""; };
+
+  const pretty = (x, unit="") => {
+    if (!Number.isFinite(x)) return "—";
+    const exps = [
+      {k:1e-12, s:"p"}, {k:1e-9, s:"n"}, {k:1e-6, s:"µ"}, {k:1e-3, s:"m"},
+      {k:1, s:""}, {k:1e3, s:"k"}, {k:1e6, s:"M"}
+    ];
+    let best = exps.reduce((acc,e)=>{
+      const v = x/e.k; return (Math.abs(v)>=1 && Math.abs(v)<1000 && Math.abs(v)<Math.abs(acc.v))?{v,s:e.s}:acc;
+    }, {v:x, s:""});
+    return (Math.abs(best.v)>=1000? x.toExponential(3): best.v.toFixed(3)) + (unit? " "+best.s+unit : "");
+  };
+
+  const roundE = (R) => {
+    const mode = document.getElementById("esel").value;
+    if (mode === "none") return {value:R, series:"Exact"};
+    const table = (mode==="E12") ? E12 : E24;
+    const decade = Math.pow(10, Math.floor(Math.log10(R)));
+    const norm = R/decade;
+    let pick = table.find(v => v >= norm);
+    let out = (pick !== undefined) ? pick*decade : table[0]*decade*10;
+    return {value: out, series: mode};
+  };
+
+  function updateColorTable() {
+    const tbody = document.querySelector('#colorTable tbody');
+    if (!tbody) return;
+    const colors = [
+      {name:"Infrared", vf:1.20, color:'#7A4012'},
+      {name:"Red",      vf:2.00, color:'#C9442C'},
+      {name:"Orange",   vf:2.05, color:'#E25C2C'},
+      {name:"Amber",    vf:2.10, color:'#E5B043'},
+      {name:"Yellow",   vf:2.10, color:'#E5B043'},
+      {name:"Green",    vf:2.20, color:'#2D8F60'},
+      {name:"Cyan",     vf:3.10, color:'#5BAFC6'},
+      {name:"Blue",     vf:3.20, color:'#2E6DA4'},
+      {name:"White",    vf:3.20, color:'#F0EAD9'},
+      {name:"UV",       vf:3.40, color:'#6B47B8'}
+    ];
+    tbody.innerHTML = colors.map(c => `
+      <tr>
+        <td><span class="swatch" style="background:${c.color}"></span><span style="font-weight:600">${c.name}</span></td>
+        <td>${c.vf.toFixed(2)} V</td>
+      </tr>
+    `).join("");
+  }
+
+  const calc = () => {
+    clearMsg();
+    document.getElementById("detailsWrap").style.display="none";
+
+    const Vs = getVal("vs");
+    const Vf = getVal("vf");
+    const I  = getVal("i","iUnit");
+    const N  = parseInt(document.getElementById("nled").value || "1", 10);
+
+    if (!Number.isFinite(Vs) || !Number.isFinite(Vf) || !Number.isFinite(I)) {
+      showMsg("Please enter Vs, Vf, and I.", "warning");
+      return;
+    }
+    if (I <= 0 || Vf <= 0 || N < 1) {
+      showMsg("Ensure I > 0, Vf > 0, and N ≥ 1.");
+      return;
+    }
+
+    const Vdrop = Vs - N*Vf;
+    if (!Number.isFinite(Vdrop) || Vdrop <= 0) {
+      showMsg("Vs must be greater than N·Vf to leave headroom for the resistor.");
+      return;
+    }
+
+    const R_exact = Vdrop / I;
+    const rounded = roundE(R_exact);
+    const R_rec = rounded.value;
+    const seriesName = rounded.series;
+
+    const P_R = I*I*R_rec;
+    const P_LED = I * (N*Vf);
+    const wattSteps = [0.125, 0.25, 0.5, 1, 2];
+    const recWatt = wattSteps.find(w => w >= P_R*2) || (P_R*2);
+
+    const results = [
+      ['Exact R',                pretty(R_exact, 'Ω')],
+      [seriesName + ' rounded up', pretty(R_rec, 'Ω')],
+      ['Voltage drop across R',  pretty(Vdrop, 'V')],
+      ['Current',                pretty(I, 'A')],
+      ['Power in R',             pretty(P_R, 'W')],
+      ['Suggested wattage rating', '≥ ' + pretty(recWatt, 'W')],
+      ['LEDs power (N=' + N + ')', pretty(P_LED, 'W')]
+    ];
+
+    document.getElementById("resultsList").innerHTML = results.map(r=>`<li><span>${r[0]}</span><strong>${r[1]}</strong></li>`).join("");
+    document.getElementById("detailsWrap").style.display="";
+    showMsg("Calculation complete.", "success");
+  };
+
+  const clearAll = () => {
+    ["vs","vf","i"].forEach(id => document.getElementById(id).value="");
+    document.getElementById("iUnit").value="1e-3";
+    document.getElementById("nled").value="1";
+    document.getElementById("esel").value="none";
+    clearMsg();
+    document.getElementById("detailsWrap").style.display="none";
+  };
+
+  document.getElementById("calcBtn").addEventListener("click", calc);
+  document.getElementById("clearBtn").addEventListener("click", clearAll);
+  ["vs","vf","i","nled"].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener("focus", ()=>{ if (id!=="nled") el.value=""; clearMsg(); });
+  });
+
+  setTimeout(updateColorTable, 0);
+})();
+</script>
+
+<%- include('../partials/footer') %>
