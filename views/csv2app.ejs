@@ -1,0 +1,326 @@
+<%- include('../partials/header') %>
+
+<style>
+  .csv2app-dropzone {
+    border: 2px dashed rgba(108, 117, 125, 0.45);
+    border-radius: .35rem;
+    padding: 1.25rem;
+    background: rgba(248, 249, 250, 0.65);
+    text-align: center;
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+
+  .csv2app-dropzone.csv2app-dragover {
+    border-color: #28a745;
+    background: rgba(40, 167, 69, 0.08);
+  }
+
+  .csv2app-summary-card {
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: .35rem;
+    padding: .85rem;
+    background: #fff;
+    min-height: 82px;
+  }
+
+  .csv2app-summary-label {
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #6c757d;
+    margin-bottom: .25rem;
+  }
+
+  .csv2app-summary-value {
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .csv2app-filter-list {
+    max-height: 260px;
+    overflow: auto;
+  }
+
+  .csv2app-filter-row + .csv2app-filter-row {
+    margin-top: .75rem;
+    padding-top: .75rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.075);
+  }
+
+  .csv2app-record-card {
+    max-height: 55vh;
+    overflow: auto;
+  }
+
+  .csv2app-record-field {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.075);
+    padding: .45rem 0;
+  }
+
+  .csv2app-record-field:last-child {
+    border-bottom: 0;
+  }
+
+  .csv2app-record-key {
+    display: block;
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #6c757d;
+  }
+
+  .csv2app-record-value {
+    word-break: break-word;
+  }
+
+  th.csv2app-sortable {
+    cursor: pointer;
+    user-select: none;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+  }
+
+  th.csv2app-sortable:hover { filter: brightness(1.08); }
+
+  .csv2app-hidden { display: none !important; }
+</style>
+
+<div class="container-fluid">
+  <div class="border border-secondary-subtle rounded p-4">
+    <h2 class="mb-2">CSV2App</h2>
+    <p class="text-muted mb-4">
+      Load a CSV locally in your browser, then turn it into a searchable,
+      filterable mini web app with summaries, record views, and export tools.
+      (Nothing is uploaded to the server.)
+    </p>
+
+    <div class="row">
+      <!-- LEFT PANEL -->
+      <div class="col-lg-4 mb-4">
+        <div class="border rounded p-3">
+
+          <h5 class="mb-3">1) Load CSV</h5>
+          <div class="csv2app-dropzone mb-3" id="csv2appDropzone">
+            <div class="mb-2"><strong>Choose or drop a CSV file</strong></div>
+            <input type="file" class="form-control-file" id="csvFile" accept=".csv,text/csv" />
+            <small class="form-text text-muted">
+              Your file is read in the browser and is not uploaded.
+            </small>
+          </div>
+
+          <hr>
+
+          <h5 class="mb-3">2) Parse Options</h5>
+          <div class="form-group">
+            <label for="delimiter">Delimiter</label>
+            <select class="form-control" id="delimiter">
+              <option value="auto" selected>Auto-detect</option>
+              <option value=",">Comma (,)</option>
+              <option value=";">Semicolon (;)</option>
+              <option value="\t">Tab (\t)</option>
+              <option value="|">Pipe (|)</option>
+            </select>
+          </div>
+
+          <div class="custom-control custom-checkbox mb-2">
+            <input type="checkbox" class="custom-control-input" id="hasHeader" checked>
+            <label class="custom-control-label" for="hasHeader">First row is header</label>
+          </div>
+
+          <div class="custom-control custom-checkbox mb-2">
+            <input type="checkbox" class="custom-control-input" id="trimCells" checked>
+            <label class="custom-control-label" for="trimCells">Trim whitespace in cells</label>
+          </div>
+
+          <div class="custom-control custom-checkbox mb-2">
+            <input type="checkbox" class="custom-control-input" id="removeEmptyRows" checked>
+            <label class="custom-control-label" for="removeEmptyRows">Remove empty rows</label>
+          </div>
+
+          <hr>
+
+          <h5 class="mb-3">3) App Settings</h5>
+          <div class="form-group">
+            <label for="appTitle">App title</label>
+            <input class="form-control" id="appTitle" placeholder="Generated CSV App" disabled />
+          </div>
+
+          <div class="form-group">
+            <label for="primaryColumn">Primary display column</label>
+            <select class="form-control" id="primaryColumn" disabled>
+              <option value="">Load a CSV first</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="filterColumns">Filter columns</label>
+            <select class="form-control" id="filterColumns" multiple size="8" disabled></select>
+            <small class="form-text text-muted">
+              Choose columns that should appear as app filters.
+            </small>
+          </div>
+
+          <div class="custom-control custom-checkbox mb-2">
+            <input type="checkbox" class="custom-control-input" id="enableRecordView" checked disabled>
+            <label class="custom-control-label" for="enableRecordView">Enable record detail view</label>
+          </div>
+
+          <div class="custom-control custom-checkbox mb-2">
+            <input type="checkbox" class="custom-control-input" id="enableSummaries" checked disabled>
+            <label class="custom-control-label" for="enableSummaries">Show summary cards</label>
+          </div>
+
+          <hr>
+
+          <h5 class="mb-3">4) Build App</h5>
+          <div class="d-flex flex-wrap" style="gap: 8px;">
+            <button class="btn btn-success" id="buildAppBtn" disabled>
+              Build App
+            </button>
+
+            <button class="btn btn-secondary" id="resetAppBtn" disabled>
+              Reset
+            </button>
+
+            <button class="btn btn-outline-success" id="downloadFilteredBtn" disabled>
+              Download Filtered CSV
+            </button>
+          </div>
+
+          <div class="mt-3">
+            <div class="small text-muted" id="csv2appStatus">No CSV loaded.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- GENERATED APP PANEL -->
+      <div class="col-lg-8">
+        <div class="border rounded p-3">
+
+          <div id="emptyState">
+            <h5 class="mb-2">Generated App</h5>
+            <p class="text-muted mb-0">
+              Load a CSV to transform this page into an interactive app around your data.
+            </p>
+          </div>
+
+          <div id="generatedApp" class="csv2app-hidden">
+            <div class="d-flex flex-wrap align-items-center justify-content-between mb-3" style="gap: 12px;">
+              <div>
+                <h5 class="mb-0" id="generatedAppTitle">Generated CSV App</h5>
+                <small class="text-muted" id="generatedAppMeta"></small>
+              </div>
+
+              <div class="d-flex flex-wrap" style="gap: 8px; align-items: center;">
+                <select class="form-control form-control-sm" id="searchColumn" style="max-width: 180px;">
+                  <option value="__all__" selected>All columns</option>
+                </select>
+
+                <input class="form-control form-control-sm"
+                       style="max-width: 260px;"
+                       id="searchBox"
+                       placeholder="Search app..." />
+              </div>
+            </div>
+
+            <div class="row mb-3" id="summaryCards">
+              <div class="col-sm-6 col-xl-3 mb-3">
+                <div class="csv2app-summary-card">
+                  <div class="csv2app-summary-label">Rows</div>
+                  <div class="csv2app-summary-value" id="summaryRows">0</div>
+                </div>
+              </div>
+
+              <div class="col-sm-6 col-xl-3 mb-3">
+                <div class="csv2app-summary-card">
+                  <div class="csv2app-summary-label">Columns</div>
+                  <div class="csv2app-summary-value" id="summaryColumns">0</div>
+                </div>
+              </div>
+
+              <div class="col-sm-6 col-xl-3 mb-3">
+                <div class="csv2app-summary-card">
+                  <div class="csv2app-summary-label">Filtered Rows</div>
+                  <div class="csv2app-summary-value" id="summaryFilteredRows">0</div>
+                </div>
+              </div>
+
+              <div class="col-sm-6 col-xl-3 mb-3">
+                <div class="csv2app-summary-card">
+                  <div class="csv2app-summary-label">Detected Types</div>
+                  <div class="csv2app-summary-value" id="summaryTypes">0</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-xl-3 mb-3">
+                <div class="border rounded p-3">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h6 class="mb-0">Filters</h6>
+                    <button class="btn btn-sm btn-outline-secondary" id="clearFiltersBtn">Clear</button>
+                  </div>
+                  <div class="csv2app-filter-list" id="activeFilters">
+                    <small class="text-muted">Choose filter columns, then build the app.</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-xl-6 mb-3">
+                <div class="border rounded">
+                  <div style="max-height: 60vh; overflow: auto;">
+                    <table class="table table-sm table-striped mb-0" id="appTable">
+                      <thead class="thead-dark"></thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+                <small class="text-muted d-block mt-2" id="appNote">
+                  Tip: Click a row to view it as a record. Click a column header to sort.
+                </small>
+              </div>
+
+              <div class="col-xl-3 mb-3">
+                <div class="border rounded p-3 csv2app-record-card">
+                  <h6 class="mb-2">Record View</h6>
+                  <div id="recordView">
+                    <small class="text-muted">Select a row to inspect its fields.</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+
+            <div>
+              <h6 class="mb-2">Column Profile</h6>
+              <div class="table-responsive border rounded">
+                <table class="table table-sm mb-0" id="columnProfileTable">
+                  <thead class="thead-light">
+                    <tr>
+                      <th>Column</th>
+                      <th>Type</th>
+                      <th>Filled</th>
+                      <th>Blank</th>
+                      <th>Unique</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="/js/csv2app.js"></script>
+
+<%- include('../partials/footer.ejs') %>

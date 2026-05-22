@@ -155,7 +155,13 @@ app.get('/csv-viewer', (req, res) => {
   });
 });
 
-
+app.get('/csv2app', (req, res) => {
+  res.render('csv2app', {
+    title: 'CSV2App Online – Insert, Update, Delete Data In CSV Files | TronKits',
+    description: 'Create a CSV App instantly in your browser. Add, Remove, and delete records. No Excel, no uploads, no accounts.',
+    canonicalUrl: 'https://tronkits.com/csv2app'
+  });
+});
 
 
 app.get('/csv', (req, res) => {
