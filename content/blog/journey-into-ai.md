@@ -1,4 +1,11 @@
-# The Journey Into AI
+---
+title: "The Journey Into AI"
+slug: "journey-into-ai"
+date: "2026-05-29"
+description: "My early experiences using AI"
+tags: ["AI", "productivity", "Claude", "Gemini", "ChatGPT"]
+---
+
 
 I have seen the future and the future is AI.
 
@@ -14,16 +21,16 @@ It takes a while to get used to the way Claude distributes tokens. You get so ma
 
 Here are a few of the projects I built since the first of the year:
 
-- [computeractivitymonitor.com](https://computeractivitymonitor.com) – Monitor employee efficiency without screen shots and key loggers
-- [stupidlab.com](https://stupidlab.com) – Fun daily Dad jokes
-- [tronkits.com](https://tronkits.com) – Tools and Utilities
-- [climate50index.com](https://climate50index.com) – Rules-based renewable energy index
-- [ourinterview.com](https://ourinterview.com) – Analytics-first job tracking. AI gap detection. Optimized resumes.
-- [agenticcomplete.com](https://agenticcomplete.com) – Experimental Agentic Complete system, publishes itself
-- [pureinvisible.com](https://pureinvisible.com) – Beautiful example of what Claude Design can do
-- [clayindices.com](https://clayindices.com) – Wrapper for all my index and definition sites
-- [rareearthindex.com](https://rareearthindex.com) – Equity Index for rare earth companies outside China
-- [totalmarketindex.com](https://totalmarketindex.com) – True Total Market Index, tracked daily
+- <a href="https://computeractivitymonitor.com" target="_blank">computeractivitymonitor.com</a> – Monitor employee efficiency without screen shots and key loggers
+- <a href="https://stupidlab.com" target="_blank">stupidlab.com</a> – Fun daily Dad jokes
+- <a href="https://tronkits.com" target="_blank">tronkits.com</a> – Tools and Utilities
+- <a href="https://climate50index.com" target="_blank">climate50index.com</a> – Rules-based renewable energy index
+- <a href="https://ourinterview.com" target="_blank">ourinterview.com</a> – Analytics-first job tracking. AI gap detection. Optimized resumes.
+- <a href="https://agenticcomplete.com" target="_blank">agenticcomplete.com</a> – Experimental Agentic Complete system, publishes itself
+- <a href="https://pureinvisible.com" target="_blank">pureinvisible.com</a> – Beautiful example of what Claude Design can do
+- <a href="https://clayindices.com" target="_blank">clayindices.com</a> – Wrapper for all my index and definition sites
+- <a href="https://rareearthindex.com" target="_blank">rareearthindex.com</a> – Equity Index for rare earth companies outside China
+- <a href="https://totalmarketindex.com" target="_blank">totalmarketindex.com</a> – True Total Market Index, tracked daily
 
 I have published over 50 web sites in the past 5 months. Many of these are simple one page web sites, but several are full blown applications. I wouldn't have been able to create a quarter of these without AI assistance. When you get used to the tools you can become incredibly efficient. While the LLM is thinking through a complex task, you can be working on something else. I'm moving between screens all the time.
 
