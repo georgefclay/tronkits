@@ -62,6 +62,12 @@
   <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
     <text x="28" y="38" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="32" fill="<%= __c %>" font-weight="700">Ω</text>
   </svg>
+<% } else if (__k === 'box') { %>
+  <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
+    <polygon points="28,8 48,18 28,28 8,18" fill="<%= __c %>" stroke="#15263A" stroke-width="1.5" stroke-linejoin="round" />
+    <polygon points="8,18 28,28 28,48 8,38" fill="#FFFCF2" stroke="#15263A" stroke-width="1.5" stroke-linejoin="round" />
+    <polygon points="48,18 28,28 28,48 48,38" fill="#EDE5CD" stroke="#15263A" stroke-width="1.5" stroke-linejoin="round" />
+  </svg>
 <% } else if (__k === 'project') { %>
   <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
     <rect x="8" y="10" width="40" height="36" fill="#FFFCF2" stroke="#15263A" stroke-width="2" />
