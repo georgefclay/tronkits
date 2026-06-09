@@ -260,24 +260,23 @@
   </div>
 
   <div style="border:1.5px solid var(--ink); background:var(--white)">
-    <a href="/blog" class="tk-home-row">
-      <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft); letter-spacing:0.06em">2026-05-12</span>
-      <span class="tk-tag tk-tag--accent">NOTES</span>
-      <h3 style="font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600; margin:0; letter-spacing:-0.01em; text-wrap:pretty">Why my 3D-printed lid kept warping (and the fix)</h3>
-      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-soft); letter-spacing:0.08em; text-align:right">4 MIN READ →</span>
-    </a>
-    <a href="/blog" class="tk-home-row">
-      <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft); letter-spacing:0.06em">2026-04-29</span>
-      <span class="tk-tag tk-tag--accent">BUILD</span>
-      <h3 style="font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600; margin:0; letter-spacing:-0.01em; text-wrap:pretty">Colocating a Raspberry Pi: lessons from a week of uptime</h3>
-      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-soft); letter-spacing:0.08em; text-align:right">8 MIN READ →</span>
-    </a>
-    <a href="/blog" class="tk-home-row">
-      <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft); letter-spacing:0.06em">2026-04-14</span>
-      <span class="tk-tag tk-tag--accent">FIELD</span>
-      <h3 style="font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600; margin:0; letter-spacing:-0.01em; text-wrap:pretty">A Saturday with the 555 — it's the duck tape of chips</h3>
-      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-soft); letter-spacing:0.08em; text-align:right">6 MIN READ →</span>
-    </a>
+    <%
+      var __latest = (typeof latestPosts !== 'undefined' && latestPosts) ? latestPosts : [];
+      var __fmtDate = function(d){ return d ? d.toISOString().slice(0,10) : ''; };
+    %>
+    <% if (__latest.length === 0) { %>
+      <div style="padding:24px; font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--ink-soft)">No field notes yet — check back soon.</div>
+    <% } %>
+    <% __latest.forEach(function(p){
+         var tagText = (p.tags && p.tags[0]) ? String(p.tags[0]).toUpperCase() : 'NOTES';
+    %>
+      <a href="/blog/<%= p.slug %>" class="tk-home-row">
+        <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft); letter-spacing:0.06em"><%= __fmtDate(p.date) %></span>
+        <span class="tk-tag tk-tag--accent"><%= tagText %></span>
+        <h3 style="font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600; margin:0; letter-spacing:-0.01em; text-wrap:pretty"><%= p.title %></h3>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-soft); letter-spacing:0.08em; text-align:right">READ →</span>
+      </a>
+    <% }) %>
   </div>
 </section>
 

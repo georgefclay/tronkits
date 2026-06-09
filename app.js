@@ -69,7 +69,12 @@ app.use((req, res, next) => {
 
 // --- Routes ---
 app.get('/', (req, res) => {
-  res.render('index', { title: 'Home - Tronkits' });
+  var latestPosts = [];
+  try {
+    const { getAllPosts } = require('./lib/blog');
+    latestPosts = getAllPosts().slice(0, 3);
+  } catch (e) { console.error('latestPosts loader failed:', e); }
+  res.render('index', { title: 'Home - Tronkits', latestPosts });
 });
 
 app.get('/tutorials', (req, res) => {
