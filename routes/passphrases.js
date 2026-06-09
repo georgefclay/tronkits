@@ -53,11 +53,23 @@ router.get("/passphrases", limiter, (req, res) => {
 
   let stdout = "";
   let stderr = "";
+  let responded = false;
 
   child.stdout.on("data", (d) => (stdout += d.toString("utf8")));
   child.stderr.on("data", (d) => (stderr += d.toString("utf8")));
 
+  child.on("error", (err) => {
+    if (responded) return;
+    responded = true;
+    res.status(500).json({
+      error: "Could not start password generator",
+      details: `${err.code || ""} ${err.message}`.trim(),
+    });
+  });
+
   child.on("close", (code) => {
+    if (responded) return;
+    responded = true;
     if (code !== 0) {
       return res.status(500).json({
         error: "Password generator failed",
