@@ -63,6 +63,36 @@
 </section>
 
 <section class="tk-section-tight">
+  <div class="tk-card-headed" style="margin-bottom:24px">
+    <div class="tk-card-headed__head">
+      <span>INPUT · TARGET VALUE → BANDS</span>
+      <span class="yellow" id="rkRevModeLabel">5-BAND MODE</span>
+    </div>
+    <div class="tk-card-headed__body" style="padding:20px 24px; display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end">
+      <div style="flex:1 1 220px">
+        <div style="font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.15em; color:var(--ink-soft); margin-bottom:6px">RESISTANCE</div>
+        <input type="number" id="rkRevValue" value="330" step="any" min="0" style="width:100%; padding:8px 12px; border:1.5px solid var(--ink); background:var(--white); font-family:'JetBrains Mono', monospace; font-size:14px; box-sizing:border-box">
+      </div>
+      <div style="flex:0 0 110px">
+        <div style="font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.15em; color:var(--ink-soft); margin-bottom:6px">UNIT</div>
+        <select id="rkRevUnit" style="width:100%; padding:8px 12px; border:1.5px solid var(--ink); background:var(--white); font-family:'JetBrains Mono', monospace; font-size:14px; box-sizing:border-box">
+          <option value="1">Ω</option>
+          <option value="1000">kΩ</option>
+          <option value="1000000">MΩ</option>
+        </select>
+      </div>
+      <div style="flex:0 0 190px">
+        <div style="font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.15em; color:var(--ink-soft); margin-bottom:6px">TOLERANCE</div>
+        <select id="rkRevTol" style="width:100%; padding:8px 12px; border:1.5px solid var(--ink); background:var(--white); font-family:'JetBrains Mono', monospace; font-size:14px; box-sizing:border-box"></select>
+      </div>
+      <div id="rkRevTcWrap" style="flex:0 0 210px; display:none">
+        <div style="font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.15em; color:var(--ink-soft); margin-bottom:6px">TEMPCO</div>
+        <select id="rkRevTc" style="width:100%; padding:8px 12px; border:1.5px solid var(--ink); background:var(--white); font-family:'JetBrains Mono', monospace; font-size:14px; box-sizing:border-box"></select>
+      </div>
+      <div id="rkRevStatus" style="flex:1 1 100%; font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--ink-soft); letter-spacing:0.05em">→ adjust value to see bands update on FIG. 02</div>
+    </div>
+  </div>
+
   <div class="tk-resistor-preview">
     <div class="tk-resistor-preview__caption">FIG. 02 · YOUR RESISTOR · 1:5</div>
     <div style="display:grid; place-items:center; padding:20px 0">
@@ -282,6 +312,7 @@ function renderResult() {
 function renderPreview() {
   var g = document.getElementById('rkPreviewBands');
   g.innerHTML = '';
+  if (!revState.bands) return;
   var m = state.mode;
   var padding = m === 4 ? 60 : 50;
   var gap = m === 4 ? 50 : m === 5 ? 38 : 30;
@@ -289,7 +320,7 @@ function renderPreview() {
   var start = 180 + padding;
 
   for (var i = 0; i < m; i++) {
-    var c = RESISTOR_COLORS[state.bands[i]];
+    var c = RESISTOR_COLORS[revState.bands[i]];
     var x = (i === m - 1)
       ? 180 + 340 - padding - bandW
       : start + i * (bandW + gap);
@@ -321,6 +352,124 @@ function renderTable() {
 function renderAll() {
   renderPickers();
   renderResult();
+  renderRev();
+}
+
+// ── Reverse calculator: value + tolerance → bands → FIG. 02 ─────────────────
+var revState = {
+  value: 330,
+  unit: 1,
+  tolPct: 5,
+  tcoPpm: 100,
+  bands: null
+};
+
+function buildRevSelects() {
+  var tolSel = document.getElementById('rkRevTol');
+  var tcSel  = document.getElementById('rkRevTc');
+
+  var tols = RESISTOR_COLORS.filter(function(c){ return c.tol !== null; })
+    .slice().sort(function(a,b){ return a.tol - b.tol; });
+  tolSel.innerHTML = tols.map(function(c){
+    return '<option value="'+ c.tol +'">±'+ c.tol +'% · '+ c.name.toLowerCase() +'</option>';
+  }).join('');
+  tolSel.value = String(revState.tolPct);
+
+  var tcs = RESISTOR_COLORS.filter(function(c){ return c.pcc !== null; })
+    .slice().sort(function(a,b){ return a.pcc - b.pcc; });
+  tcSel.innerHTML = tcs.map(function(c){
+    return '<option value="'+ c.pcc +'">'+ c.pcc +' ppm/K · '+ c.name.toLowerCase() +'</option>';
+  }).join('');
+  tcSel.value = String(revState.tcoPpm);
+}
+
+function findColorByDigit(d) {
+  for (var i = 0; i < RESISTOR_COLORS.length; i++) if (RESISTOR_COLORS[i].digit === d) return i;
+  return -1;
+}
+function findColorByTol(t) {
+  for (var i = 0; i < RESISTOR_COLORS.length; i++) if (RESISTOR_COLORS[i].tol === t) return i;
+  return -1;
+}
+function findColorByTc(t) {
+  for (var i = 0; i < RESISTOR_COLORS.length; i++) if (RESISTOR_COLORS[i].pcc === t) return i;
+  return -1;
+}
+function findColorByMult(m) {
+  // Fuzzy match — Math.pow(10, n) may carry float error
+  for (var i = 0; i < RESISTOR_COLORS.length; i++) {
+    var ratio = RESISTOR_COLORS[i].mult / m;
+    if (ratio > 0.9999 && ratio < 1.0001) return i;
+  }
+  return -1;
+}
+
+function computeRev() {
+  var ohms = revState.value * revState.unit;
+  if (!isFinite(ohms) || ohms <= 0) {
+    return { error: 'value must be greater than 0' };
+  }
+
+  var sig = state.mode === 4 ? 2 : 3;
+  var exp = Math.floor(Math.log10(ohms)) - (sig - 1);
+  var mantissa = Math.round(ohms / Math.pow(10, exp));
+  if (mantissa >= Math.pow(10, sig)) {
+    mantissa = Math.floor(mantissa / 10);
+    exp += 1;
+  }
+
+  var multValue = Math.pow(10, exp);
+  var multIdx = findColorByMult(multValue);
+  if (multIdx === -1) {
+    return { error: 'value out of representable range (× ' + multValue + ')' };
+  }
+
+  var digits = [];
+  for (var i = sig - 1; i >= 0; i--) {
+    digits.push(Math.floor(mantissa / Math.pow(10, i)) % 10);
+  }
+  var digitIdxs = digits.map(findColorByDigit);
+  if (digitIdxs.some(function(x){ return x === -1; })) {
+    return { error: 'cannot encode digits' };
+  }
+
+  var tolIdx = findColorByTol(revState.tolPct);
+  if (tolIdx === -1) {
+    return { error: 'tolerance not representable' };
+  }
+
+  var bands = digitIdxs.concat([multIdx, tolIdx]);
+
+  if (state.mode === 6) {
+    var tcIdx = findColorByTc(revState.tcoPpm);
+    if (tcIdx === -1) return { error: 'tempco not representable' };
+    bands.push(tcIdx);
+  }
+
+  return { bands: bands, resolved: mantissa * multValue };
+}
+
+function readRevInputs() {
+  var v = Number(document.getElementById('rkRevValue').value);
+  revState.value  = isFinite(v) ? v : 0;
+  revState.unit   = Number(document.getElementById('rkRevUnit').value) || 1;
+  revState.tolPct = Number(document.getElementById('rkRevTol').value);
+  revState.tcoPpm = Number(document.getElementById('rkRevTc').value);
+}
+
+function renderRev() {
+  readRevInputs();
+  var r = computeRev();
+  var statusEl = document.getElementById('rkRevStatus');
+  if (r.error) {
+    statusEl.textContent = '→ ' + r.error;
+    revState.bands = null;
+  } else {
+    revState.bands = r.bands;
+    statusEl.textContent = '→ encoded as ' + fmtOhms(r.resolved) + ' · ' + state.mode + '-band';
+  }
+  document.getElementById('rkRevModeLabel').textContent = state.mode + '-BAND MODE';
+  document.getElementById('rkRevTcWrap').style.display = state.mode === 6 ? '' : 'none';
   renderPreview();
 }
 
@@ -384,6 +533,12 @@ document.querySelectorAll('.tk-mode-btn').forEach(function(btn){
 
 // initial render
 renderTable();
+buildRevSelects();
+['rkRevValue', 'rkRevUnit', 'rkRevTol', 'rkRevTc'].forEach(function(id){
+  var el = document.getElementById(id);
+  el.addEventListener('input', renderRev);
+  el.addEventListener('change', renderRev);
+});
 setMode(5);
 </script>
 
