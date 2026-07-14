@@ -25,6 +25,7 @@ Ideas for new utilities and blog posts. Check off as completed.
 
 ### General dev utilities (similar to CSV viewer / passphrase generator)
 
+- [x] **Logo generator** — `/logo-generator` (wordmark + geometric shape + rules → SVG, glyphs outlined to paths)
 - [ ] **Base converter** — bin/dec/hex/octal, with bitwise ops (useful for embedded work)
 - [ ] **QR code generator** — links, Wi-Fi credentials
 - [ ] **Regex tester** with live highlighting

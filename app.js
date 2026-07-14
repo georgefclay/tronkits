@@ -107,6 +107,7 @@ app.get('/sitemap.xml', (req, res) => {
       { loc: '/led-resistor', changefreq: 'monthly', priority: 0.6 },
       { loc: '/passphrases', changefreq: 'monthly', priority: 0.6 },
       { loc: '/csv-viewer', changefreq: 'monthly', priority: 0.6 },
+      { loc: '/logo-generator', changefreq: 'monthly', priority: 0.6 },
       { loc: '/project-tracker', changefreq: 'monthly', priority: 0.5 }
     ];
 
@@ -280,6 +281,14 @@ app.use('/api', passphraseRoutes);
   
 app.get('/utility', (req, res) => {
   res.render('utility', { title: 'Utilities' });
+});
+
+app.get('/logo-generator', (req, res) => {
+  res.render('logo-generator', {
+    title: 'Placeholder Logo Generator – Quick SVG Marks | TronKits',
+    metaDescription: 'Make a throwaway placeholder logo in seconds. Type a wordmark, pick a geometric shape, add rules, download a clean SVG with the letters outlined to vector paths. For side projects and mockups — not a substitute for a real designer. No login, no uploads.',
+    canonicalUrl: 'https://tronkits.com/logo-generator'
+  });
 });
 
 app.get('/project-tracker', (req, res) => {

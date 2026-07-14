@@ -4,7 +4,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "start": "nodemon app.js",
+    "test:logo": "node public/js/test-logo-generator.js"
   },
   "author": "George Clay",
   "license": "ISC",
@@ -21,6 +22,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "opentype.js": "^2.0.0"
   }
 }

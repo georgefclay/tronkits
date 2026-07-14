@@ -1,0 +1,438 @@
+<% var currentPage = 'utilities'; %>
+<%- include('../partials/header') %>
+
+<style>
+  .lg-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; align-items: start; }
+  @media (max-width: 900px) { .lg-grid { grid-template-columns: 1fr; } }
+
+  /* --- preview stage --- */
+  .lg-stage { position: sticky; top: 24px; }
+  .lg-canvas {
+    min-height: 400px;
+    display: grid;
+    place-items: center;
+    padding: 32px;
+    background-color: var(--white);
+    background-image:
+      linear-gradient(45deg, rgba(21, 38, 58, 0.05) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(21, 38, 58, 0.05) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(21, 38, 58, 0.05) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(21, 38, 58, 0.05) 75%);
+    background-size: 18px 18px;
+    background-position: 0 0, 0 9px, 9px -9px, -9px 0;
+  }
+  .lg-canvas svg { display: block; }
+  .lg-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+    margin-top: 14px;
+  }
+
+  /* --- control blocks --- */
+  .lg-block { margin-bottom: 24px; }
+  .lg-block:last-child { margin-bottom: 0; }
+  .lg-rule { border: 0; border-top: 1px dashed rgba(21, 38, 58, 0.25); margin: 22px 0; }
+  .lg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  /* two dropdowns side by side clip their own labels on a phone */
+  @media (max-width: 480px) { .lg-row { grid-template-columns: 1fr; } }
+  .lg-checks { display: flex; flex-wrap: wrap; gap: 18px; }
+
+  /* --- sliders --- */
+  .lg-slider-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .lg-slider-head output {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  input[type="range"].lg-range {
+    width: 100%;
+    appearance: none;
+    height: 4px;
+    background: var(--paper-edge);
+    border: 1px solid var(--ink);
+    margin-top: 8px;
+    cursor: pointer;
+  }
+  input[type="range"].lg-range::-webkit-slider-thumb {
+    appearance: none; width: 16px; height: 16px;
+    background: var(--accent); border: 1.5px solid var(--ink); cursor: pointer;
+  }
+  input[type="range"].lg-range::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 0;
+    background: var(--accent); border: 1.5px solid var(--ink); cursor: pointer;
+  }
+
+  /* --- colour swatches --- */
+  .lg-color-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .lg-swatch {
+    width: 24px; height: 24px; padding: 0;
+    border: 1.5px solid var(--ink);
+    cursor: pointer; position: relative;
+  }
+  .lg-swatch.is-active::after {
+    content: ''; position: absolute; inset: -4px;
+    border: 1.5px solid var(--accent);
+  }
+  .lg-custom {
+    width: 32px; height: 24px; padding: 0; margin-left: 4px;
+    border: 1.5px solid var(--ink);
+    background: var(--white); cursor: pointer;
+  }
+  .lg-custom-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint);
+  }
+
+  /* --- "what this is" honesty panel --- */
+  .lg-honest { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  @media (max-width: 760px) { .lg-honest { grid-template-columns: 1fr; } }
+  .lg-honest__col { padding: 26px 30px; }
+  .lg-honest__col + .lg-honest__col {
+    border-left: 1px dashed rgba(245, 239, 221, 0.22);
+  }
+  @media (max-width: 760px) {
+    .lg-honest__col + .lg-honest__col {
+      border-left: 0;
+      border-top: 1px dashed rgba(245, 239, 221, 0.22);
+    }
+  }
+  .lg-honest__kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.15em; margin-bottom: 14px;
+  }
+  .lg-honest ul {
+    list-style: none; padding: 0; margin: 0;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px; line-height: 1.5;
+  }
+  .lg-honest li { display: flex; gap: 10px; margin-bottom: 10px; color: #B8C2D0; }
+  .lg-honest li:last-child { margin-bottom: 0; }
+  .lg-honest li .mk {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700; flex-shrink: 0;
+  }
+</style>
+
+<!-- ================================ HERO ================================= -->
+<section class="tk-hero--tight" style="padding-bottom:28px">
+  <div class="tk-breadcrumb">// HOME / TOOLBOX / LOGO GENERATOR</div>
+
+  <div class="tk-flex-between">
+    <div>
+      <h1 class="tk-h1" style="font-size:64px">
+        Placeholder logos.<br>
+        <span class="tk-h1__sub">Sixty seconds, not six weeks.</span>
+      </h1>
+      <p class="tk-lede" style="margin-top:14px; max-width:660px">
+        Type a name, pick a shape, add a couple of rules, download an SVG. It's the logo
+        equivalent of a breadboard: good enough to get the thing working, and meant to be
+        replaced once it matters.
+      </p>
+    </div>
+    <div class="tk-stamp tk-stamp--red" style="transform:rotate(-5deg); width:112px; height:112px">
+      PLACEHOLDER GRADE · NOT A BRAND
+    </div>
+  </div>
+
+  <div class="tk-hero__tags" style="margin-top:22px; margin-bottom:0">
+    <span class="tk-tag tk-tag--violet">● SVG OUT</span>
+    <span class="tk-tag tk-tag--green">● GLYPHS OUTLINED</span>
+    <span class="tk-tag">● NOTHING UPLOADED</span>
+    <span class="tk-tag">● NO LOGIN</span>
+  </div>
+</section>
+
+<!-- ========================== HONESTY PANEL ============================== -->
+<section class="tk-section-tight">
+  <div class="tk-card tk-card--ink" style="padding:0">
+    <div class="lg-honest">
+      <div class="lg-honest__col">
+        <div class="lg-honest__kicker" style="color:var(--green)">// USE IT FOR</div>
+        <ul>
+          <li><span class="mk" style="color:var(--green)">+</span> The side project you'll rename twice before launch</li>
+          <li><span class="mk" style="color:var(--green)">+</span> A README header, a repo avatar, a slide deck</li>
+          <li><span class="mk" style="color:var(--green)">+</span> Filling the hole in a mockup so the layout reads right</li>
+          <li><span class="mk" style="color:var(--green)">+</span> A club, a one-off event, an internal tool nobody sees</li>
+        </ul>
+      </div>
+      <div class="lg-honest__col">
+        <div class="lg-honest__kicker" style="color:var(--yellow)">// DON'T USE IT FOR</div>
+        <ul>
+          <li><span class="mk" style="color:var(--red)">−</span> The business you're actually betting on</li>
+          <li><span class="mk" style="color:var(--red)">−</span> Anything going on a sign, a truck, or a trade-show booth</li>
+          <li><span class="mk" style="color:var(--red)">−</span> A mark you intend to trademark</li>
+          <li><span class="mk" style="color:var(--red)">−</span> A substitute for an hour with a real designer</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== THE TOOL =============================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">01</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// Make one</div>
+      <h2 class="tk-h2">Text, a shape, some rules</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="lg-grid">
+
+    <!-- ---------------------------- PREVIEW ---------------------------- -->
+    <div class="lg-stage">
+      <div class="tk-card-headed">
+        <div class="tk-card-headed__head">
+          <span>// PREVIEW</span>
+          <span class="yellow" id="lgStatus">LOADING FONT…</span>
+        </div>
+        <div class="tk-card-headed__body" style="padding:0">
+          <div class="lg-canvas" id="lgPreview"></div>
+        </div>
+      </div>
+
+      <button type="button" id="lgDownload" class="tk-btn tk-btn--accent tk-btn--block tk-mt-18" disabled>
+        Download SVG ↓
+      </button>
+
+      <p class="lg-note">
+        The checkerboard isn't in the file — the background is transparent. Every letter is
+        exported as a <code>&lt;path&gt;</code>, so the SVG carries no font dependency and
+        opens correctly in Illustrator, Figma, or Inkscape. Ship it, then replace it.
+      </p>
+    </div>
+
+    <!-- ---------------------------- CONTROLS --------------------------- -->
+    <div class="tk-card">
+
+      <!-- TEXT -->
+      <div class="lg-block">
+        <div class="tk-kicker tk-mb-18">// 01 — TEXT</div>
+
+        <div class="tk-form-group">
+          <label class="tk-label" for="lgText">// Wordmark</label>
+          <input type="text" id="lgText" class="tk-input" value="TRONKITS" maxlength="32" placeholder="Your name here">
+        </div>
+
+        <div class="lg-row tk-mt-12">
+          <div class="tk-form-group" style="margin:0">
+            <label class="tk-label" for="lgFont">// Typeface</label>
+            <select id="lgFont" class="tk-select">
+              <option value="space-grotesk" selected>Space Grotesk</option>
+              <option value="archivo-black">Archivo Black</option>
+              <option value="jetbrains-mono">JetBrains Mono</option>
+              <option value="playfair-display">Playfair Display</option>
+            </select>
+          </div>
+          <div class="tk-form-group" style="margin:0; display:flex; align-items:flex-end; padding-bottom:10px">
+            <label class="tk-check">
+              <input type="checkbox" id="lgUpper" checked>
+              <span>Uppercase</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="tk-form-group tk-mt-12" style="margin-bottom:0">
+          <div class="lg-slider-head">
+            <label class="tk-label" for="lgTracking" style="margin:0">// Letter-spacing</label>
+            <output id="lgTrackingOut">0.08</output>
+          </div>
+          <input type="range" id="lgTracking" class="lg-range" min="-0.05" max="0.5" step="0.01" value="0.08">
+        </div>
+      </div>
+
+      <hr class="lg-rule">
+
+      <!-- SHAPE -->
+      <div class="lg-block">
+        <div class="tk-kicker tk-mb-18">// 02 — SHAPE</div>
+
+        <div class="lg-row">
+          <div class="tk-form-group" style="margin:0">
+            <label class="tk-label" for="lgShape">// Shape</label>
+            <select id="lgShape" class="tk-select">
+              <option value="none">None (text only)</option>
+              <option value="circle">Circle</option>
+              <option value="square">Square</option>
+              <option value="rounded">Rounded square</option>
+              <option value="chamfered">Chamfered square</option>
+              <option value="hexagon" selected>Hexagon</option>
+              <option value="diamond">Diamond</option>
+            </select>
+          </div>
+          <div class="tk-form-group" style="margin:0">
+            <label class="tk-label" for="lgLayout">// Layout</label>
+            <select id="lgLayout" class="tk-select">
+              <option value="inside" selected>Text inside shape</option>
+              <option value="above">Shape above text</option>
+              <option value="left">Shape left of text</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="tk-form-group tk-mt-12" style="margin-bottom:0">
+          <label class="tk-label">// Style</label>
+          <div class="tk-mode-btns">
+            <button type="button" class="tk-mode-btn is-active" data-shape-style="outline">OUTLINE</button>
+            <button type="button" class="tk-mode-btn" data-shape-style="fill">FILLED</button>
+          </div>
+        </div>
+
+        <div class="tk-form-group tk-mt-12" style="margin-bottom:0">
+          <div class="lg-slider-head">
+            <label class="tk-label" for="lgStrokeWeight" style="margin:0">// Stroke weight</label>
+            <output id="lgStrokeWeightOut">5</output>
+          </div>
+          <input type="range" id="lgStrokeWeight" class="lg-range" min="1" max="16" step="0.5" value="5">
+        </div>
+      </div>
+
+      <hr class="lg-rule">
+
+      <!-- RULES -->
+      <div class="lg-block">
+        <div class="tk-kicker tk-mb-18">// 03 — RULES</div>
+
+        <div class="lg-checks tk-mb-18">
+          <label class="tk-check">
+            <input type="checkbox" id="lgRulesH" checked>
+            <span>Top &amp; bottom</span>
+          </label>
+          <label class="tk-check">
+            <input type="checkbox" id="lgRulesV">
+            <span>Left &amp; right</span>
+          </label>
+        </div>
+
+        <div class="tk-form-group" style="margin-bottom:12px">
+          <div class="lg-slider-head">
+            <label class="tk-label" for="lgRuleWeight" style="margin:0">// Rule weight</label>
+            <output id="lgRuleWeightOut">3</output>
+          </div>
+          <input type="range" id="lgRuleWeight" class="lg-range" min="1" max="14" step="0.5" value="3">
+        </div>
+
+        <div class="tk-form-group" style="margin-bottom:0">
+          <div class="lg-slider-head">
+            <label class="tk-label" for="lgRuleGap" style="margin:0">// Gap from text</label>
+            <output id="lgRuleGapOut">0.24</output>
+          </div>
+          <input type="range" id="lgRuleGap" class="lg-range" min="0.08" max="0.7" step="0.01" value="0.24">
+        </div>
+      </div>
+
+      <hr class="lg-rule">
+
+      <!-- COLOUR -->
+      <div class="lg-block">
+        <div class="tk-kicker tk-mb-18">// 04 — COLOUR</div>
+
+        <%
+          var __palette = [
+            { name:'Ink',    hex:'#15263A' },
+            { name:'Orange', hex:'#E25C2C' },
+            { name:'Red',    hex:'#C9442C' },
+            { name:'Yellow', hex:'#E5B043' },
+            { name:'Green',  hex:'#2D8F60' },
+            { name:'Blue',   hex:'#2E6DA4' },
+            { name:'Violet', hex:'#6B47B8' },
+            { name:'Copper', hex:'#B87333' },
+            { name:'Paper',  hex:'#F5EFDD' }
+          ];
+          var __targets = [
+            { id:'Text',  label:'Text',  def:'#15263A' },
+            { id:'Shape', label:'Shape', def:'#E25C2C' },
+            { id:'Rule',  label:'Rules', def:'#15263A' }
+          ];
+        %>
+
+        <% __targets.forEach(function(t, i){ %>
+          <div class="tk-form-group" style="margin-bottom:<%= i === __targets.length - 1 ? '0' : '16px' %>">
+            <label class="tk-label">// <%= t.label %></label>
+            <div class="lg-color-row">
+              <% __palette.forEach(function(p){ %>
+                <button type="button"
+                        class="lg-swatch"
+                        data-swatch-target="<%= t.id %>"
+                        data-hex="<%= p.hex %>"
+                        style="background:<%= p.hex %>"
+                        title="<%= p.name %> <%= p.hex %>"
+                        aria-label="<%= t.label %>: <%= p.name %>"></button>
+              <% }) %>
+              <input type="color" class="lg-custom" id="lgCustom<%= t.id %>" value="<%= t.def %>"
+                     aria-label="<%= t.label %>: custom colour">
+              <span class="lg-custom-label">CUSTOM</span>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================ THE FINE PRINT =========================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">02</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// Fine print</div>
+      <h2 class="tk-h2">What you get, and when to stop using it</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-2col">
+    <div class="tk-card tk-card--flat">
+      <div class="tk-kicker tk-mb-18">// THE FILE</div>
+      <p class="tk-body" style="font-size:14px; margin-bottom:12px">
+        One <code>.svg</code>: transparent background, cropped to the artwork with an even
+        margin, no <code>font-family</code> anywhere in it. The letters are real vector
+        outlines, so nobody needs the typeface installed to see it the way you drew it, and
+        it stays sharp from a favicon to a poster.
+      </p>
+      <p class="tk-body" style="font-size:14px; margin-bottom:0">
+        All four typefaces ship under the
+        <a href="/fonts/OFL-NOTICE.txt" target="_blank" rel="noopener">SIL Open Font License</a>,
+        which expressly permits the outlines to be used in a logo — commercially, without
+        attribution. Everything is generated in your browser; nothing is uploaded anywhere.
+      </p>
+    </div>
+
+    <div class="tk-card tk-card--flat">
+      <div class="tk-kicker tk-mb-18">// THE HONEST BIT</div>
+      <p class="tk-body" style="font-size:14px; margin-bottom:12px">
+        Four typefaces and six shapes is a small enough box that a few thousand people can
+        turn the same crank and get roughly the same handful of logos. That is fine for a
+        placeholder and fatal for a brand — the entire job of a real mark is to <em>not</em>
+        look like everyone else's.
+      </p>
+      <p class="tk-body" style="font-size:14px; margin-bottom:0">
+        A good rule: the moment you catch yourself defending this logo to someone, it has
+        outlived its purpose. Pay a designer. They are cheaper than a rebrand.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-cta-strip">
+    <div style="flex:1">
+      <div class="tk-cta-strip__kicker">// SUGGEST A TOOL</div>
+      <h3>Missing the utility you reach for every day?</h3>
+      <p>Drop a note. If three people ask for the same thing, I build it.</p>
+    </div>
+    <a href="/contact" class="tk-btn tk-btn--accent" style="flex-shrink:0">Suggest a tool →</a>
+  </div>
+</section>
+
+<script src="/js/opentype.min.js"></script>
+<script src="/js/logo-generator.js"></script>
+
+<%- include('../partials/footer') %>
