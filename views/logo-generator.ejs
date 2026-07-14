@@ -30,6 +30,18 @@
     color: var(--ink-soft);
     margin-top: 14px;
   }
+  /* grid, not flex — a flexed <select> refuses to shrink and shoves the label off the edge */
+  .lg-png-row {
+    display: grid;
+    grid-template-columns: 1fr 124px;
+    align-items: end;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .lg-png-row .tk-btn { width: 100%; }
+  .lg-png-size { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .lg-png-size .tk-select { width: 100%; }
+  @media (max-width: 420px) { .lg-png-row { grid-template-columns: 1fr; } }
 
   /* --- control blocks --- */
   .lg-block { margin-bottom: 24px; }
@@ -139,7 +151,7 @@
   </div>
 
   <div class="tk-hero__tags" style="margin-top:22px; margin-bottom:0">
-    <span class="tk-tag tk-tag--violet">● SVG OUT</span>
+    <span class="tk-tag tk-tag--violet">● SVG + PNG OUT</span>
     <span class="tk-tag tk-tag--green">● GLYPHS OUTLINED</span>
     <span class="tk-tag">● NOTHING UPLOADED</span>
     <span class="tk-tag">● NO LOGIN</span>
@@ -201,10 +213,28 @@
         Download SVG ↓
       </button>
 
+      <div class="lg-png-row">
+        <button type="button" id="lgDownloadPng" class="tk-btn tk-btn--ghost" disabled>
+          Download PNG ↓
+        </button>
+        <div class="lg-png-size">
+          <label class="tk-label" for="lgPngSize" style="margin:0; white-space:nowrap">// Size</label>
+          <select id="lgPngSize" class="tk-select">
+            <option value="128">128 px</option>
+            <option value="256">256 px</option>
+            <option value="512" selected>512 px</option>
+            <option value="1024">1024 px</option>
+            <option value="2048">2048 px</option>
+          </select>
+        </div>
+      </div>
+
       <p class="lg-note">
-        The checkerboard isn't in the file — the background is transparent. Every letter is
-        exported as a <code>&lt;path&gt;</code>, so the SVG carries no font dependency and
-        opens correctly in Illustrator, Figma, or Inkscape. Ship it, then replace it.
+        The checkerboard isn't in the file — both exports have a transparent background.
+        In the SVG every letter is a <code>&lt;path&gt;</code>, so it carries no font
+        dependency and opens correctly in Illustrator, Figma, or Inkscape. The PNG is
+        rasterised from that same SVG, in your browser, at whatever size you pick.
+        Reach for the SVG unless something demands a bitmap. Ship it, then replace it.
       </p>
     </div>
 
@@ -230,7 +260,11 @@
               <option value="playfair-display">Playfair Display</option>
             </select>
           </div>
-          <div class="tk-form-group" style="margin:0; display:flex; align-items:flex-end; padding-bottom:10px">
+          <div class="tk-form-group" style="margin:0; display:flex; flex-direction:column; justify-content:flex-end; gap:10px; padding-bottom:10px">
+            <label class="tk-check">
+              <input type="checkbox" id="lgBold" checked>
+              <span>Bold</span>
+            </label>
             <label class="tk-check">
               <input type="checkbox" id="lgUpper" checked>
               <span>Uppercase</span>
@@ -395,7 +429,9 @@
         One <code>.svg</code>: transparent background, cropped to the artwork with an even
         margin, no <code>font-family</code> anywhere in it. The letters are real vector
         outlines, so nobody needs the typeface installed to see it the way you drew it, and
-        it stays sharp from a favicon to a poster.
+        it stays sharp from a favicon to a poster. If you need a bitmap — a GitHub avatar,
+        a Slack icon, an OG image — the PNG button rasterises that same file at up to
+        2048&nbsp;px, longest edge, aspect ratio intact.
       </p>
       <p class="tk-body" style="font-size:14px; margin-bottom:0">
         All four typefaces ship under the

@@ -17,10 +17,20 @@ const opentype = require('opentype.js');
 const TK = require('./logo-generator.js');
 
 const FONT_DIR = path.join(__dirname, '..', 'fonts');
+
+// every family x every weight it actually ships
+const CUTS = [];
+for (const [family, meta] of Object.entries(TK.FONTS)) {
+  for (const weight of Object.keys(meta.weights)) CUTS.push([family, Number(weight)]);
+}
+
 const fonts = {};
-for (const [key, meta] of Object.entries(TK.FONTS)) {
-  const buf = fs.readFileSync(path.join(FONT_DIR, path.basename(meta.file)));
-  fonts[key] = opentype.parse(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
+for (const [family, weight] of CUTS) {
+  const file = TK.fontFile(family, weight);
+  const buf = fs.readFileSync(path.join(FONT_DIR, path.basename(file)));
+  fonts[family + '@' + weight] = opentype.parse(
+    buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength)
+  );
 }
 
 let checks = 0;
@@ -96,18 +106,18 @@ const TEXTS = [
 ];
 const RULES = [[false, false], [true, false], [false, true], [true, true]];
 
-for (const font of Object.keys(TK.FONTS)) {
+for (const [font, weight] of CUTS) {
   for (const shape of TK.SHAPES) {
     for (const layout of TK.LAYOUTS) {
       for (const shapeStyle of ['fill', 'outline']) {
         for (const [rulesH, rulesV] of RULES) {
           for (const text of TEXTS) {
-            const opts = { text, font, layout, shape, shapeStyle, rulesH, rulesV, uppercase: false };
-            const tag = `${font}/${shape}/${layout}/${shapeStyle}/h${rulesH}v${rulesV}/"${text}"`;
+            const opts = { text, font, weight, layout, shape, shapeStyle, rulesH, rulesV, uppercase: false };
+            const tag = `${font}@${weight}/${shape}/${layout}/${shapeStyle}/h${rulesH}v${rulesV}/"${text}"`;
 
             let out;
             try {
-              out = TK.buildLogo(opts, fonts[font]);
+              out = TK.buildLogo(opts, fonts[font + '@' + weight]);
             } catch (e) {
               fail(`threw — ${tag} — ${e.message}`);
               continue;
@@ -148,7 +158,20 @@ for (const font of Object.keys(TK.FONTS)) {
   }
 }
 
-const sample = TK.buildLogo({}, fonts['space-grotesk']);
+// bold must actually differ from regular — a silently-ignored weight would be worse
+// than no weight control at all, so prove the two cuts produce different geometry
+for (const family of Object.keys(TK.FONTS)) {
+  if (!TK.hasBold(family)) continue;
+  const reg = TK.buildLogo({ font: family, weight: 400, shape: 'none' }, fonts[family + '@400']);
+  const bold = TK.buildLogo({ font: family, weight: 700, shape: 'none' }, fonts[family + '@700']);
+  if (reg.svg === bold.svg) fail(`weight 400 and 700 render identically — ${family}`);
+  else ok();
+  if (bold.width <= reg.width) {
+    fail(`bold is not wider than regular — ${family} (${reg.width} -> ${bold.width})`);
+  } else ok();
+}
+
+const sample = TK.buildLogo({}, fonts['space-grotesk@700']);
 
 console.log(`\n${checks} assertions passed, ${failures.length} failed`);
 if (failures.length) {

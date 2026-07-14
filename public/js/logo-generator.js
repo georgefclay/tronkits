@@ -22,12 +22,40 @@
   var MARK_GAP = 0.34 * FS;  // gap between a shape used as a mark and the wordmark
   var MAX_SHAPE_H = 1.5;     // an enclosing shape may never exceed 1.5x the content height
 
+  // Archivo Black ships as a single black weight — there is no "regular" Archivo Black,
+  // so its weight control is disabled rather than faked by synthetically thickening strokes.
   var FONTS = {
-    'space-grotesk':    { label: 'Space Grotesk',    file: '/fonts/space-grotesk-700.woff' },
-    'archivo-black':    { label: 'Archivo Black',    file: '/fonts/archivo-black-400.woff' },
-    'jetbrains-mono':   { label: 'JetBrains Mono',   file: '/fonts/jetbrains-mono-700.woff' },
-    'playfair-display': { label: 'Playfair Display', file: '/fonts/playfair-display-700.woff' }
+    'space-grotesk': {
+      label: 'Space Grotesk',
+      weights: { 400: '/fonts/space-grotesk-400.woff', 700: '/fonts/space-grotesk-700.woff' }
+    },
+    'archivo-black': {
+      label: 'Archivo Black',
+      weights: { 400: '/fonts/archivo-black-400.woff' }
+    },
+    'jetbrains-mono': {
+      label: 'JetBrains Mono',
+      weights: { 400: '/fonts/jetbrains-mono-400.woff', 700: '/fonts/jetbrains-mono-700.woff' }
+    },
+    'playfair-display': {
+      label: 'Playfair Display',
+      weights: { 400: '/fonts/playfair-display-400.woff', 700: '/fonts/playfair-display-700.woff' }
+    }
   };
+
+  /** The file for a family at the requested weight, falling back to whatever it has. */
+  function fontFile(family, weight) {
+    var w = FONTS[family].weights;
+    return w[weight] || w[700] || w[400];
+  }
+
+  /** Does this family actually have both a regular and a bold? */
+  function hasBold(family) {
+    var w = FONTS[family].weights;
+    return !!(w[400] && w[700]);
+  }
+
+  var PNG_SIZES = [128, 256, 512, 1024, 2048];
 
   var SHAPES = ['none', 'circle', 'square', 'rounded', 'chamfered', 'hexagon', 'diamond'];
   var LAYOUTS = ['inside', 'above', 'left'];
@@ -47,6 +75,7 @@
   var DEFAULTS = {
     text: 'TRONKITS',
     font: 'space-grotesk',
+    weight: 700,
     uppercase: true,
     tracking: 0.08,         // em
     layout: 'inside',
@@ -320,7 +349,10 @@
 
   return {
     buildLogo: buildLogo,
+    fontFile: fontFile,
+    hasBold: hasBold,
     FONTS: FONTS,
+    PNG_SIZES: PNG_SIZES,
     SHAPES: SHAPES,
     LAYOUTS: LAYOUTS,
     PALETTE: PALETTE,
@@ -344,6 +376,32 @@ if (typeof document !== 'undefined') (function () {
   var preview = $('lgPreview');
   var status = $('lgStatus');
   var dlBtn = $('lgDownload');
+  var pngBtn = $('lgDownloadPng');
+  var pngSize = $('lgPngSize');
+  var lastSize = null;
+
+  function setExportsEnabled(on) {
+    if (dlBtn) dlBtn.disabled = !on;
+    if (pngBtn) pngBtn.disabled = !on;
+  }
+
+  function slug() {
+    return (current.text || 'logo').toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 40) || 'logo';
+  }
+
+  function saveBlob(blob, filename) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
 
   function setStatus(text, kind) {
     if (!status) return;
@@ -353,32 +411,54 @@ if (typeof document !== 'undefined') (function () {
       : 'var(--yellow)';
   }
 
-  function loadFont(key) {
-    if (fontCache[key]) return Promise.resolve(fontCache[key]);
-    return fetch(TK.FONTS[key].file)
+  function loadFont(family, weight) {
+    var file = TK.fontFile(family, weight);
+    if (fontCache[file]) return Promise.resolve(fontCache[file]);
+    return fetch(file)
       .then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.arrayBuffer();
       })
       .then(function (buf) {
-        fontCache[key] = window.opentype.parse(buf);
-        return fontCache[key];
+        fontCache[file] = window.opentype.parse(buf);
+        return fontCache[file];
       });
   }
 
+  /* Families with only one cut (Archivo Black) get their weight control disabled —
+   * we don't fake a bold by fattening the strokes, because that looks like a fake bold. */
+  function syncWeightControl() {
+    var box = $('lgBold');
+    if (!box) return;
+    var supported = TK.hasBold(current.font);
+    box.disabled = !supported;
+    var wrap = box.closest('.tk-check');
+    if (wrap) {
+      wrap.style.opacity = supported ? '1' : '0.4';
+      wrap.title = supported ? '' : TK.FONTS[current.font].label + ' only ships one weight';
+    }
+    if (!supported) {
+      // fall back to the only weight the family actually has
+      current.weight = TK.FONTS[current.font].weights[700] ? 700 : 400;
+      box.checked = current.weight === 700;
+    }
+  }
+
   function render() {
-    loadFont(current.font).then(function (font) {
+    loadFont(current.font, current.weight).then(function (font) {
       var out;
       try {
         out = TK.buildLogo(current, font);
       } catch (e) {
         lastSvg = '';
-        if (dlBtn) dlBtn.disabled = true;
+        lastSize = null;
+        setExportsEnabled(false);
         preview.innerHTML = '';
         setStatus(e.message === 'EMPTY_TEXT' ? 'ENTER SOME TEXT' : 'RENDER FAILED', 'error');
         return;
       }
       lastSvg = out.svg;
+      lastSize = { w: out.width, h: out.height };
       preview.innerHTML = out.svg;
 
       // Let the preview scale to its container without distorting.
@@ -389,7 +469,7 @@ if (typeof document !== 'undefined') (function () {
         node.style.maxWidth = '100%';
         node.style.maxHeight = '340px';
       }
-      if (dlBtn) dlBtn.disabled = false;
+      setExportsEnabled(true);
       setStatus(Math.round(out.width) + ' × ' + Math.round(out.height) + ' · GLYPHS OUTLINED', 'ok');
     }).catch(function (e) {
       setStatus('FONT FAILED TO LOAD', 'error');
@@ -412,8 +492,25 @@ if (typeof document !== 'undefined') (function () {
   }
 
   bind('lgText', 'text');
-  bind('lgFont', 'font');
   bind('lgUpper', 'uppercase');
+
+  var fontSel = $('lgFont');
+  if (fontSel) {
+    fontSel.addEventListener('change', function () {
+      current.font = fontSel.value;
+      syncWeightControl();
+      render();
+    });
+  }
+
+  var boldBox = $('lgBold');
+  if (boldBox) {
+    boldBox.addEventListener('change', function () {
+      current.weight = boldBox.checked ? 700 : 400;
+      render();
+    });
+  }
+
   bind('lgTracking', 'tracking', parseFloat);
   bind('lgLayout', 'layout');
   bind('lgShape', 'shape');
@@ -467,23 +564,60 @@ if (typeof document !== 'undefined') (function () {
     }
   });
 
-  // ------------------------------------------------------------------ download
+  // -------------------------------------------------------------- SVG download
   if (dlBtn) {
     dlBtn.addEventListener('click', function () {
       if (!lastSvg) return;
-      var slug = (current.text || 'logo').toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .slice(0, 40) || 'logo';
-      var blob = new Blob([lastSvg], { type: 'image/svg+xml;charset=utf-8' });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = slug + '.svg';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      saveBlob(new Blob([lastSvg], { type: 'image/svg+xml;charset=utf-8' }), slug() + '.svg');
+    });
+  }
+
+  // -------------------------------------------------------------- PNG download
+  /* Rasterise the *same* SVG we'd hand you as a file: load it into an <img> via a
+   * blob URL, draw it to a canvas at the requested size, export the canvas.
+   *
+   * The SVG is pure <path>/<polygon>/<line> with no external references, so the
+   * canvas is never tainted and toBlob() works. The background stays transparent.
+   * `longest edge` is the size you pick, and the other edge follows the aspect
+   * ratio — a logo is rarely square, and squashing it into one would be worse. */
+  if (pngBtn) {
+    pngBtn.addEventListener('click', function () {
+      if (!lastSvg || !lastSize) return;
+
+      var target = parseInt(pngSize ? pngSize.value : '512', 10);
+      var scale = target / Math.max(lastSize.w, lastSize.h);
+      var w = Math.max(1, Math.round(lastSize.w * scale));
+      var h = Math.max(1, Math.round(lastSize.h * scale));
+
+      pngBtn.disabled = true;
+      setStatus('RASTERISING ' + w + ' × ' + h + '…');
+
+      var svgUrl = URL.createObjectURL(new Blob([lastSvg], { type: 'image/svg+xml;charset=utf-8' }));
+      var img = new Image();
+
+      img.onload = function () {
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(svgUrl);
+
+        canvas.toBlob(function (blob) {
+          pngBtn.disabled = false;
+          if (!blob) { setStatus('PNG EXPORT FAILED', 'error'); return; }
+          saveBlob(blob, slug() + '-' + w + 'x' + h + '.png');
+          setStatus('PNG SAVED · ' + w + ' × ' + h, 'ok');
+        }, 'image/png');
+      };
+
+      img.onerror = function () {
+        URL.revokeObjectURL(svgUrl);
+        pngBtn.disabled = false;
+        setStatus('PNG EXPORT FAILED', 'error');
+      };
+
+      img.src = svgUrl;
     });
   }
 
@@ -491,6 +625,7 @@ if (typeof document !== 'undefined') (function () {
   markActiveSwatch('Text', current.colorText);
   markActiveSwatch('Shape', current.colorShape);
   markActiveSwatch('Rule', current.colorRule);
+  syncWeightControl();
   setStatus('LOADING FONT…');
   render();
 })();
