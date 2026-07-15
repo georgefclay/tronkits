@@ -457,6 +457,60 @@
   </div>
 </section>
 
+<!-- ================================ FAQ ================================= -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">03</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// Common questions</div>
+      <h2 class="tk-h2">Questions people actually ask</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <style>
+    .lg-faq { display: grid; gap: 0; border-top: 1px dashed rgba(21, 38, 58, 0.25); }
+    .lg-faq__item { border-bottom: 1px dashed rgba(21, 38, 58, 0.25); padding: 20px 2px; }
+    .lg-faq__q {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px; font-weight: 700; color: var(--ink);
+      margin: 0 0 8px;
+    }
+    .lg-faq__a {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px; line-height: 1.6; color: var(--ink-soft);
+      margin: 0; max-width: 760px;
+    }
+  </style>
+
+  <div class="lg-faq">
+    <div class="lg-faq__item">
+      <h3 class="lg-faq__q">Is the logo generator free?</h3>
+      <p class="lg-faq__a">Yes. Every logo is free to make and download, with no account, no login, and no watermark. Nothing you type is uploaded &mdash; the logo is generated entirely in your browser.</p>
+    </div>
+    <div class="lg-faq__item">
+      <h3 class="lg-faq__q">Can I use the logo commercially?</h3>
+      <p class="lg-faq__a">Yes. All four typefaces are licensed under the SIL Open Font License, which permits their letter outlines to be used in a logo commercially and without attribution. That said, this is a placeholder tool &mdash; for a mark you will build a brand around, hire a designer.</p>
+    </div>
+    <div class="lg-faq__item">
+      <h3 class="lg-faq__q">Do I get an SVG or a PNG?</h3>
+      <p class="lg-faq__a">Both. The SVG is the main export &mdash; infinitely scalable and tiny. You can also download a PNG at up to 2048 pixels for places that need a bitmap, such as a GitHub avatar or a Slack icon.</p>
+    </div>
+    <div class="lg-faq__item">
+      <h3 class="lg-faq__q">Will the logo look right on a computer that does not have the font?</h3>
+      <p class="lg-faq__a">Yes. The text is converted to vector paths on export, so the SVG carries no font dependency. It renders identically in any browser and opens correctly in Illustrator, Figma, or Inkscape without the typeface installed.</p>
+    </div>
+    <div class="lg-faq__item">
+      <h3 class="lg-faq__q">Is this a real logo maker or just a placeholder?</h3>
+      <p class="lg-faq__a">It makes placeholder-grade logos &mdash; good enough to hold the space on a side project, a README, or a mockup until branding gets serious. It is not a replacement for a professional designer or a full brand identity.</p>
+    </div>
+    <div class="lg-faq__item">
+      <h3 class="lg-faq__q">Where are my logos stored?</h3>
+      <p class="lg-faq__a">Nowhere. There is no server-side storage and no upload. The generator runs in your browser, so your text and the finished file never leave your device.</p>
+    </div>
+  </div>
+</section>
+
 <section class="tk-section-tight">
   <div class="tk-cta-strip">
     <div style="flex:1">
@@ -468,6 +522,68 @@
   </div>
 </section>
 
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "TronKits Placeholder Logo Generator",
+  "url": "https://tronkits.com/logo-generator",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Any (web browser)",
+  "browserRequirements": "Requires JavaScript",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "A free, browser-based tool that makes simple placeholder logos: type a wordmark, pick a geometric shape and layout, add rules, and download an SVG with the letters outlined to vector paths, or a PNG up to 2048px. No login, no uploads.",
+  "featureList": [
+    "Text outlined to vector paths (no font dependency in the file)",
+    "Six geometric shapes with inside, above and beside layouts",
+    "Rules above/below and left/right of the wordmark",
+    "Regular and bold weights",
+    "SVG and PNG export up to 2048px",
+    "Runs entirely in the browser \u2014 nothing is uploaded"
+  ],
+  "image": "https://tronkits.com/images/og-logo-generator.png",
+  "publisher": { "@type": "Organization", "name": "TronKits", "url": "https://tronkits.com" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is the logo generator free?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every logo is free to make and download, with no account, no login, and no watermark. Nothing you type is uploaded \u2014 the logo is generated entirely in your browser." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use the logo commercially?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. All four typefaces are licensed under the SIL Open Font License, which permits their letter outlines to be used in a logo commercially and without attribution. That said, this is a placeholder tool \u2014 for a mark you will build a brand around, hire a designer." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I get an SVG or a PNG?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Both. The SVG is the main export \u2014 infinitely scalable and tiny. You can also download a PNG at up to 2048 pixels for places that need a bitmap, such as a GitHub avatar or a Slack icon." }
+    },
+    {
+      "@type": "Question",
+      "name": "Will the logo look right on a computer that does not have the font?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The text is converted to vector paths on export, so the SVG carries no font dependency. It renders identically in any browser and opens correctly in Illustrator, Figma, or Inkscape without the typeface installed." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this a real logo maker or just a placeholder?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It makes placeholder-grade logos \u2014 good enough to hold the space on a side project, a README, or a mockup until branding gets serious. It is not a replacement for a professional designer or a full brand identity." }
+    },
+    {
+      "@type": "Question",
+      "name": "Where are my logos stored?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Nowhere. There is no server-side storage and no upload. The generator runs in your browser, so your text and the finished file never leave your device." }
+    }
+  ]
+}
+</script>
 <script src="/js/opentype.min.js"></script>
 <script src="/js/logo-generator.js"></script>
 

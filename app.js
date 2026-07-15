@@ -287,7 +287,8 @@ app.get('/logo-generator', (req, res) => {
   res.render('logo-generator', {
     title: 'Placeholder Logo Generator – Quick SVG Marks | TronKits',
     metaDescription: 'Make a throwaway placeholder logo in seconds. Type a wordmark, pick a geometric shape, add rules, download a clean SVG with the letters outlined to vector paths. For side projects and mockups — not a substitute for a real designer. No login, no uploads.',
-    canonicalUrl: 'https://tronkits.com/logo-generator'
+    canonicalUrl: 'https://tronkits.com/logo-generator',
+    ogImage: '/images/og-logo-generator.png'
   });
 });
 

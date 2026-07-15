@@ -14,6 +14,33 @@
     <link rel="canonical" href="<%= canonicalUrl %>">
   <% } %>
 
+  <%
+    // --- Social sharing (Open Graph + Twitter) ---
+    // Driven by the same per-route locals as the <title>/description above.
+    // og:image is only emitted when a route sets `ogImage`, so pages without a
+    // dedicated image don't point crawlers at a broken or wrong picture.
+    var __ogUrl   = (typeof canonicalUrl !== 'undefined' && canonicalUrl) ? canonicalUrl : (typeof siteUrl !== 'undefined' ? siteUrl : '');
+    var __ogDesc  = (typeof metaDescription !== 'undefined') ? metaDescription : '';
+    var __ogImg   = (typeof ogImage !== 'undefined' && ogImage)
+                      ? ((/^https?:\/\//.test(ogImage) ? '' : (typeof siteUrl !== 'undefined' ? siteUrl : '')) + ogImage)
+                      : '';
+  %>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="TronKits">
+  <meta property="og:title" content="<%= title %>">
+  <% if (__ogDesc) { %><meta property="og:description" content="<%= __ogDesc %>"><% } %>
+  <% if (__ogUrl)  { %><meta property="og:url" content="<%= __ogUrl %>"><% } %>
+  <% if (__ogImg)  { %>
+    <meta property="og:image" content="<%= __ogImg %>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+  <% } %>
+
+  <meta name="twitter:card" content="<%= __ogImg ? 'summary_large_image' : 'summary' %>">
+  <meta name="twitter:title" content="<%= title %>">
+  <% if (__ogDesc) { %><meta name="twitter:description" content="<%= __ogDesc %>"><% } %>
+  <% if (__ogImg)  { %><meta name="twitter:image" content="<%= __ogImg %>"><% } %>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
