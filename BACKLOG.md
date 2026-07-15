@@ -41,13 +41,15 @@ Ideas for new utilities and blog posts. Check off as completed.
 
 ## Blog posts
 
+- [ ] **Why I use AI to write some of my blog posts** — be upfront about where the writing comes from
+
 ### Companion posts to existing calculators (highest leverage)
 
 - [x] **Reading Resistor Color Codes** — `/blog/reading-resistor-color-code`
 - [ ] Picking the right LED current-limiting resistor — with worked examples → `/led-resistor`
 - [ ] Voltage dividers under load: why your output sags and how to fix it → `/voltage-divider`
 - [ ] 555 astable vs monostable: which one do you actually need? → `/555`
-- [ ] Ohm's law in 5 minutes with the Eagle mnemonic → `/ohms-law`
+- [x] Ohm's law in 5 minutes with the Eagle mnemonic → `/blog/ohms-law-in-5-minutes`
 
 ### Beginner electronics (broad search volume, evergreen)
 
