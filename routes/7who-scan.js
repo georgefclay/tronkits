@@ -56,8 +56,18 @@ router.use((req, res, next) => {
   next();
 });
 
-// Cost protection: 30 scans / 15 min per IP
-router.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false }));
+// Cost protection: 30 scans / 15 min per IP. The tronkits app uses `trust proxy = true`
+// (permissive), which express-rate-limit refuses to auto-derive keys from — so supply an
+// explicit keyGenerator (Cloudflare header first, then Caddy-forwarded req.ip) and disable
+// the trust-proxy validation error.
+router.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { trustProxy: false },
+  keyGenerator: (req) => req.headers['cf-connecting-ip'] || req.ip,
+}));
 
 function parseDataUrl(dataUrl) {
   const m = /^data:(image\/[a-z+.-]+);base64,(.+)$/i.exec(dataUrl || '');
