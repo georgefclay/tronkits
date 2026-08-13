@@ -278,6 +278,9 @@ app.get('/555', (req, res) => {
   
 // NEW: Passphrase API under /api
 app.use('/api', passphraseRoutes);
+
+// 7who business-card scanner API (7who.com frontend; nginx proxies /api/ -> /api/7who/)
+app.use('/api/7who', require('./routes/7who-scan'));
   
 app.get('/utility', (req, res) => {
   res.render('utility', { title: 'Utilities' });
