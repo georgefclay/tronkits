@@ -536,4 +536,87 @@ buildRevSelects();
 setMode(5);
 </script>
 
+<!-- ============================== EXPLAINER ============================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">05</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// Worked example</div>
+      <h2 class="tk-h2">Reading a resistor, start to finish</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-prose" style="margin:0">
+    <p>
+      A resistor color code is a row of painted bands that encodes the part's resistance:
+      two or three <strong>digit</strong> bands, one <strong>multiplier</strong> band, one
+      <strong>tolerance</strong> band, and on 6-band parts a <strong>temperature
+      coefficient</strong> band in ppm/K.
+    </p>
+    <p>
+      The maths is one line: <code>R = digits × multiplier</code>, and the real part can sit
+      anywhere in <code>R × (1 − tol/100)</code> to <code>R × (1 + tol/100)</code>.
+    </p>
+    <p>
+      <strong>Example.</strong> A 4-band resistor reads yellow, violet, red, gold. Yellow is 4
+      and violet is 7, so the digits are 47. Red multiplies by 100, giving
+      <code>47 × 100 = 4,700 Ω</code> (4.7&nbsp;kΩ). Gold in the last position is ±5%, so
+      anything from 4,465&nbsp;Ω to 4,935&nbsp;Ω is in spec.
+    </p>
+    <p>
+      <strong>Gotcha: brown at both ends.</strong> Brown is both the digit 1 and the ±1%
+      tolerance color, and 5-band parts are usually 1%. Brown, black, black, brown, brown reads
+      <code>100 × 10 = 1 kΩ ±1%</code> one way and <code>110 × 1 = 110 Ω ±1%</code> the other.
+      The tolerance band normally has a wider gap before it; if you can't see one, measure the
+      part with a multimeter before you solder it.
+    </p>
+  </div>
+</section>
+
+<!-- ================================ FAQ ================================= -->
+<%- include('../partials/tool_faq', {
+  n: '06',
+  faqs: [
+    {
+      "q": "Which end of a resistor do I start reading from?",
+      "a": "Start at the end where the bands are bunched together. The tolerance band, often gold or silver, usually sits alone at the other end with a wider gap before it. If both ends look the same, a multimeter settles it in a few seconds."
+    },
+    {
+      "q": "What does a gold band mean on a resistor?",
+      "a": "It depends on its position. In the tolerance position gold means ±5%. In the multiplier position gold means ×0.1, so red, red, gold, gold is 22 × 0.1 = 2.2 Ω at ±5%."
+    },
+    {
+      "q": "What is the difference between 4, 5 and 6-band resistors?",
+      "a": "A 4-band resistor has two digits, a multiplier and a tolerance band, and is typical of 5% parts. A 5-band resistor adds a third digit for precision parts of 1% or better. A 6-band resistor adds a sixth band for temperature coefficient, how far the value drifts per kelvin, in ppm/K."
+    },
+    {
+      "q": "What are the color bands for a 10k resistor?",
+      "a": "On a 4-band 5% part: brown, black, orange, gold (10 × 1,000 = 10 kΩ). On a 5-band 1% part: brown, black, black, red, brown (100 × 100 = 10 kΩ)."
+    },
+    {
+      "q": "What are the color bands for a 220 ohm resistor?",
+      "a": "On a 4-band 5% part: red, red, brown, gold (22 × 10 = 220 Ω). On a 5-band 1% part: red, red, black, black, brown (220 × 1 = 220 Ω)."
+    },
+    {
+      "q": "Can I get the colors from a resistance value?",
+      "a": "Yes. Type the value into the target-value box under the band picker and choose a tolerance; the drawing shows the bands for the current 4, 5 or 6-band mode. Values are rounded to 2 significant digits in 4-band mode and 3 in 5 and 6-band mode."
+    }
+  ],
+  app: {
+    "name": "TronKits Resistor Color Code Calculator",
+    "path": "/resistor",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "A free, browser-based resistor color code calculator for 4, 5 and 6-band resistors, with tolerance range, temperature coefficient and a reverse lookup from a value to its color bands. No login.",
+    "featureList": [
+      "Decode 4, 5 and 6-band resistors",
+      "Nominal value with minimum and maximum from tolerance",
+      "Temperature coefficient for 6-band parts",
+      "Reverse lookup from a resistance value to color bands",
+      "Full color reference table",
+      "Runs entirely in the browser"
+    ]
+  }
+}) %>
+
 <%- include('../partials/footer') %>

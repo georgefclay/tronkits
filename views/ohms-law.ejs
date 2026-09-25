@@ -225,4 +225,80 @@
 })();
 </script>
 
+<!-- ============================== EXPLAINER ============================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">03</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// How it works</div>
+      <h2 class="tk-h2">Ohm's law, plus the power check</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-prose" style="margin:0">
+    <p>
+      Ohm's law says the voltage across a resistance equals the current through it times the
+      resistance. Add the power law and there are four quantities (voltage E, current I,
+      resistance R, power P), and any two give you the other two.
+    </p>
+    <p>
+      <code>E = I × R</code>, <code>I = E / R</code>, <code>R = E / I</code>, and
+      <code>P = E × I = I² × R = E² / R</code>.
+    </p>
+    <p>
+      <strong>Example.</strong> 12&nbsp;V across a 220&nbsp;Ω resistor:
+      <code>I = 12 / 220 = 0.0545 A</code> (54.5&nbsp;mA) and
+      <code>P = 12² / 220 = 0.655 W</code>.
+    </p>
+    <p>
+      <strong>Gotcha: check the power, not just the value.</strong> If that 220&nbsp;Ω is an
+      ordinary ¼&nbsp;W resistor it is dissipating 2.6× its rating and will cook. Pick a part
+      rated for about twice the calculated power, a 1&nbsp;W resistor here. And watch units:
+      this calculator works in volts, amps, ohms and watts, so enter 20&nbsp;mA as
+      <code>0.02</code> and 4.7&nbsp;kΩ as <code>4700</code>.
+    </p>
+  </div>
+</section>
+
+<!-- ================================ FAQ ================================= -->
+<%- include('../partials/tool_faq', {
+  n: '04',
+  faqs: [
+    {
+      "q": "What does E stand for in Ohm's law?",
+      "a": "Electromotive force, the older name for voltage. E and V mean the same thing: E = I × R and V = I × R are the same equation."
+    },
+    {
+      "q": "How do I enter milliamps or kilohms?",
+      "a": "Convert to base units first: 20 mA is 0.02 A, 4.7 kΩ is 4700 Ω and 250 mW is 0.25 W. Most answers that are off by a factor of 1,000 come from a missed conversion."
+    },
+    {
+      "q": "Does Ohm's law work for LEDs?",
+      "a": "Not for the LED itself, because an LED's current is not proportional to its voltage. Apply Ohm's law to the series resistor instead: the voltage across it is the supply minus the LED's forward voltage. The LED resistor calculator does exactly that."
+    },
+    {
+      "q": "Why does the calculator only take two values?",
+      "a": "Voltage, current, resistance and power are linked by two equations, so any two of them fix the other two. If you type a third value the calculator asks you to clear one, because the three might contradict each other."
+    },
+    {
+      "q": "How do I work out how much power a resistor dissipates?",
+      "a": "Use P = I² × R or P = E² / R. For example, 9 V across 470 Ω gives I = 9 / 470 = 19.1 mA and P = 81 / 470 = 0.172 W, which is fine for a ¼ W resistor."
+    }
+  ],
+  app: {
+    "name": "TronKits Ohm's Law Calculator",
+    "path": "/ohms-law",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "A free, browser-based Ohm's law calculator: enter any two of voltage, current, resistance and power and the other two are calculated instantly. No login.",
+    "featureList": [
+      "Solve voltage, current, resistance and power from any two",
+      "Updates live as you type",
+      "All 12 Ohm's and Watt's law formulas",
+      "Eagle mnemonic for the Ohm's law triangle",
+      "Runs entirely in the browser"
+    ]
+  }
+}) %>
+
 <%- include('../partials/footer') %>

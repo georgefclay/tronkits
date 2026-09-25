@@ -1299,6 +1299,20 @@ main.tk-main {
 .tk-prose img { max-width: 100%; border: 1.5px solid var(--ink); }
 .tk-prose hr { border: none; border-top: 1.5px solid var(--ink); margin: 2em 0; }
 
+/* ─── FAQ list (tool pages, logo generator) ────────────────── */
+.tk-faq { display: grid; gap: 0; border-top: 1px dashed rgba(21, 38, 58, 0.25); }
+.tk-faq__item { border-bottom: 1px dashed rgba(21, 38, 58, 0.25); padding: 20px 2px; }
+.tk-faq__q {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px; font-weight: 700; color: var(--ink);
+  margin: 0 0 8px;
+}
+.tk-faq__a {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px; line-height: 1.6; color: var(--ink-soft);
+  margin: 0; max-width: 760px;
+}
+
 /* ─── Calculator helpers (shared across utility pages) ─────── */
 .tk-calc-grid {
   display: grid;

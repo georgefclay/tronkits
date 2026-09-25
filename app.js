@@ -205,8 +205,8 @@ app.get('/csv-viewer', (req, res) => {
 
 app.get('/csv2app', (req, res) => {
   res.render('csv2app', {
-    title: 'CSV2App – Turn a CSV File Into an Editable Web App | TronKits',
-    metaDescription: 'Free CSV to app converter. Load a CSV in your browser and get a searchable mini app to add, edit and delete records, then export. No uploads, no login.'
+    title: 'CSV2App – Turn a CSV File Into a Searchable Web App | TronKits',
+    metaDescription: 'Free CSV to app converter. Load a CSV in your browser and get a searchable mini app with filters, column profiles and a record view. No uploads, no login.'
   });
 });
 
@@ -322,7 +322,7 @@ app.get('/555', (req, res) => {
   app.get('/led-resistor', (req, res) => {
     res.render('led-resistor', {
       title: 'LED Series Resistor Calculator – E-Series Values | TronKits',
-      metaDescription: 'Free LED resistor calculator. Enter supply voltage, forward voltage, current and LED count to get the series resistor, power rating and nearest E-series value.'
+      metaDescription: 'Free LED resistor calculator. Enter supply voltage, forward voltage, current and LED count to get the series resistor, power rating and E12/E24 value rounded up.'
     });
   });
   

@@ -293,4 +293,80 @@
 })();
 </script>
 
+<!-- ============================== EXPLAINER ============================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">01</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// How it works</div>
+      <h2 class="tk-h2">Voltage dividers, and why they sag</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-prose" style="margin:0">
+    <p>
+      A voltage divider is two resistors in series across a supply; the point between them
+      sits at a fixed fraction of the input voltage, set by the ratio of the resistors.
+    </p>
+    <p>
+      <code>Vout = Vin × R2 / (R1 + R2)</code>. Anything connected to the output is in parallel
+      with R2, so with a load the effective bottom resistor becomes
+      <code>R2′ = R2 × RL / (R2 + RL)</code>.
+    </p>
+    <p>
+      <strong>Example.</strong> 12&nbsp;V in, R1 = 4.7&nbsp;kΩ, R2 = 3.3&nbsp;kΩ:
+      <code>12 × 3.3 / 8.0 = 4.95 V</code>. The divider draws 12&nbsp;V / 8&nbsp;kΩ =
+      1.5&nbsp;mA and burns 18&nbsp;mW, so any ¼&nbsp;W resistors will do.
+    </p>
+    <p>
+      <strong>Gotcha: the load is part of the divider.</strong> Hang a 10&nbsp;kΩ load on that
+      output and R2′ drops to 2.48&nbsp;kΩ, pulling Vout from 4.95&nbsp;V down to 4.15&nbsp;V. A
+      100&nbsp;kΩ load only pulls it to 4.86&nbsp;V. A common rule of thumb is to keep the load
+      at least 10× R2. Dividers are for signals (ADC inputs, reference voltages, level-shifting
+      a logic line), not for powering a board or a motor; use a regulator for that.
+    </p>
+  </div>
+</section>
+
+<!-- ================================ FAQ ================================= -->
+<%- include('../partials/tool_faq', {
+  n: '02',
+  faqs: [
+    {
+      "q": "Can I use a voltage divider to power a device?",
+      "a": "Not reliably. The output voltage depends on the load, so as the device draws more current the voltage sags, and the divider wastes power all the time. Use a linear regulator or a buck converter to power things; use dividers for signals and references."
+    },
+    {
+      "q": "How do I get 3.3 V from 5 V with resistors?",
+      "a": "R1 = 1 kΩ and R2 = 2 kΩ give 5 × 2 / 3 = 3.33 V. That works for stepping a 5 V logic signal down to a 3.3 V input, which draws almost no current. It is not a way to power a 3.3 V board."
+    },
+    {
+      "q": "How do I choose between 1 kΩ and 100 kΩ resistors for the same ratio?",
+      "a": "Low values hold their voltage better under load but waste more current; high values save current but sag more and pick up noise. For a microcontroller ADC input, check the datasheet's recommended source impedance; the ATmega328P, for example, is optimised for 10 kΩ or less."
+    },
+    {
+      "q": "Why does my multimeter read a lower Vout than the calculator?",
+      "a": "The meter itself is a load, typically about 10 MΩ. On a divider made of two 1 MΩ resistors that is enough to pull the output from 50% of Vin to about 47.6%. Resistor tolerance adds a few percent more."
+    },
+    {
+      "q": "What does the load resistor option do?",
+      "a": "It models a load RL in parallel with R2. Tick the box and enter any four of Vin, Vout, R1, R2 and RL; the calculator solves the fifth and shows the current and power in each resistor."
+    }
+  ],
+  app: {
+    "name": "TronKits Voltage Divider Calculator",
+    "path": "/voltage-divider",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "A free, browser-based voltage divider calculator: enter any three of Vin, Vout, R1 and R2 to solve the fourth, with an optional load resistor, currents and power dissipation. No login.",
+    "featureList": [
+      "Solve Vin, Vout, R1 or R2 from the other three",
+      "Optional load resistor in parallel with R2",
+      "Current through each resistor",
+      "Power dissipated in each resistor",
+      "Runs entirely in the browser"
+    ]
+  }
+}) %>
+
 <%- include('../partials/footer') %>

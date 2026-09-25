@@ -131,4 +131,90 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="/js/csv-viewer.js"></script>
 
+<!-- ============================== EXPLAINER ============================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">01</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// How it works</div>
+      <h2 class="tk-h2">What the viewer does with your file</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-prose" style="margin:0">
+    <p>
+      The CSV viewer opens a CSV file in your browser and shows it as a sortable table. You can
+      search every row or a single column, keep only the columns you need, trim whitespace,
+      drop empty rows and columns, then download the result as CSV or as an Excel
+      <code>.xlsx</code> file.
+    </p>
+    <p>
+      <strong>Privacy.</strong> The file is parsed on your own device by the Papa Parse library
+      and is never uploaded. The page loads Papa Parse and SheetJS (for the Excel export) from
+      the jsDelivr CDN, but your data doesn't go anywhere, and closing the tab discards it.
+    </p>
+    <p>
+      <strong>What you see vs. what you download.</strong> The preview shows the first 200 rows
+      so the page stays fast, but search and sort run over every row, and the downloads include
+      every row that matches your current search and column selection, in the current sort
+      order. Sorting compares numbers as numbers (so 9 comes before 10) and puts blank cells
+      last. The delimiter can be auto-detected or set to comma, semicolon, tab or pipe, and you
+      choose Windows (CRLF) or Unix (LF) line endings for the output.
+    </p>
+    <p>
+      <strong>When to use something else.</strong> The whole file is loaded into browser memory
+      at once, so a file of hundreds of megabytes can make the tab slow or crash it. For files
+      that big, command-line tools such as <code>csvkit</code>, <code>xsv</code> or DuckDB, or a
+      few lines of Python, are the better choice. Excel sheets also top out at 1,048,576 rows,
+      so a larger result is only useful as CSV.
+    </p>
+  </div>
+</section>
+
+<!-- ================================ FAQ ================================= -->
+<%- include('../partials/tool_faq', {
+  n: '02',
+  faqs: [
+    {
+      "q": "Is my CSV file uploaded anywhere?",
+      "a": "No. The file is read and parsed in your browser, and filtering, sorting and exporting all happen on your device. Nothing is sent to the TronKits server."
+    },
+    {
+      "q": "How big a CSV file can I open?",
+      "a": "It depends on your computer's memory, because the whole file is loaded into the browser at once. Files of tens of megabytes are usually fine; files of hundreds of megabytes may be slow or crash the tab."
+    },
+    {
+      "q": "Why does the preview only show 200 rows?",
+      "a": "To keep the page responsive. Search and sort still run over every row, and the CSV and Excel downloads include all matching rows, not just the 200 on screen."
+    },
+    {
+      "q": "Can I convert a CSV file to Excel?",
+      "a": "Yes. Load the CSV, optionally filter it, and click the XLSX button to download an Excel workbook with your current rows and columns."
+    },
+    {
+      "q": "My file uses semicolons instead of commas. Will it work?",
+      "a": "Yes. Leave the delimiter on auto-detect or choose semicolon, tab or pipe explicitly. Semicolon-separated files are common in countries that use a comma as the decimal separator."
+    },
+    {
+      "q": "Can I remove columns I don't need?",
+      "a": "Yes. Select the columns to keep in the Columns list (Ctrl or Shift-click for several), or tick Remove empty cols to drop columns with no data. The download contains only the columns you kept."
+    }
+  ],
+  app: {
+    "name": "TronKits CSV Viewer",
+    "path": "/csv-viewer",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "A free, browser-based CSV viewer: open a CSV file, sort, search, keep selected columns, clean whitespace and empty rows, then download the result as CSV or Excel. Files are never uploaded.",
+    "featureList": [
+      "Open CSV files locally, nothing uploaded",
+      "Auto-detect or choose comma, semicolon, tab or pipe delimiter",
+      "Sort by any column with numeric-aware ordering",
+      "Search all columns or a single column",
+      "Keep selected columns, trim whitespace, remove empty rows and columns",
+      "Download filtered rows as CSV or Excel (.xlsx)"
+    ]
+  }
+}) %>
+
 <%- include('../partials/footer') %>

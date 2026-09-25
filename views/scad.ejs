@@ -233,4 +233,86 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- ============================== EXPLAINER ============================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">01</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// How it works</div>
+      <h2 class="tk-h2">From dimensions to a printable box</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-prose" style="margin:0">
+    <p>
+      The box generator fills your dimensions into an OpenSCAD template and gives you the code:
+      a hollow box with the wall thickness you set, plus a two-part lid (a flat top and an inner
+      ring that sits inside the walls) placed next to it. Tick <em>Rounded corners</em> and the
+      template switches to the <code>offset()</code> technique from the
+      <a href="/tutorials/openscad-rounded-box">rounded box tutorial</a>, with a 1, 2 or
+      3&nbsp;mm radius. All dimensions are outside measurements in millimetres.
+    </p>
+    <p>
+      <strong>Two ways to finish.</strong> Copy the code into OpenSCAD on your own computer and
+      render it there, or click <em>Render STL</em>. Rendering happens on the server: the code
+      in the text box is sent to the Raspberry Pi that runs this site, OpenSCAD turns it into an
+      STL, and your browser downloads it. The <code>.scad</code> and <code>.stl</code> files are
+      saved on the server under a random file name and are not deleted automatically. Rendering
+      can take a while; the server allows up to 10 minutes.
+    </p>
+    <p>
+      <strong>Gotcha: the lid has zero clearance.</strong> The template sets
+      <code>lid_clearance = 0</code>, so the lid's inner ring is exactly the size of the box's
+      inner cavity. Most FDM printers need a small gap for parts to fit, so edit
+      <code>lid_clearance</code> in the code box (0.2 to 0.4&nbsp;mm is a common starting point)
+      before you render; whatever is in the box is what gets rendered.
+    </p>
+  </div>
+</section>
+
+<!-- ================================ FAQ ================================= -->
+<%- include('../partials/tool_faq', {
+  n: '02',
+  faqs: [
+    {
+      "q": "Do I need OpenSCAD installed to use the box generator?",
+      "a": "No. Click Render STL and the server renders the model with OpenSCAD and sends you the STL. You only need OpenSCAD if you want to render the code yourself or change the design further."
+    },
+    {
+      "q": "What units does the box generator use?",
+      "a": "Millimetres. Width, length and height are outside dimensions, and the inner cavity is the outside size minus two wall thicknesses."
+    },
+    {
+      "q": "Is my design uploaded when I render an STL?",
+      "a": "Yes. Rendering needs the server, so the OpenSCAD code is sent to it, and the .scad and .stl files are stored there under a random file name. Copying the code and rendering it in your own copy of OpenSCAD keeps everything local."
+    },
+    {
+      "q": "Why doesn't the lid fit my box?",
+      "a": "The generated code uses lid_clearance = 0, so the lid ring is the same size as the cavity. Increase lid_clearance in the code box, 0.2 to 0.4 mm is a common starting point for FDM printers, and render again."
+    },
+    {
+      "q": "Can I edit the OpenSCAD code before rendering?",
+      "a": "Yes. The code box is editable, and Render STL sends whatever is in it. That is the easiest way to change clearance, add holes or adjust the lid."
+    },
+    {
+      "q": "Why use offset() instead of minkowski() for rounded corners?",
+      "a": "Two offset() passes on a 2D square round the corners and then extrude to 3D, which renders much faster than minkowski() on a 3D shape and gives the same rounded outline for a box like this."
+    }
+  ],
+  app: {
+    "name": "TronKits OpenSCAD Box Generator",
+    "path": "/scad",
+    "applicationCategory": "DesignApplication",
+    "description": "A free parametric box generator that writes OpenSCAD code for a box with a two-part lid, with square or rounded corners, and can render it to an STL file on the server. No login.",
+    "featureList": [
+      "Parametric width, length, height, wall and lid thickness",
+      "Square or rounded corners (1, 2 or 3 mm radius)",
+      "Generates editable OpenSCAD code",
+      "Server-side STL rendering with OpenSCAD",
+      "Two-part lid with a locating ring"
+    ]
+  }
+}) %>
+
 <%- include('../partials/footer') %>

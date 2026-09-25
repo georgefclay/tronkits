@@ -55,4 +55,83 @@
   </div>
 </section>
 
+<!-- ============================== EXPLAINER ============================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">01</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// How it works</div>
+      <h2 class="tk-h2">Two trackers, both on your machine</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-prose" style="margin:0">
+    <p>
+      The project tracker is a single HTML page for keeping projects and the work inside them:
+      each project has a status (Planning, In process, QA, Complete) and a list of items typed
+      as bugs, new features, tasks or notes, each with a Low, Med or High priority. There is no
+      server-side storage: both versions keep your data on your own machine.
+    </p>
+    <p>
+      <strong>File-based tracker.</strong> Saves everything to one <code>.json</code> file that
+      you pick, using the browser's File System Access API, which currently means Chrome or
+      Edge on desktop. Put that file in Dropbox, OneDrive or iCloud Drive and the same projects
+      follow you between computers. <strong>Browser tracker.</strong> Saves to the browser's
+      local storage, works in any modern browser and needs no setup.
+    </p>
+    <p>
+      <strong>Gotcha: local storage is fragile.</strong> The browser tracker's data lives only in
+      that browser on that device. Clearing site data or browsing history, or using a private
+      window, erases it, and it doesn't sync. If the projects matter, use the file-based
+      version, or download the page and keep it with your files.
+    </p>
+    <p>
+      <strong>When not to use it.</strong> It's built for one person keeping track of their own
+      projects. It has no accounts, sharing, comments or notifications, so a team that needs
+      those is better served by a hosted issue tracker.
+    </p>
+  </div>
+</section>
+
+<!-- ================================ FAQ ================================= -->
+<%- include('../partials/tool_faq', {
+  n: '02',
+  faqs: [
+    {
+      "q": "Where is my project tracker data stored?",
+      "a": "On your own machine. The file-based tracker writes to a JSON file you choose; the browser tracker writes to the browser's local storage. Nothing is sent to the TronKits server."
+    },
+    {
+      "q": "Which browsers support the file-based tracker?",
+      "a": "Browsers that support the File System Access API, currently Chrome and Edge on desktop. Use the browser tracker in Firefox, Safari or on a phone."
+    },
+    {
+      "q": "How do I sync projects between computers?",
+      "a": "Use the file-based tracker and keep its JSON file in a synced folder such as Dropbox, OneDrive or iCloud Drive, then open the same file on each computer."
+    },
+    {
+      "q": "Can I use the tracker offline?",
+      "a": "Yes. Each tracker is one self-contained HTML page, so you can download it and open it from your own disk. Without a connection it falls back to system fonts."
+    },
+    {
+      "q": "Will clearing my browser data delete my projects?",
+      "a": "In the browser tracker, yes: its data lives in that browser's local storage. The file-based tracker isn't affected, because its data is in your JSON file."
+    }
+  ],
+  app: {
+    "name": "TronKits Project Tracker",
+    "path": "/project-tracker",
+    "applicationCategory": "BusinessApplication",
+    "description": "A free, single-page project tracker for bugs, features, tasks and notes that stores data in a JSON file you choose or in browser local storage. No account, no server storage.",
+    "featureList": [
+      "Projects with Planning, In process, QA and Complete statuses",
+      "Bugs, new features, tasks and notes with Low, Med and High priority",
+      "File-based version saves to a JSON file you can keep in a synced folder",
+      "Browser version saves to local storage",
+      "Self-contained HTML pages that can be downloaded and used offline"
+    ]
+  }
+}) %>
+
 <%- include('../partials/footer') %>

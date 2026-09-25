@@ -230,4 +230,85 @@
 })();
 </script>
 
+<!-- ============================== EXPLAINER ============================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">01</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// How it works</div>
+      <h2 class="tk-h2">The 555 astable, worked through</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-prose" style="margin:0">
+    <p>
+      In astable mode a 555 charges its timing capacitor C through R1 and R2 in series, then
+      discharges it through R2 alone, flipping the output each time the capacitor crosses ⅔
+      and ⅓ of the supply. The result is a continuous square wave whose timing depends only on
+      R1, R2 and C.
+    </p>
+    <p>
+      <code>t_HIGH = ln(2) · (R1 + R2) · C</code>, <code>t_LOW = ln(2) · R2 · C</code>, and
+      <code>f = 1 / (ln(2) · C · (R1 + 2·R2))</code>, which is the familiar
+      <code>f ≈ 1.44 / ((R1 + 2·R2) · C)</code>.
+    </p>
+    <p>
+      <strong>Example.</strong> R1 = 1&nbsp;kΩ, R2 = 10&nbsp;kΩ, C = 10&nbsp;µF.
+      <code>t_HIGH = 0.693 × 11,000 Ω × 0.00001 F ≈ 76.2 ms</code> and
+      <code>t_LOW ≈ 69.3 ms</code>, so the period is about 145.6&nbsp;ms, the frequency about
+      6.87&nbsp;Hz and the duty cycle 52.4%: a comfortable LED blink.
+    </p>
+    <p>
+      <strong>Gotcha: the duty cycle can't go below 50%.</strong> In this basic circuit the
+      capacitor charges through both resistors but discharges through only one, so
+      <code>duty = (R1 + R2) / (R1 + 2·R2)</code> is always above 50%. Shrinking R1 gets you
+      close, but R1 can't be zero: it's what limits current into the discharge pin. For a duty
+      cycle under 50%, put a diode across R2 (the formulas above no longer apply) or invert the
+      output. And budget for capacitor tolerance: electrolytics are often ±20%, and the same
+      circuit with a real 12&nbsp;µF runs at 5.72&nbsp;Hz, not 6.87&nbsp;Hz.
+    </p>
+  </div>
+</section>
+
+<!-- ================================ FAQ ================================= -->
+<%- include('../partials/tool_faq', {
+  n: '02',
+  faqs: [
+    {
+      "q": "Does this calculator do monostable mode?",
+      "a": "No, it covers astable mode only. For a monostable (one-shot) 555 the output pulse lasts t = 1.1 × R × C, so 100 kΩ with 10 µF gives a pulse of about 1.1 seconds."
+    },
+    {
+      "q": "Why can't I get a 50% duty cycle from a 555?",
+      "a": "In the basic astable circuit the capacitor charges through R1 + R2 but discharges through R2 only, so the high time is always longer than the low time. Making R1 much smaller than R2 gets close to 50%; going below 50% needs a diode across R2 or an inverter on the output."
+    },
+    {
+      "q": "How do I pick parts for a 1 Hz blink?",
+      "a": "Fix the parts you have and solve for the one you don't. With R1 = 1 kΩ, C = 10 µF and f = 1 Hz, leave R2 empty and the calculator returns about 71.6 kΩ. The nearest standard value, 68 kΩ, gives about 1.05 Hz."
+    },
+    {
+      "q": "Why is my 555 running at a different frequency than calculated?",
+      "a": "Usually component tolerance. Electrolytic capacitors are often ±20% and resistors ±5%, and large electrolytics also leak. With very small capacitors, stray capacitance from a breadboard adds to C. Measure the real capacitor or trim R2 to tune."
+    },
+    {
+      "q": "Does the supply voltage change the 555 frequency?",
+      "a": "Ideally no, because the ⅓ and ⅔ switching thresholds scale with the supply. In practice the frequency shifts slightly with voltage. The classic bipolar NE555 needs roughly 4.5 V or more; CMOS versions such as the TLC555 run from lower supplies."
+    }
+  ],
+  app: {
+    "name": "TronKits 555 Timer Calculator",
+    "path": "/555",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "A free, browser-based 555 timer calculator for astable mode: enter any three of R1, R2, C and frequency to solve the fourth, with period, high and low times and duty cycle. No login.",
+    "featureList": [
+      "Astable mode",
+      "Solve for R1, R2, C or frequency from the other three",
+      "Period, high time, low time and duty cycle",
+      "Unit selectors from pF to F and Ω to MΩ",
+      "Runs entirely in the browser"
+    ]
+  }
+}) %>
+
 <%- include('../partials/footer') %>

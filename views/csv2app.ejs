@@ -323,4 +323,84 @@
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="/js/csv2app.js"></script>
 
+<!-- ============================== EXPLAINER ============================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">01</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// How it works</div>
+      <h2 class="tk-h2">What CSV2App builds from your file</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-prose" style="margin:0">
+    <p>
+      CSV2App turns a CSV file into a small browsing app for that data. It profiles every column
+      (detecting numbers, dates, true/false values and text, and counting filled, blank and
+      unique values), then builds a searchable, sortable table with filters for the columns you
+      choose, summary cards, and a record view that shows one row as a card when you click it.
+      You can download the filtered rows as a new CSV.
+    </p>
+    <p>
+      <strong>Filters follow the data.</strong> A number column gets a min/max range, a column
+      with 25 or fewer distinct values gets a checkbox list, and anything else gets a
+      <em>contains</em> text box. The table shows up to 500 rows at a time; the filtered
+      download includes every matching row.
+    </p>
+    <p>
+      <strong>Privacy.</strong> The file is read in your browser with the Papa Parse library
+      (loaded from the jsDelivr CDN) and never uploaded; closing the tab discards it.
+    </p>
+    <p>
+      <strong>When to use something else.</strong> CSV2App is for exploring and filtering a
+      file, not editing it: there is no way to change cells or add rows, and nothing is saved
+      between visits. For quick cleanup and Excel export use the
+      <a href="/csv-viewer">CSV viewer</a>; for a shared, editable dataset use a spreadsheet or a
+      database.
+    </p>
+  </div>
+</section>
+
+<!-- ================================ FAQ ================================= -->
+<%- include('../partials/tool_faq', {
+  n: '02',
+  faqs: [
+    {
+      "q": "Is my CSV uploaded to a server?",
+      "a": "No. CSV2App reads and processes the file in your browser. Nothing is sent to the TronKits server, and the data is gone when you close the tab."
+    },
+    {
+      "q": "Can I edit records in CSV2App?",
+      "a": "No. CSV2App is for exploring data: search, sort, filter and inspect records, then download the filtered rows. To change values, edit the CSV in a spreadsheet and load it again."
+    },
+    {
+      "q": "How does CSV2App decide which filter to show?",
+      "a": "It profiles each column. Number columns get a min/max range, columns with 25 or fewer distinct values get checkboxes, and other columns get a contains text box."
+    },
+    {
+      "q": "Why does the table only show 500 rows?",
+      "a": "To keep the page responsive with large files. Filters and search still apply to every row, and the filtered CSV download includes all matching rows."
+    },
+    {
+      "q": "What is the difference between CSV2App and the CSV viewer?",
+      "a": "The CSV viewer is for cleanup and export: trimming, dropping columns and saving as CSV or Excel. CSV2App is for exploring: per-column filters, column types and counts, summary cards and a one-record-at-a-time view."
+    }
+  ],
+  app: {
+    "name": "TronKits CSV2App",
+    "path": "/csv2app",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "A free, browser-based tool that turns a CSV file into a searchable, filterable mini app with column profiles, summary cards and a record view, then exports the filtered rows. Files are never uploaded.",
+    "featureList": [
+      "Load a CSV locally by picking or dropping a file",
+      "Column profiling: type, filled, blank and unique counts",
+      "Per-column filters: ranges, checkboxes or text match",
+      "Search and sort across all rows",
+      "Record detail view for a single row",
+      "Download filtered rows as CSV"
+    ]
+  }
+}) %>
+
 <%- include('../partials/footer.ejs') %>

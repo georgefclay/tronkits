@@ -70,4 +70,93 @@
 
 <script src="/js/passphrases.js"></script>
 
+<!-- ============================== EXPLAINER ============================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">01</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// How it works</div>
+      <h2 class="tk-h2">How these passphrases are built</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-prose" style="margin:0">
+    <p>
+      The generator strings together real words in adjective → noun → verb → adverb order
+      (repeating the pattern for longer phrases), randomly capitalizes some first letters, and
+      puts a random digit or symbol between the words and at the end. It keeps adding words
+      until the phrase is at least your length; <em>Exact length</em> retries until it lands on
+      the length exactly. Every result has at least one capital, one digit and one symbol.
+    </p>
+    <p>
+      <strong>Where it runs.</strong> Unlike most tools on this site, the passphrases are made
+      on the server. The page calls <code>/api/passphrases</code> with only three settings
+      (length, count and exact-length), a Python script on the server picks the words, and the
+      list comes back to your browser. The passphrases aren't written to disk or a database.
+      The server's access log records the request URL, which contains only those three
+      settings. The API is limited to 30 requests a minute per IP address.
+    </p>
+    <p>
+      <strong>How strong.</strong> The word lists hold 941 adjectives, 3,402 nouns, 1,485 verbs
+      and 771 adverbs. Assuming an attacker knows exactly how the phrase was built, a four-word
+      phrase carries about 66 bits of randomness: about 42 from the words, 21 from the four
+      separators (each one of 35 characters) and up to 4 from capitalization. A three-word
+      phrase is about 50 bits. More words is the cheapest way to add strength.
+    </p>
+    <p>
+      <strong>When not to use it.</strong> The words are chosen with Python's standard
+      <code>random</code> module, which is fine for everyday account passwords but is not a
+      cryptographically secure generator, and the phrase is created on a server you don't
+      control. For a password-manager master password or a disk-encryption key, use your
+      password manager's own generator or dice-based Diceware instead.
+    </p>
+  </div>
+</section>
+
+<!-- ================================ FAQ ================================= -->
+<%- include('../partials/tool_faq', {
+  n: '02',
+  faqs: [
+    {
+      "q": "Are the generated passphrases stored or logged?",
+      "a": "No. They are generated on the server, sent back to your browser and not saved. The server's access log records the request URL, which only contains the length, count and exact-length settings, never the passphrases."
+    },
+    {
+      "q": "How long should a passphrase be?",
+      "a": "Aim for 14 characters or more, and longer for important accounts such as email and banking. The generator defaults to 20 characters and won't go below 12."
+    },
+    {
+      "q": "Is a passphrase stronger than a random password of the same length?",
+      "a": "No. A 16-character password drawn at random from all 94 printable ASCII characters has about 105 bits of randomness, far more than a 16-character passphrase. The advantage of a passphrase is that it is easier to read, type and remember, so you can afford to make it longer."
+    },
+    {
+      "q": "What does the Exact length option do?",
+      "a": "Without it, the generator adds words until the phrase reaches at least your length, so results often run a few characters over. With it, the generator retries (sometimes using two-character separators) until the phrase is exactly the requested length."
+    },
+    {
+      "q": "Can I generate several passphrases at once?",
+      "a": "Yes. Set the count anywhere from 1 to 50, then copy a single passphrase or copy them all at once."
+    },
+    {
+      "q": "Should I use the same passphrase on more than one site?",
+      "a": "No. Use a different one for every site, because one breached site would otherwise unlock the others. A password manager makes that practical, and turning on multi-factor authentication adds another layer."
+    }
+  ],
+  app: {
+    "name": "TronKits Passphrase Generator",
+    "path": "/passphrases",
+    "applicationCategory": "SecurityApplication",
+    "description": "A free passphrase generator that builds memorable adjective-noun-verb-adverb passphrases with digits, symbols and capitals mixed in, at a minimum or exact length, 1 to 50 at a time. No login.",
+    "featureList": [
+      "Adjective, noun, verb, adverb word pattern",
+      "Digits and symbols between words, at least one capital",
+      "Minimum or exact length from 12 to 128 characters",
+      "Generate 1 to 50 at a time",
+      "One-click copy or copy all",
+      "Passphrases are not stored or logged"
+    ]
+  }
+}) %>
+
 <%- include('../partials/footer') %>

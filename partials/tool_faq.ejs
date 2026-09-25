@@ -1,0 +1,49 @@
+<%
+  // Shared FAQ section + FAQPage/WebApplication JSON-LD for tool pages.
+  // Locals: n (section number, e.g. '06'), faqs [{ q, a }] as plain text so
+  // the JSON-LD mirrors the visible answers verbatim, and app { name, path,
+  // description, applicationCategory, featureList }.
+  var __faqLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(function(f){
+      return { '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } };
+    })
+  };
+  var __appLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: app.name,
+    url: siteUrl + app.path,
+    applicationCategory: app.applicationCategory,
+    operatingSystem: 'Any (web browser)',
+    browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description: app.description,
+    featureList: app.featureList,
+    publisher: { '@type': 'Organization', name: 'TronKits', url: siteUrl }
+  };
+%>
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n"><%= n %></div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// Common questions</div>
+      <h2 class="tk-h2">Questions people actually ask</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-faq">
+    <% faqs.forEach(function(f){ %>
+      <div class="tk-faq__item">
+        <h3 class="tk-faq__q"><%= f.q %></h3>
+        <p class="tk-faq__a"><%= f.a %></p>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<script type="application/ld+json"><%- JSON.stringify(__appLd).replace(/</g, '\\u003c') %></script>
+<script type="application/ld+json"><%- JSON.stringify(__faqLd).replace(/</g, '\\u003c') %></script>
