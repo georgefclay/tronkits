@@ -1,4 +1,22 @@
 <% var currentPage = 'utilities'; %>
+<%
+  // Resistor color reference (matches design handoff). Used server-side to
+  // render the reference table and emitted to the client for the calculator.
+  var RESISTOR_COLORS = [
+    { name:'BLACK',  hex:'#1a1a1a', digit:0,    mult:1,     tol:null, pcc:null },
+    { name:'BROWN',  hex:'#7A4012', digit:1,    mult:10,    tol:1,    pcc:100 },
+    { name:'RED',    hex:'#C9442C', digit:2,    mult:100,   tol:2,    pcc:50  },
+    { name:'ORANGE', hex:'#E25C2C', digit:3,    mult:1e3,   tol:null, pcc:15  },
+    { name:'YELLOW', hex:'#E5B043', digit:4,    mult:1e4,   tol:null, pcc:25  },
+    { name:'GREEN',  hex:'#2D8F60', digit:5,    mult:1e5,   tol:0.5,  pcc:null },
+    { name:'BLUE',   hex:'#2E6DA4', digit:6,    mult:1e6,   tol:0.25, pcc:10  },
+    { name:'VIOLET', hex:'#6B47B8', digit:7,    mult:1e7,   tol:0.1,  pcc:5   },
+    { name:'GREY',   hex:'#888888', digit:8,    mult:1e8,   tol:0.05, pcc:null },
+    { name:'WHITE',  hex:'#F0EAD9', digit:9,    mult:1e9,   tol:null, pcc:null },
+    { name:'GOLD',   hex:'#C9A227', digit:null, mult:0.1,   tol:5,    pcc:null },
+    { name:'SILVER', hex:'#B8B8B8', digit:null, mult:0.01,  tol:10,   pcc:null }
+  ];
+%>
 <%- include('../partials/header') %>
 
 <section class="tk-hero--tight" style="padding-bottom:28px">
@@ -154,27 +172,20 @@
           <th>TEMPCO (ppm/K)</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody>
+        <% RESISTOR_COLORS.forEach(function(c){
+             var mult = c.mult >= 1 ? c.mult.toExponential(0).replace('e+0', '').replace('e+', 'e') : c.mult;
+        %>
+          <tr><td><span class="swatch" style="background:<%= c.hex %>"></span><span style="font-weight:600"><%= c.name %></span></td><td><%= c.digit !== null ? c.digit : '—' %></td><td>×<%= mult %></td><td class="<%= c.tol !== null ? 'tol-active' : 'muted' %>"><%= c.tol !== null ? '±' + c.tol + '%' : '—' %></td><td class="muted"><%= c.pcc !== null ? c.pcc : '—' %></td></tr>
+        <% }) %>
+      </tbody>
     </table>
   </div>
 </section>
 
 <script>
-// ── Resistor color reference (matches design handoff) ───────────────────────
-var RESISTOR_COLORS = [
-  { name:'BLACK',  hex:'#1a1a1a', digit:0,    mult:1,     tol:null, pcc:null },
-  { name:'BROWN',  hex:'#7A4012', digit:1,    mult:10,    tol:1,    pcc:100 },
-  { name:'RED',    hex:'#C9442C', digit:2,    mult:100,   tol:2,    pcc:50  },
-  { name:'ORANGE', hex:'#E25C2C', digit:3,    mult:1e3,   tol:null, pcc:15  },
-  { name:'YELLOW', hex:'#E5B043', digit:4,    mult:1e4,   tol:null, pcc:25  },
-  { name:'GREEN',  hex:'#2D8F60', digit:5,    mult:1e5,   tol:0.5,  pcc:null },
-  { name:'BLUE',   hex:'#2E6DA4', digit:6,    mult:1e6,   tol:0.25, pcc:10  },
-  { name:'VIOLET', hex:'#6B47B8', digit:7,    mult:1e7,   tol:0.1,  pcc:5   },
-  { name:'GREY',   hex:'#888888', digit:8,    mult:1e8,   tol:0.05, pcc:null },
-  { name:'WHITE',  hex:'#F0EAD9', digit:9,    mult:1e9,   tol:null, pcc:null },
-  { name:'GOLD',   hex:'#C9A227', digit:null, mult:0.1,   tol:5,    pcc:null },
-  { name:'SILVER', hex:'#B8B8B8', digit:null, mult:0.01,  tol:10,   pcc:null }
-];
+// ── Resistor color reference: defined once in EJS at the top of this view ──
+var RESISTOR_COLORS = <%- JSON.stringify(RESISTOR_COLORS) %>;
 
 // ── State: bands as indices into RESISTOR_COLORS ────────────────────────────
 // default: orange, orange, brown, brown, brown, gold = 330 Ω ± 5% 5-band
@@ -331,22 +342,6 @@ function renderPreview() {
       '<text x="'+ (x + bandW/2) +'" y="170" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#4A5B72">'+ c.name +'</text>'
     );
   }
-}
-
-function renderTable() {
-  var tbody = document.querySelector('#rkTable tbody');
-  tbody.innerHTML = '';
-  RESISTOR_COLORS.forEach(function(c){
-    var tr = document.createElement('tr');
-    var mult = c.mult >= 1 ? c.mult.toExponential(0).replace('e+0', '').replace('e+', 'e') : c.mult;
-    tr.innerHTML =
-      '<td><span class="swatch" style="background:'+ c.hex +'"></span><span style="font-weight:600">'+ c.name +'</span></td>' +
-      '<td>'+ (c.digit !== null ? c.digit : '—') +'</td>' +
-      '<td>×'+ mult +'</td>' +
-      '<td class="'+ (c.tol !== null ? 'tol-active' : 'muted') +'">'+ (c.tol !== null ? '±' + c.tol + '%' : '—') +'</td>' +
-      '<td class="muted">'+ (c.pcc !== null ? c.pcc : '—') +'</td>';
-    tbody.appendChild(tr);
-  });
 }
 
 function renderAll() {
@@ -531,8 +526,7 @@ document.querySelectorAll('.tk-mode-btn').forEach(function(btn){
   btn.addEventListener('click', function(){ setMode(Number(btn.dataset.mode)); });
 });
 
-// initial render
-renderTable();
+// initial render (the color table is rendered server-side)
 buildRevSelects();
 ['rkRevValue', 'rkRevUnit', 'rkRevTol', 'rkRevTc'].forEach(function(id){
   var el = document.getElementById(id);

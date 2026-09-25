@@ -25,7 +25,7 @@
                       ? ((/^https?:\/\//.test(ogImage) ? '' : (typeof siteUrl !== 'undefined' ? siteUrl : '')) + ogImage)
                       : '';
   %>
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="<%= (typeof ogType !== 'undefined' && ogType) ? ogType : 'website' %>">
   <meta property="og:site_name" content="TronKits">
   <meta property="og:title" content="<%= title %>">
   <% if (__ogDesc) { %><meta property="og:description" content="<%= __ogDesc %>"><% } %>
@@ -40,6 +40,8 @@
   <meta name="twitter:title" content="<%= title %>">
   <% if (__ogDesc) { %><meta name="twitter:description" content="<%= __ogDesc %>"><% } %>
   <% if (__ogImg)  { %><meta name="twitter:image" content="<%= __ogImg %>"><% } %>
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

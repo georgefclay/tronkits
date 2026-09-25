@@ -1,9 +1,15 @@
 <% var currentPage = 'home'; %>
+<%
+  // "Last updated" = newest blog post date (stable across requests), else a fixed date
+  var __lastUpdated = (typeof latestPosts !== 'undefined' && latestPosts && latestPosts[0] && latestPosts[0].date)
+    ? latestPosts[0].date.toISOString().slice(0,10)
+    : '2026-01-01';
+%>
 <%- include('../partials/header') %>
 
 <section class="tk-hero">
   <div class="tk-status-strip">
-    <span>// FILE · home.tron · last updated <%= new Date().toISOString().slice(0,10) %></span>
+    <span>// FILE · home.tron · last updated <%= __lastUpdated %></span>
     <span><span class="pulse"></span>STATUS: SOLDERING_HOT</span>
   </div>
 
@@ -36,7 +42,8 @@
       </div>
 
       <div class="tk-stats">
-        <div><div class="tk-stats__n">24</div><div class="tk-stats__label">Tutorials</div></div>
+        <%# Tutorial count is hand-maintained — update when tutorials are added to views/tutorials.ejs %>
+        <div><div class="tk-stats__n">03</div><div class="tk-stats__label">Tutorials</div></div>
         <div><div class="tk-stats__n">06</div><div class="tk-stats__label">Calculators</div></div>
         <div><div class="tk-stats__n">∞</div><div class="tk-stats__label">Side quests</div></div>
       </div>
@@ -61,7 +68,7 @@
           <text x="210" y="60" font-family="JetBrains Mono, monospace" font-size="10" fill="#4A5B72">~ 10 min</text>
           <text x="390" y="15" font-family="JetBrains Mono, monospace" font-size="9" fill="#4A5B72" letter-spacing="0.15em">REV</text>
           <text x="390" y="44" font-family="Space Grotesk, sans-serif" font-size="18" fill="#15263A" font-weight="600">02</text>
-          <text x="390" y="60" font-family="JetBrains Mono, monospace" font-size="10" fill="#4A5B72"><%= new Date().toISOString().slice(0,10) %></text>
+          <text x="390" y="60" font-family="JetBrains Mono, monospace" font-size="10" fill="#4A5B72"><%= __lastUpdated %></text>
         </g>
 
         <g stroke="#15263A" stroke-width="2" fill="none">

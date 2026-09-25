@@ -8,16 +8,43 @@
     <a href="/blog" class="tk-mono" style="text-decoration:none; display:inline-block; margin-bottom:24px; color:var(--accent)">← BACK TO BLOG</a>
 
     <h1 class="tk-h1" style="font-size:56px; margin-bottom:18px"><%= post.title %></h1>
-    <div class="tk-mono" style="margin-bottom:32px">
+    <div class="tk-mono" style="margin-bottom:16px">
       <%
         var d = post.date;
         var dateStr = d ? (d.toISOString().slice(0,10)) : '';
       %>
-      <%= dateStr %> · TRONKITS FIELD NOTES
+      <time datetime="<%= dateStr %>"><%= dateStr %></time> · TRONKITS FIELD NOTES
     </div>
+    <% if (post.tags && post.tags.length) { %>
+      <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:32px">
+        <% post.tags.forEach(function(t){ %>
+          <span class="tk-tag"><%= String(t).toUpperCase() %></span>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div style="margin-bottom:16px"></div>
+    <% } %>
 
     <div class="tk-prose"><%- post.html %></div>
   </article>
 </section>
+
+<%
+  // BlogPosting structured data. JSON.stringify handles quoting; "<" is
+  // escaped so a title containing "</script" can't close the tag early.
+  var __ld = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.description || post.excerpt || '',
+    datePublished: dateStr,
+    dateModified: post.updated ? post.updated.toISOString().slice(0,10) : dateStr,
+    author: { '@type': 'Person', name: 'George Clay' },
+    publisher: { '@type': 'Organization', name: 'TronKits', url: siteUrl },
+    mainEntityOfPage: canonicalUrl,
+    url: canonicalUrl
+  };
+%>
+<script type="application/ld+json"><%- JSON.stringify(__ld).replace(/</g, '\\u003c') %></script>
 
 <%- include('../../partials/footer') %>

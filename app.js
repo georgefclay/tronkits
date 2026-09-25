@@ -61,7 +61,10 @@ app.use((req, res, next) => {
 const SITE_URL = (process.env.SITE_URL || 'https://tronkits.com').replace(/\/+$/, '');
 app.use((req, res, next) => {
   res.locals.siteUrl = SITE_URL;
-  res.locals.canonicalUrl = SITE_URL + req.originalUrl;
+  // Canonical is built from req.path so query strings (?utm=..., ?x=1) never
+  // create duplicate URLs; trailing slashes are stripped except on the root.
+  var canonicalPath = req.path.length > 1 ? req.path.replace(/\/+$/, '') : req.path;
+  res.locals.canonicalUrl = SITE_URL + (canonicalPath || '/');
   // Only set if not already set by a route
   if (typeof res.locals.metaDescription === 'undefined') res.locals.metaDescription = '';
   next();
@@ -74,11 +77,18 @@ app.get('/', (req, res) => {
     const { getAllPosts } = require('./lib/blog');
     latestPosts = getAllPosts().slice(0, 3);
   } catch (e) { console.error('latestPosts loader failed:', e); }
-  res.render('index', { title: 'Home - Tronkits', latestPosts });
+  res.render('index', {
+    title: 'TronKits – Electronics Calculators, OpenSCAD & Raspberry Pi Tutorials',
+    metaDescription: 'Free electronics calculators, an OpenSCAD box generator and beginner tutorials for Raspberry Pi and basic electronics. Runs in your browser, no login.',
+    latestPosts
+  });
 });
 
 app.get('/tutorials', (req, res) => {
-  res.render('tutorials', { title: 'Tutorials - Tronkits' });
+  res.render('tutorials', {
+    title: 'Tutorials – OpenSCAD, Raspberry Pi & Beginner Electronics | TronKits',
+    metaDescription: 'Free step-by-step tutorials for beginners: build a parametric box in OpenSCAD, host a Node site on a Raspberry Pi behind Nginx, and blink an LED the right way.'
+  });
 });
 
 // Passphrase API (existing route file)
@@ -92,31 +102,40 @@ app.use('/blog', blogRoutes);
 // sitemap.xml (includes static pages + blog slugs)
 app.get('/sitemap.xml', (req, res) => {
   try {
-    // Base URLs you want indexed
+    // Base URLs you want indexed. `view` is the template file whose mtime
+    // becomes <lastmod> (omitted if the file can't be stat'ed).
     const urls = [
-      { loc: '/', changefreq: 'weekly', priority: 1.0 },
-      { loc: '/blog', changefreq: 'weekly', priority: 0.7 },
-      { loc: '/tutorials', changefreq: 'monthly', priority: 0.7 },
-      { loc: '/contact', changefreq: 'yearly', priority: 0.3 },
-      { loc: '/scad', changefreq: 'monthly', priority: 0.4 },
-      { loc: '/utility', changefreq: 'monthly', priority: 0.5 },
-      { loc: '/ohms-law', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/resistor', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/555', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/voltage-divider', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/led-resistor', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/passphrases', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/csv-viewer', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/logo-generator', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/project-tracker', changefreq: 'monthly', priority: 0.5 }
+      { loc: '/', view: 'index.ejs', changefreq: 'weekly', priority: 1.0 },
+      { loc: '/blog', view: 'blog/index.ejs', changefreq: 'weekly', priority: 0.7 },
+      { loc: '/tutorials', view: 'tutorials.ejs', changefreq: 'monthly', priority: 0.7 },
+      { loc: '/contact', view: 'contact.ejs', changefreq: 'yearly', priority: 0.3 },
+      { loc: '/scad', view: 'scad.ejs', changefreq: 'monthly', priority: 0.4 },
+      { loc: '/utility', view: 'utility.ejs', changefreq: 'monthly', priority: 0.5 },
+      { loc: '/ohms-law', view: 'ohms-law.ejs', changefreq: 'monthly', priority: 0.6 },
+      { loc: '/resistor', view: 'resistor.ejs', changefreq: 'monthly', priority: 0.6 },
+      { loc: '/555', view: '555.ejs', changefreq: 'monthly', priority: 0.6 },
+      { loc: '/voltage-divider', view: 'voltage-divider.ejs', changefreq: 'monthly', priority: 0.6 },
+      { loc: '/led-resistor', view: 'led-resistor.ejs', changefreq: 'monthly', priority: 0.6 },
+      { loc: '/passphrases', view: 'passphrases.ejs', changefreq: 'monthly', priority: 0.6 },
+      { loc: '/csv-viewer', view: 'csv-viewer.ejs', changefreq: 'monthly', priority: 0.6 },
+      { loc: '/csv2app', view: 'csv2app.ejs', changefreq: 'monthly', priority: 0.6 },
+      { loc: '/logo-generator', view: 'logo-generator.ejs', changefreq: 'monthly', priority: 0.6 },
+      { loc: '/project-tracker', view: 'project-tracker.ejs', changefreq: 'monthly', priority: 0.5 }
     ];
+
+    urls.forEach(u => {
+      try {
+        u.lastmod = fs.statSync(path.join(__dirname, 'views', u.view)).mtime.toISOString().slice(0, 10);
+      } catch (_) { /* no lastmod for this URL */ }
+    });
 
     // Try to add blog posts automatically (if the loader exists)
     try {
       const { getAllPosts } = require('./lib/blog');
       const posts = (typeof getAllPosts === 'function') ? getAllPosts() : [];
       posts.forEach(p => {
-        urls.push({ loc: `/blog/${p.slug}`, changefreq: 'monthly', priority: 0.6 });
+        const lastmod = (p.date && p.date.getTime() > 0) ? p.date.toISOString().slice(0, 10) : undefined;
+        urls.push({ loc: `/blog/${p.slug}`, lastmod, changefreq: 'monthly', priority: 0.6 });
       });
     } catch (_) {
       // ignore — blog loader not present yet
@@ -128,6 +147,7 @@ app.get('/sitemap.xml', (req, res) => {
         const full = SITE_URL + u.loc;
         return `  <url>` +
           `<loc>${full}</loc>` +
+          (u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : '') +
           (u.changefreq ? `<changefreq>${u.changefreq}</changefreq>` : '') +
           (typeof u.priority === 'number' ? `<priority>${u.priority.toFixed(1)}</priority>` : '') +
           `</url>`;
@@ -141,9 +161,13 @@ app.get('/sitemap.xml', (req, res) => {
   }
 });
 
+// Shared by the GET and both POST outcomes of /contact
+const CONTACT_DESCRIPTION = 'Contact TronKits with a bug report, a tool idea or a question about a tutorial. Send a short message and George will get back to you. No account needed.';
+
 app.get('/contact', (req, res) => {
   res.render('contact', {
-    title: 'Contact Me - Tronkits',
+    title: 'Contact – TronKits',
+    metaDescription: CONTACT_DESCRIPTION,
     success: null,
     error: null
   });
@@ -156,16 +180,14 @@ app.get('/contact', (req, res) => {
 app.get('/csv-viewer', (req, res) => {
   res.render('csv-viewer', {
     title: 'CSV Viewer Online – Sort, Filter & Download CSV Files | TronKits',
-    description: 'View CSV files instantly in your browser. Sort, search, filter columns, and download filtered results. No Excel, no uploads, no accounts.',
-    canonicalUrl: 'https://tronkits.com/csv-viewer'
+    metaDescription: 'Free online CSV viewer. Open CSV files in your browser, then sort, search, filter columns and download the filtered rows. No Excel, no uploads, no login.'
   });
 });
 
 app.get('/csv2app', (req, res) => {
   res.render('csv2app', {
-    title: 'CSV2App Online – Insert, Update, Delete Data In CSV Files | TronKits',
-    description: 'Create a CSV App instantly in your browser. Add, Remove, and delete records. No Excel, no uploads, no accounts.',
-    canonicalUrl: 'https://tronkits.com/csv2app'
+    title: 'CSV2App – Turn a CSV File Into an Editable Web App | TronKits',
+    metaDescription: 'Free CSV to app converter. Load a CSV in your browser and get a searchable mini app to add, edit and delete records, then export. No uploads, no login.'
   });
 });
 
@@ -211,7 +233,8 @@ app.post('/contact', (req, res) => {
 
     if (!name || !email || !message) {
       return res.status(400).render('contact', {
-        title: 'Contact Me - Tronkits',
+        title: 'Contact – TronKits',
+        metaDescription: CONTACT_DESCRIPTION,
         error: 'Please fill out all fields.',
         success: null
       });
@@ -233,14 +256,16 @@ app.post('/contact', (req, res) => {
     writeSubmissions(submissions);
 
     return res.render('contact', {
-      title: 'Contact Me - Tronkits',
+      title: 'Contact – TronKits',
+      metaDescription: CONTACT_DESCRIPTION,
       success: 'Thanks! Your message has been saved.',
       error: null
     });
   } catch (err) {
     console.error(err);
     return res.status(500).render('contact', {
-      title: 'Contact Me - Tronkits',
+      title: 'Contact – TronKits',
+      metaDescription: CONTACT_DESCRIPTION,
       error: 'Sorry—something went wrong saving your message.',
       success: null
     });
@@ -248,32 +273,46 @@ app.post('/contact', (req, res) => {
 });
 
 app.get('/scad', (req, res) => {
-  res.render('scad', { title: 'OpenSCAD Box Generator - Tronkits' });
-});
-
-app.get('/testpage', (req, res) => {
-  res.render('testpage', { title: 'Test Page - Tronkits' });
+  res.render('scad', {
+    title: 'OpenSCAD Box Generator – Parametric Box to STL | TronKits',
+    metaDescription: 'Free parametric OpenSCAD box generator. Set width, length, height, wall thickness and corner style, copy the OpenSCAD code or download an STL. No login.'
+  });
 });
 
 app.get('/resistor', (req, res) => {
-  res.render('resistor', { title: 'Resistor Calculator' });
+  res.render('resistor', {
+    title: 'Resistor Color Code Calculator – 4, 5 & 6 Band | TronKits',
+    metaDescription: 'Free resistor color code calculator. Pick band colors for 4, 5 or 6-band resistors and get resistance, tolerance and temperature coefficient instantly. Reverse lookup from a value to bands included.'
+  });
 });
 
 app.get('/555', (req, res) => {
-  res.render('555', { title: '555 Timer Calculator' });
+  res.render('555', {
+    title: '555 Timer Calculator – Astable Frequency & Duty Cycle | TronKits',
+    metaDescription: 'Free 555 timer calculator for astable mode. Enter any three of R1, R2, C and frequency to solve the fourth, plus duty cycle and timing. Runs in your browser.'
+  });
 });
 
   app.get('/voltage-divider', (req, res) => {
-    res.render('voltage-divider', { title: 'Voltage Divider' });
+    res.render('voltage-divider', {
+      title: 'Voltage Divider Calculator – With Load Resistor | TronKits',
+      metaDescription: 'Free voltage divider calculator. Enter any three of Vin, Vout, R1 and R2 to solve the fourth, with an optional load resistor. Runs in your browser, no login.'
+    });
   });
   
   app.get('/led-resistor', (req, res) => {
-    res.render('led-resistor', { title: 'LED Resistor' });
+    res.render('led-resistor', {
+      title: 'LED Series Resistor Calculator – E-Series Values | TronKits',
+      metaDescription: 'Free LED resistor calculator. Enter supply voltage, forward voltage, current and LED count to get the series resistor, power rating and nearest E-series value.'
+    });
   });
   
     // NEW: Passphrase UI page (optional)
   app.get('/passphrases', (req, res) => {
-    res.render('passphrases', { title: 'Passphrase Generator - Tronkits' });
+    res.render('passphrases', {
+      title: 'Passphrase Generator – Memorable, Secure Passphrases | TronKits',
+      metaDescription: 'Free passphrase generator. Create memorable adjective-noun-verb-adverb passphrases with digits and symbols mixed in. Nothing is stored or logged, and no login.'
+    });
   });
   
 // NEW: Passphrase API under /api
@@ -283,24 +322,32 @@ app.use('/api', passphraseRoutes);
 app.use('/api/7who', require('./routes/7who-scan'));
   
 app.get('/utility', (req, res) => {
-  res.render('utility', { title: 'Utilities' });
+  res.render('utility', {
+    title: 'Free Online Tools – Electronics Calculators & Dev Utilities | TronKits',
+    metaDescription: 'Free online tools for makers: resistor, 555 timer, voltage divider, LED resistor and Ohm\'s law calculators, plus CSV, passphrase and logo utilities. No login.'
+  });
 });
 
 app.get('/logo-generator', (req, res) => {
   res.render('logo-generator', {
     title: 'Placeholder Logo Generator – Quick SVG Marks | TronKits',
-    metaDescription: 'Make a throwaway placeholder logo in seconds. Type a wordmark, pick a geometric shape, add rules, download a clean SVG with the letters outlined to vector paths. For side projects and mockups — not a substitute for a real designer. No login, no uploads.',
-    canonicalUrl: 'https://tronkits.com/logo-generator',
+    metaDescription: 'Free placeholder logo generator. Type a wordmark, pick a geometric shape and download a clean SVG with outlined letters, in your browser. No login, no uploads.',
     ogImage: '/images/og-logo-generator.png'
   });
 });
 
 app.get('/project-tracker', (req, res) => {
-  res.render('project-tracker', { title: 'Project Tracker - Tronkits' });
+  res.render('project-tracker', {
+    title: 'Project Tracker – Local, File-Based Task Tracker | TronKits',
+    metaDescription: 'Free project tracker for bugs, features, tasks and notes. Runs in your browser and saves to local storage or a JSON file you can sync. No account, no login.'
+  });
 });
 
 app.get('/ohms-law', (req, res) => {
-  res.render('ohms-law', { title: "Ohm's Law & Power Calculator - Tronkits" });
+  res.render('ohms-law', {
+    title: "Ohm's Law Calculator – Voltage, Current, Resistance & Power | TronKits",
+    metaDescription: "Free Ohm's law calculator. Enter any two of voltage, current, resistance or power and the other two are calculated instantly in your browser. No login needed."
+  });
 });
 
 // --- OpenSCAD STL generation ---
@@ -334,8 +381,12 @@ app.post('/generate-stl', (req, res) => {
   });
 });
 
+// 404 — anything no route above matched
 app.use((req, res) => {
-  res.render('index', { title: 'Home - Tronkits' });
+  res.status(404).render('404', {
+    title: 'Page Not Found – TronKits',
+    metaDescription: 'That page does not exist on TronKits. Try the free electronics calculators, the toolbox or the blog instead.'
+  });
 });
 
 
