@@ -128,6 +128,8 @@ const STATIC_PAGES = [
     llms: 'Tools', title: 'Resistor Color Code Calculator', desc: '4, 5 and 6-band decoder with tolerance and tempco, plus value-to-bands reverse lookup.' },
   { loc: '/capacitor-code', view: 'capacitor-code.ejs', changefreq: 'monthly', priority: 0.6,
     llms: 'Tools', title: 'Capacitor Code Calculator', desc: 'Decode 3-digit capacitor codes (104, 473J), tolerance letters and 4R7/n47/2u2 markings into pF, nF and µF, or find the code for a value.' },
+  { loc: '/smd-resistor-code', view: 'smd-resistor-code.ejs', changefreq: 'monthly', priority: 0.6,
+    llms: 'Tools', title: 'SMD Resistor Code Calculator', desc: 'Decode 3-digit, 4-digit and EIA-96 SMD resistor codes (472, 4702, 01C, 4R7, 000 jumpers), with the full E96 table and value-to-code reverse lookup.' },
   { loc: '/555', view: '555.ejs', changefreq: 'monthly', priority: 0.6,
     llms: 'Tools', title: '555 Timer Calculator', desc: 'Astable mode: solve R1, R2, C or frequency from the other three, with duty cycle and high/low times.' },
   { loc: '/voltage-divider', view: 'voltage-divider.ejs', changefreq: 'monthly', priority: 0.6,
@@ -206,7 +208,7 @@ app.get('/llms.txt', (req, res) => {
     const out = [
       '# TronKits',
       '',
-      '> TronKits is a free workbench site by George Clay: electronics calculators (resistor color code, 555 timer, voltage divider, LED resistor, Ohm\'s law), an OpenSCAD box generator, small browser-based data and dev utilities, beginner tutorials for OpenSCAD and Raspberry Pi, and field notes on electronics and building with AI. No login; most tools run entirely in the browser.',
+      '> TronKits is a free workbench site by George Clay: electronics calculators (resistor color code, SMD resistor and capacitor code decoders, 555 timer, voltage divider, LED resistor, Ohm\'s law), an OpenSCAD box generator, small browser-based data and dev utilities, beginner tutorials for OpenSCAD and Raspberry Pi, and field notes on electronics and building with AI. No login; most tools run entirely in the browser.',
       '',
       `About the author and how the tools handle data: ${SITE_URL}/about`,
       '',
@@ -363,6 +365,13 @@ app.get('/capacitor-code', (req, res) => {
   res.render('capacitor-code', {
     title: 'Capacitor Code Calculator – 104, 473J, 4n7 Decoder | TronKits',
     metaDescription: 'Free capacitor code calculator. Decode 3-digit codes like 104 or 473J, tolerance letters and 4R7 / 2u2 markings into pF, nF and µF, or find the code for a value.'
+  });
+});
+
+app.get('/smd-resistor-code', (req, res) => {
+  res.render('smd-resistor-code', {
+    title: 'SMD Resistor Code Calculator – 3-Digit, 4-Digit & EIA-96 | TronKits',
+    metaDescription: 'Free SMD resistor code calculator. Decode 3-digit, 4-digit and EIA-96 markings like 472, 4702, 01C or 4R7, or find the codes for any resistance value.'
   });
 });
 

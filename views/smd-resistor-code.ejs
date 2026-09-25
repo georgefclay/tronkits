@@ -1,0 +1,538 @@
+<% locals.currentPage = 'utilities'; %>
+<%
+  // Standard E96 decade (IEC 60063). EIA-96 code NN is E96[NN - 1].
+  var E96 = [100,102,105,107,110,113,115,118,121,124,127,130,133,137,140,143,147,150,154,158,162,165,169,174,178,182,187,191,196,200,205,210,215,221,226,232,237,243,249,255,261,267,274,280,287,294,301,309,316,324,332,340,348,357,365,374,383,392,402,412,422,432,442,453,464,475,487,499,511,523,536,549,562,576,590,604,619,634,649,665,681,698,715,732,750,768,787,806,825,845,866,887,909,931,953,976];
+  if (E96.length !== 96) throw new Error('E96 table must have 96 entries, has ' + E96.length);
+
+  // EIA-96 multiplier letters. R and S are alternates for Y and X, H for B.
+  var EIA_LETTERS = [
+    { letters:'Z',   exp:-3, label:'×0.001' },
+    { letters:'Y R', exp:-2, label:'×0.01' },
+    { letters:'X S', exp:-1, label:'×0.1' },
+    { letters:'A',   exp:0,  label:'×1' },
+    { letters:'B H', exp:1,  label:'×10' },
+    { letters:'C',   exp:2,  label:'×100' },
+    { letters:'D',   exp:3,  label:'×1,000' },
+    { letters:'E',   exp:4,  label:'×10,000' },
+    { letters:'F',   exp:5,  label:'×100,000' }
+  ];
+  var EIA_EXAMPLE = { Z:'01Z = 0.1 Ω', 'Y R':'01Y = 1 Ω', 'X S':'68X = 49.9 Ω', A:'01A = 100 Ω', 'B H':'22B = 1.65 kΩ', C:'01C = 10 kΩ', D:'01D = 100 kΩ', E:'01E = 1 MΩ', F:'01F = 10 MΩ' };
+
+  // 4 rows of 24 → 4 column pairs, codes running down each pair
+  var E96_ROWS = 24;
+%>
+<%- include('../partials/header') %>
+
+<section class="tk-hero--tight" style="padding-bottom:28px">
+  <div class="tk-breadcrumb">// HOME / TOOLBOX / SMD RESISTOR CODE</div>
+  <div class="tk-flex-between">
+    <div>
+      <h1 class="tk-h1" style="font-size:64px">SMD resistor codes.</h1>
+      <p class="tk-lede" style="margin-top:12px; margin-bottom:0; max-width:620px">
+        Type what's printed on the chip (<code class="tk-inline">472</code>, <code class="tk-inline">4702</code>, <code class="tk-inline">01C</code>, <code class="tk-inline">4R7</code>) and get the resistance. Or find the codes for a value.
+      </p>
+    </div>
+    <div class="tk-mode-btns">
+      <button type="button" class="tk-mode-btn is-active" data-mode="auto">AUTO</button>
+      <button type="button" class="tk-mode-btn" data-mode="3">3-DIGIT</button>
+      <button type="button" class="tk-mode-btn" data-mode="4">4-DIGIT</button>
+      <button type="button" class="tk-mode-btn" data-mode="eia">EIA-96</button>
+      <button type="button" class="tk-mode-btn" data-mode="rev">REVERSE</button>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-resistor-grid">
+    <!-- Input -->
+    <div class="tk-card-headed">
+      <div class="tk-card-headed__head">
+        <span id="smInputHead">INPUT · PRINTED CODE</span>
+        <span class="yellow" id="smFormat">AUTO-DETECT</span>
+      </div>
+      <div class="tk-card-headed__body" style="padding:24px 24px">
+        <div id="smCodePane">
+          <label class="tk-label" for="smCode">// Code on the resistor</label>
+          <input type="text" id="smCode" class="tk-input" value="472" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false"
+                 style="font-family:'JetBrains Mono', monospace; font-size:28px; font-weight:700; letter-spacing:0.08em; padding:12px 14px">
+          <div class="tk-mono" style="margin:16px 0 8px">Try one</div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px" id="smExamples">
+            <% ['472','103','4R7','R47','000','4702','1001','4R70','01A','68X','22B','01C'].forEach(function(c){ %>
+              <button type="button" class="tk-btn tk-btn--ghost tk-btn--sm" data-code="<%= c %>"><%= c %></button>
+            <% }) %>
+          </div>
+          <div class="tk-mono" id="smHint" style="margin-top:18px; text-transform:none; letter-spacing:0.04em; line-height:1.6">
+            3 digits: two significant digits and a power of ten (5% parts). 4 digits: three digits and a power of ten (1%).
+            Two digits and a letter: EIA-96 (1%). R is the decimal point. AUTO picks the scheme from the pattern; the
+            buttons above force one.
+          </div>
+        </div>
+
+        <div id="smRevPane" style="display:none">
+          <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end">
+            <div style="flex:1 1 180px">
+              <label class="tk-label" for="smRevValue">// Resistance</label>
+              <input type="number" id="smRevValue" class="tk-input" value="4.7" step="any" min="0">
+            </div>
+            <div style="flex:0 0 110px">
+              <label class="tk-label" for="smRevUnit">// Unit</label>
+              <select id="smRevUnit" class="tk-select" style="width:100%">
+                <option value="">Ω</option>
+                <option value="k" selected>kΩ</option>
+                <option value="M">MΩ</option>
+              </select>
+            </div>
+          </div>
+          <div class="tk-mono" style="margin-top:18px; text-transform:none; letter-spacing:0.04em; line-height:1.6">
+            3-digit codes hold 2 significant figures, 4-digit codes 3, and EIA-96 only the 96 values of the E96 series,
+            so each code shows the value it really encodes.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="tk-card-headed tk-card-headed--ink">
+      <div class="tk-card-headed__head">
+        <span>// DECODED · RESISTANCE</span>
+        <span>↻ LIVE</span>
+      </div>
+      <div class="tk-card-headed__body" style="padding:28px 24px 24px">
+        <div id="smDecodeOut">
+          <div class="tk-result-mini-label">NOMINAL VALUE</div>
+          <div class="tk-result-value" id="smMain">—</div>
+          <div class="tk-result-tol" id="smTol">—</div>
+          <div class="tk-result-minmax">
+            <div>
+              <div class="tk-result-mini-label">SCHEME</div>
+              <div class="tk-result-mini-value" id="smScheme" style="font-size:18px">—</div>
+            </div>
+            <div>
+              <div class="tk-result-mini-label">IN OHMS</div>
+              <div class="tk-result-mini-value" id="smOhms" style="font-size:18px; word-break:break-all">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="smRevOut" style="display:none">
+          <div class="tk-result-mini-label">TARGET</div>
+          <div class="tk-result-value" id="smRevMain" style="font-size:44px">—</div>
+          <div class="tk-result-minmax" style="grid-template-columns:1fr 1fr 1fr">
+            <div>
+              <div class="tk-result-mini-label">3-DIGIT</div>
+              <div class="tk-result-mini-value" id="smRev3">—</div>
+              <div class="tk-result-mini-label" id="smRev3v" style="margin-top:4px">—</div>
+            </div>
+            <div>
+              <div class="tk-result-mini-label">4-DIGIT</div>
+              <div class="tk-result-mini-value" id="smRev4">—</div>
+              <div class="tk-result-mini-label" id="smRev4v" style="margin-top:4px">—</div>
+            </div>
+            <div>
+              <div class="tk-result-mini-label">EIA-96</div>
+              <div class="tk-result-mini-value" id="smRevE">—</div>
+              <div class="tk-result-mini-label" id="smRevEv" style="margin-top:4px">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tk-result-terminal">
+          <span class="accent">$ </span><span id="smTermCmd">—</span><br>
+          <span class="muted">→ </span><span id="smTermOut">—</span>
+        </div>
+
+        <button type="button" id="copyLink" class="tk-btn tk-btn--ghost tk-btn--sm" style="margin-top:18px; color:var(--paper); border-color:var(--paper)">Copy link</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">01</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// Cheat sheet</div>
+      <h2 class="tk-h2">Three marking schemes, one chip</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-3col">
+    <div class="tk-edu-card">
+      <div class="tk-edu-card__num">3</div>
+      <h4>3-digit · 5% parts</h4>
+      <p>Two digits, then the number of zeros. 472 = 47 and two zeros = 4,700 Ω. 000 is a zero-ohm jumper.</p>
+    </div>
+    <div class="tk-edu-card">
+      <div class="tk-edu-card__num">4</div>
+      <h4>4-digit · 1% parts</h4>
+      <p>Three digits, then the number of zeros. 4702 = 470 and two zeros = 47,000 Ω. 1001 = 1 kΩ.</p>
+    </div>
+    <div class="tk-edu-card">
+      <div class="tk-edu-card__num">96</div>
+      <h4>EIA-96 · small 1% parts</h4>
+      <p>Two digits pick a value from the table below, a letter multiplies it. 01C = 100 × 100 = 10 kΩ.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:36px; background:var(--white); border:1.5px solid var(--ink); overflow-x:auto">
+    <div class="tk-card-headed__head">
+      <span>// EIA-96 CODES · 01–96 → E96 BASE VALUE</span>
+      <span class="yellow">REFERENCE</span>
+    </div>
+    <table class="tk-table" id="smE96Table">
+      <thead>
+        <tr>
+          <% for (var c = 0; c < 4; c++) { %><th>CODE</th><th>VALUE</th><% } %>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (var r = 0; r < E96_ROWS; r++) { %>
+          <tr>
+            <% for (var c = 0; c < 4; c++) { var i = c * E96_ROWS + r; %>
+              <td style="font-weight:700"><%= String(i + 1).padStart(2, '0') %></td><td class="muted" style="color:var(--ink)"><%= E96[i] %></td>
+            <% } %>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:24px; background:var(--white); border:1.5px solid var(--ink); overflow-x:auto">
+    <div class="tk-card-headed__head">
+      <span>// EIA-96 MULTIPLIER LETTERS</span>
+      <span class="yellow">THIRD CHARACTER</span>
+    </div>
+    <table class="tk-table" id="smLetterTable">
+      <thead>
+        <tr>
+          <th>LETTER</th>
+          <th>MULTIPLIER</th>
+          <th>EXAMPLE</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% EIA_LETTERS.forEach(function(l){ %>
+          <tr><td style="font-weight:700"><%= l.letters.split(' ').join(' / ') %></td><td class="tol-active"><%= l.label %></td><td class="muted"><%= EIA_EXAMPLE[l.letters] %></td></tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<script src="/js/share-link.js"></script>
+<script>
+(function(){
+  var E96 = <%- JSON.stringify(E96) %>;
+  var LETTER_EXP = { Z:-3, Y:-2, R:-2, X:-1, S:-1, A:0, B:1, H:1, C:2, D:3, E:4, F:5 };
+  var EXP_LETTER = { '-3':'Z', '-2':'Y', '-1':'X', '0':'A', '1':'B', '2':'C', '3':'D', '4':'E', '5':'F' };
+  var ZEROS = ['no zeros', 'one zero', 'two zeros', 'three zeros', 'four zeros', 'five zeros', 'six zeros', 'seven zeros', 'eight zeros', 'nine zeros'];
+  var $ = function(id){ return document.getElementById(id); };
+  var mode = 'auto';
+
+  // Ω / kΩ / MΩ with 4 significant figures (0.47 Ω stays 0.47 Ω, not 470 mΩ)
+  function fmtOhms(v) {
+    if (!isFinite(v)) return '—';
+    var a = Math.abs(v), unit = 'Ω', d = v;
+    if (a >= 1e6) { d = v / 1e6; unit = 'MΩ'; }
+    else if (a >= 1e3) { d = v / 1e3; unit = 'kΩ'; }
+    return String(Number(d.toPrecision(4))) + ' ' + unit;
+  }
+  function plainOhms(v) {
+    var s = String(Number(v.toPrecision(6))).split('.');
+    s[0] = s[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return s.join('.') + ' Ω';
+  }
+  function clean(v) { return Number(v.toPrecision(12)); }
+
+  // R as the decimal point, `len` characters in total (3 or 4)
+  function decodeR(s, len) {
+    if (s.length !== len || !/^\d*R\d*$/.test(s) || s === 'R') return null;
+    var parts = s.split('R');
+    var v = Number((parts[0] || '0') + '.' + (parts[1] || '0'));
+    return { ohms: v, scheme: len === 3 ? '3-DIGIT · R' : '4-DIGIT · R', tol: len === 3 ? '±5%' : '±1%',
+             reading: s + ': R is the decimal point → ' + plainOhms(v) };
+  }
+  function decode3(s) {
+    if (/^0{1,3}$/.test(s)) return jumper(s);
+    var m = /^(\d)(\d)(\d)$/.exec(s);
+    if (m) {
+      var v = Number(m[1] + m[2]) * Math.pow(10, Number(m[3]));
+      return { ohms: v, scheme: '3-DIGIT', tol: '±5%', reading: m[1] + ', ' + m[2] + ', then ' + ZEROS[Number(m[3])] + ' → ' + plainOhms(v) };
+    }
+    return decodeR(s, 3);
+  }
+  function decode4(s) {
+    if (s === '0000') return jumper(s);
+    var m = /^(\d)(\d)(\d)(\d)$/.exec(s);
+    if (m) {
+      var v = Number(m[1] + m[2] + m[3]) * Math.pow(10, Number(m[4]));
+      return { ohms: v, scheme: '4-DIGIT', tol: '±1%', reading: m[1] + ', ' + m[2] + ', ' + m[3] + ', then ' + ZEROS[Number(m[4])] + ' → ' + plainOhms(v) };
+    }
+    return decodeR(s, 4);
+  }
+  function decodeEia(s) {
+    var m = /^(\d\d)([ZYRXSABHCDEF])$/.exec(s);
+    if (!m) return null;
+    var n = Number(m[1]);
+    if (n < 1 || n > 96) return { error: 'EIA-96 codes run from 01 to 96' };
+    var exp = LETTER_EXP[m[2]];
+    var v = clean(E96[n - 1] * Math.pow(10, exp));
+    var r = { ohms: v, scheme: 'EIA-96', tol: '±1%',
+              reading: m[1] + ' → ' + E96[n - 1] + ', ' + m[2] + ' → ×' + clean(Math.pow(10, exp)) + ' → ' + plainOhms(v) };
+    if (m[2] === 'R') r.note = 'Also readable as ' + plainOhms(Number(m[1])) + ' with R as the decimal point; pick 3-DIGIT to read it that way.';
+    return r;
+  }
+  function jumper(s) {
+    return { ohms: 0, scheme: 'JUMPER', tol: 'zero-ohm link', reading: s + ' is a zero-ohm jumper, a link in a resistor package' };
+  }
+
+  function decode(raw, m) {
+    var s = String(raw || '').replace(/\s+/g, '').toUpperCase();
+    if (!s) return { error: 'type a code, e.g. 472' };
+    var r = null;
+    if (m === '3') r = decode3(s);
+    else if (m === '4') r = decode4(s);
+    else if (m === 'eia') r = decodeEia(s);
+    else {
+      if (/^0+$/.test(s) && s.length <= 4) r = jumper(s);
+      else if (/^\d\d[ZYRXSABHCDEF]$/.test(s)) r = decodeEia(s);
+      else if (s.length === 3) r = decode3(s);
+      else if (s.length === 4) r = decode4(s);
+    }
+    if (!r) {
+      var what = m === '3' ? 'a 3-digit code' : m === '4' ? 'a 4-digit code' : m === 'eia' ? 'an EIA-96 code (two digits and a letter)' : 'an SMD resistor code this tool reads';
+      return { error: 'not ' + what };
+    }
+    return r;
+  }
+
+  // ── Value → codes ─────────────────────────────────────────────────────────
+  function digitsCode(ohms, sig) {
+    // sig = 2 (3-digit) or 3 (4-digit)
+    var len = sig + 1;
+    if (ohms === 0) return { code: sig === 2 ? '000' : '0000', value: 0, exact: true };
+    var e = Math.floor(Math.log10(ohms) + 1e-9) - (sig - 1);
+    var mant = Math.round(ohms / Math.pow(10, e));
+    if (mant >= Math.pow(10, sig)) { mant = Math.round(mant / 10); e += 1; }
+    var value = clean(mant * Math.pow(10, e));
+    var code;
+    if (e >= 0) {
+      if (e > 9) return { error: 'too large' };
+      code = String(mant) + e;
+    } else {
+      // below 10 Ω (3-digit) or 100 Ω (4-digit): R marks the decimal point,
+      // e.g. 4.7 → 4R7 / 4R70, 0.47 → R47 / R470, 47 → 47R0
+      code = value.toFixed(-e).replace(/^0\./, '.').replace('.', 'R');
+      if (code.length !== len) return { error: 'below 0.1 Ω' };
+    }
+    return { code: code, value: value, exact: Math.abs(value - ohms) <= Math.abs(ohms) * 1e-9 };
+  }
+  function eiaCode(ohms) {
+    if (!(ohms > 0)) return { error: 'n/a' };
+    var e = Math.floor(Math.log10(ohms) + 1e-9) - 2;
+    var norm = ohms / Math.pow(10, e);               // 100 ≤ norm < 1000
+    var best = null;
+    E96.concat([1000]).forEach(function(v, i){
+      var d = Math.abs(Math.log(v / norm));
+      if (!best || d < best.d) best = { d: d, v: v, i: i };
+    });
+    if (best.v === 1000) { best = { v: 100, i: 0 }; e += 1; }
+    var letter = EXP_LETTER[String(e)];
+    if (!letter) return { error: 'out of EIA-96 range' };
+    var value = clean(best.v * Math.pow(10, e));
+    return { code: String(best.i + 1).padStart(2, '0') + letter, value: value, exact: Math.abs(value - ohms) <= ohms * 1e-9 };
+  }
+
+  // ── Rendering ─────────────────────────────────────────────────────────────
+  function renderDecode() {
+    var raw = $('smCode').value;
+    var r = decode(raw, mode);
+    $('smTermCmd').textContent = raw.trim() || '—';
+    if (r.error) {
+      $('smFormat').textContent = mode === 'auto' ? 'UNKNOWN FORMAT' : 'NOT THIS FORMAT';
+      ['smMain', 'smTol', 'smScheme', 'smOhms'].forEach(function(id){ $(id).textContent = '—'; });
+      $('smTermOut').textContent = r.error;
+      return;
+    }
+    $('smFormat').textContent = (mode === 'auto' ? 'AUTO · ' : '') + r.scheme;
+    $('smMain').textContent = r.ohms === 0 ? '0 Ω' : fmtOhms(r.ohms);
+    $('smTol').textContent = r.ohms === 0 ? 'zero-ohm jumper' : 'typically ' + r.tol + ' tolerance';
+    $('smScheme').textContent = r.scheme;
+    $('smOhms').textContent = plainOhms(r.ohms);
+    $('smTermOut').textContent = r.reading + (r.note ? ' · ' + r.note : '');
+  }
+  function renderRev() {
+    var raw = $('smRevValue').value;
+    var mult = { '': 1, k: 1e3, M: 1e6 }[$('smRevUnit').value];
+    var ohms = clean(Number(raw) * mult);
+    $('smTermCmd').textContent = (raw || '—') + ' ' + ($('smRevUnit').value || '') + 'Ω';
+    $('smFormat').textContent = 'REVERSE LOOKUP';
+    if (raw === '' || !isFinite(ohms) || ohms < 0) {
+      $('smRevMain').textContent = '—';
+      ['smRev3', 'smRev3v', 'smRev4', 'smRev4v', 'smRevE', 'smRevEv'].forEach(function(id){ $(id).textContent = '—'; });
+      $('smTermOut').textContent = 'enter a resistance of 0 or more';
+      return;
+    }
+    $('smRevMain').textContent = fmtOhms(ohms);
+    var c3 = digitsCode(ohms, 2), c4 = digitsCode(ohms, 3), ce = eiaCode(ohms);
+    function show(id, c, prefix) {
+      $(id).textContent = c.error ? 'n/a' : c.code;
+      $(id + 'v').textContent = c.error ? c.error : (c.exact ? '= ' : (prefix || '≈ ')) + fmtOhms(c.value);
+    }
+    show('smRev3', c3); show('smRev4', c4); show('smRevE', ce, 'NEAREST E96: ');
+    $('smTermOut').textContent =
+      '3-digit ' + (c3.error ? 'n/a' : c3.code) + ' · 4-digit ' + (c4.error ? 'n/a' : c4.code) + ' · EIA-96 ' +
+      (ce.error ? 'n/a (' + (ohms === 0 ? 'no zero value' : ce.error) + ')' : ce.code + (ce.exact ? '' : ' (nearest E96: ' + fmtOhms(ce.value) + ')'));
+  }
+  function render() {
+    if (mode === 'rev') renderRev(); else renderDecode();
+    syncUrl();
+  }
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll('.tk-mode-btn').forEach(function(b){ b.classList.toggle('is-active', b.dataset.mode === m); });
+    var rev = m === 'rev';
+    $('smCodePane').style.display = rev ? 'none' : '';
+    $('smRevPane').style.display = rev ? '' : 'none';
+    $('smDecodeOut').style.display = rev ? 'none' : '';
+    $('smRevOut').style.display = rev ? '' : 'none';
+    $('smInputHead').textContent = rev ? 'INPUT · TARGET VALUE' : 'INPUT · PRINTED CODE';
+    render();
+  }
+
+  // ── Shareable URL: ?c=472 (&m=3|4|eia to force a scheme) or ?v=4.7&u=k ────
+  var urlReady = false;
+  function syncUrl() {
+    if (!urlReady) return;
+    if (mode === 'rev') TKShare.write({ v: $('smRevValue').value, u: $('smRevUnit').value });
+    else TKShare.write({ c: $('smCode').value.replace(/\s+/g, ''), m: mode === 'auto' ? '' : mode });
+  }
+  function loadFromUrl() {
+    var qs = TKShare.params();
+    var c = qs.get('c'), v = TKShare.num(qs.get('v'));
+    if (c !== null && /^[0-9A-Za-z]{1,6}$/.test(c)) {
+      $('smCode').value = c;
+      var m = qs.get('m');
+      return ['3', '4', 'eia'].indexOf(m) !== -1 ? m : 'auto';
+    }
+    if (v !== null) {
+      $('smRevValue').value = v;
+      TKShare.setSelect($('smRevUnit'), qs.get('u') || '');
+      return 'rev';
+    }
+    return null;
+  }
+
+  document.querySelectorAll('.tk-mode-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){ setMode(btn.dataset.mode); });
+  });
+  document.querySelectorAll('#smExamples [data-code]').forEach(function(btn){
+    btn.addEventListener('click', function(){ $('smCode').value = btn.dataset.code; if (mode !== 'auto') setMode('auto'); else render(); });
+  });
+  $('smCode').addEventListener('input', render);
+  ['smRevValue', 'smRevUnit'].forEach(function(id){
+    $(id).addEventListener('input', render);
+    $(id).addEventListener('change', render);
+  });
+
+  setMode(loadFromUrl() || 'auto');
+  urlReady = true;
+  if (location.search) syncUrl();
+  TKShare.bindCopy($('copyLink'));
+
+  window.TKSmd = { decode: decode, digitsCode: digitsCode, eiaCode: eiaCode };
+})();
+</script>
+
+<!-- ============================== EXPLAINER ============================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">02</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// Worked examples</div>
+      <h2 class="tk-h2">Reading the three schemes</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-prose" style="margin:0">
+    <p>
+      Surface-mount resistors are too small for color bands, so they carry a printed code in
+      one of three schemes. <strong>3-digit</strong> codes are two significant digits and a
+      power of ten, which is enough for 5% parts from the E24 series. <strong>4-digit</strong>
+      codes add a third significant digit for 1% parts. <strong>EIA-96</strong> exists because
+      1% parts need three significant digits but an 0603 chip only has room for three
+      characters in total: the E96 series has exactly 96 values per decade, so a two-digit index
+      (01 to 96) plus a multiplier letter fits.
+    </p>
+    <p>
+      <strong>3-digit.</strong> <code>472</code> is 4, 7 and two zeros:
+      <code>47 × 10² = 4,700 Ω = 4.7 kΩ</code>.
+      <strong>4-digit.</strong> <code>4702</code> is 4, 7, 0 and two zeros:
+      <code>470 × 10² = 47,000 Ω = 47 kΩ</code>.
+      <strong>EIA-96.</strong> <code>22B</code>: code 22 in the table is 165, and B is ×10, so
+      <code>165 × 10 = 1,650 Ω = 1.65 kΩ</code>. <code>68X</code> is 499 × 0.1 = 49.9&nbsp;Ω.
+    </p>
+    <p>
+      <strong>Gotcha: watch where the R is.</strong> R is the decimal point, so
+      <code>R47</code> = 0.47&nbsp;Ω, <code>4R7</code> = 4.7&nbsp;Ω and <code>4R70</code> is
+      4.70&nbsp;Ω on a 1% part. A <code>0</code> or <code>000</code> isn't a missing value, it's
+      a zero-ohm jumper: a link that lets the board route a trace over another. EIA-96 uses R as
+      an alternate for Y (×0.01), so <code>47R</code> is ambiguous; AUTO reads it as EIA-96
+      (3.01&nbsp;Ω) and the 3-DIGIT button reads it as 47&nbsp;Ω.
+    </p>
+    <p>
+      <strong>Treat the code as a hint.</strong> 0402 and smaller parts are usually unmarked, and
+      a code can be misread upside down (<code>601</code> vs <code>109</code>). If it matters,
+      measure the part out of circuit with a multimeter.
+    </p>
+  </div>
+</section>
+
+<!-- ================================ FAQ ================================= -->
+<%- include('../partials/tool_faq', {
+  n: '03',
+  faqs: [
+    {
+      "q": "What does 472 mean on an SMD resistor?",
+      "a": "It is a 3-digit code: 47 followed by two zeros, so 4,700 Ω, which is 4.7 kΩ. The last digit is always the number of zeros to add."
+    },
+    {
+      "q": "What does 01C mean on an SMD resistor?",
+      "a": "It is an EIA-96 code for a 1% part. Code 01 is the E96 base value 100 and the letter C multiplies by 100, so 01C is 10,000 Ω, or 10 kΩ."
+    },
+    {
+      "q": "What does R10 or 4R7 mean on a resistor?",
+      "a": "The R is the decimal point. R10 is 0.10 Ω and 4R7 is 4.7 Ω. Low values like these are common for current-sense resistors."
+    },
+    {
+      "q": "What is the difference between 3-digit and 4-digit SMD codes?",
+      "a": "A 3-digit code has two significant digits and a multiplier and is used on 5% parts; a 4-digit code has three significant digits and a multiplier for 1% parts. Both give 1 kΩ as 102 and 1001 respectively, but only the 4-digit code can say 1.02 kΩ (1021)."
+    },
+    {
+      "q": "How do I read an SMD resistor marked 0?",
+      "a": "A resistor marked 0, 00 or 000 is a zero-ohm jumper. It is a link in a resistor package, used to bridge a gap on the board or as a configuration option, and its resistance is only a few tens of milliohms."
+    },
+    {
+      "q": "Why does my tiny resistor have no marking?",
+      "a": "0402 and smaller chips are too small to print on, so they are usually left blank, and some 0603 parts are unmarked too. Measure the part out of circuit with a multimeter, or check the reel label or the board's bill of materials."
+    }
+  ],
+  app: {
+    "name": "TronKits SMD Resistor Code Calculator",
+    "path": "/smd-resistor-code",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "A free, browser-based SMD resistor code calculator: decode 3-digit, 4-digit and EIA-96 codes, R decimal-point codes and zero-ohm jumpers, with automatic scheme detection and a reverse lookup from a resistance to all three codes. No login.",
+    "featureList": [
+      "Decode 3-digit and 4-digit SMD resistor codes",
+      "Decode EIA-96 codes with the full E96 table and multiplier letters",
+      "R as decimal point (4R7, R47) and zero-ohm jumpers",
+      "Automatic scheme detection with a manual override",
+      "Reverse lookup from a value to 3-digit, 4-digit and nearest EIA-96 codes",
+      "Runs entirely in the browser"
+    ]
+  }
+}) %>
+
+<%- include('../partials/footer') %>

@@ -10,7 +10,7 @@ Ideas for new utilities and blog posts. Check off as completed.
 
 - [x] **Ohm's Law & Power Calculator** — `/ohms-law` (E, I, R, P from any two)
 - [x] **Capacitor code decoder** — `/capacitor-code` (3-digit codes, tolerance letters, R/n/u markers, reverse lookup; electrolytics print the value directly)
-- [ ] **SMD resistor code decoder** — 3-digit, 4-digit, and EIA-96
+- [x] **SMD resistor code decoder** — `/smd-resistor-code` (3-digit, 4-digit, EIA-96, R codes, jumpers, reverse lookup)
 - [ ] **RC / RL filter designer** — cutoff frequency, time constant for debouncing/filtering
 - [ ] **Wire gauge (AWG)** — current capacity, resistance, voltage drop over distance
 - [ ] **PCB trace width** — IPC-2221 current capacity for trace width and copper weight
@@ -35,7 +35,7 @@ Ideas for new utilities and blog posts. Check off as completed.
 
 1. Ohm's Law (done)
 2. Capacitor code decoder (done)
-3. SMD resistor code decoder
+3. SMD resistor code decoder (done)
 
 ---
 
