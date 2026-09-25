@@ -33,7 +33,7 @@ router.get("/passphrases", limiter, (req, res) => {
   const count = Math.max(1, Math.min(50, toInt(req.query.count, 10)));
   const exact = toBool01(req.query.exact, false) ? 1 : 0;
 
-  const pythonExe = process.env.PYTHON_EXE || "python";
+  const pythonExe = process.env.PYTHON_EXE || "python3";
 
   // Adjust these paths if your folders differ
   const scriptPath = path.join(__dirname, "..", "python", "passphrase_generator.py");
