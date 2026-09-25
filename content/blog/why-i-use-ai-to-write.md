@@ -8,7 +8,7 @@ tags: ["AI", "writing", "blogging"]
 
 We've all heard it: "AI slop." And I have to say that a lot of AI writing is slop. It really rubs me the wrong way when I'm reading something that I know is AI, but it tries to be personal or gives a personal opinion. What really bothers me is when I read something that is obviously AI, and it is signed by a person, like they wrote it.
 
-But does it have to be slop? If I'm reading a post because it has good information and is succinct, I don't mind if it is AI generated. Good information is good information. AI is actually very good at creating technical content; given the correct instructions, it can be very useful. I have used AI, and will continue to use it, for purely technical writing. I could write the posts, but to be honest, I think AI does a better job, and in much less time. I can "create" a lot more content with help from AI.
+But does it have to be slop? If I'm reading a post because it has good information and is succinct, I don't mind if it is AI generated. Good information is good information. AI is actually very good at creating technical content; it tends to avoid the usual AI "tics". Things like "this is the thing that everyone ...", or adding filler words where they don't sound natural. Given the correct instructions, it can be very useful. I have used AI, and will continue to use it, for purely technical writing. I could write the posts, but to be honest, I think AI does a better job, and in much less time. I can "create" a lot more content with help from AI.
 
 Can't someone just go to ChatGPT or Claude and create the content themselves? Yes, they can, but I try to provide content that might not be obvious.
 
