@@ -108,30 +108,45 @@ app.use('/blog', blogRoutes);
 // Tutorials (Markdown-powered, content/tutorials/*.md)
 app.use('/tutorials', require('./routes/tutorials'));
 
+// Static pages, shared by /sitemap.xml and /llms.txt. `view` is the template
+// whose mtime becomes <lastmod>; `llms` puts the page in that llms.txt
+// section with `title`/`desc` as its entry.
+const STATIC_PAGES = [
+  { loc: '/', view: 'index.ejs', changefreq: 'weekly', priority: 1.0 },
+  { loc: '/blog', view: 'blog/index.ejs', changefreq: 'weekly', priority: 0.7 },
+  { loc: '/tutorials', view: 'tutorials/index.ejs', changefreq: 'monthly', priority: 0.7 },
+  { loc: '/about', view: 'about.ejs', changefreq: 'yearly', priority: 0.4 },
+  { loc: '/contact', view: 'contact.ejs', changefreq: 'yearly', priority: 0.3 },
+  { loc: '/scad', view: 'scad.ejs', changefreq: 'monthly', priority: 0.4,
+    llms: 'Tools', title: 'OpenSCAD Box Generator', desc: 'Parametric box with a two-part lid, square or rounded corners; copy the OpenSCAD code or render an STL on the server.' },
+  { loc: '/utility', view: 'utility.ejs', changefreq: 'monthly', priority: 0.5,
+    llms: 'Tools', title: 'Toolbox', desc: 'Index of every TronKits calculator and utility.' },
+  { loc: '/ohms-law', view: 'ohms-law.ejs', changefreq: 'monthly', priority: 0.6,
+    llms: 'Tools', title: "Ohm's Law Calculator", desc: 'Enter any two of voltage, current, resistance and power to get the other two.' },
+  { loc: '/resistor', view: 'resistor.ejs', changefreq: 'monthly', priority: 0.6,
+    llms: 'Tools', title: 'Resistor Color Code Calculator', desc: '4, 5 and 6-band decoder with tolerance and tempco, plus value-to-bands reverse lookup.' },
+  { loc: '/555', view: '555.ejs', changefreq: 'monthly', priority: 0.6,
+    llms: 'Tools', title: '555 Timer Calculator', desc: 'Astable mode: solve R1, R2, C or frequency from the other three, with duty cycle and high/low times.' },
+  { loc: '/voltage-divider', view: 'voltage-divider.ejs', changefreq: 'monthly', priority: 0.6,
+    llms: 'Tools', title: 'Voltage Divider Calculator', desc: 'Solve Vin, Vout, R1 or R2, optionally with a load resistor; currents and power per resistor.' },
+  { loc: '/led-resistor', view: 'led-resistor.ejs', changefreq: 'monthly', priority: 0.6,
+    llms: 'Tools', title: 'LED Series Resistor Calculator', desc: 'Series resistor for 1 to N LEDs, power rating, E12/E24 rounding and typical Vf by color.' },
+  { loc: '/passphrases', view: 'passphrases.ejs', changefreq: 'monthly', priority: 0.6,
+    llms: 'Tools', title: 'Passphrase Generator', desc: 'Adjective-noun-verb-adverb passphrases with digits and symbols, minimum or exact length, 1 to 50 at a time.' },
+  { loc: '/csv-viewer', view: 'csv-viewer.ejs', changefreq: 'monthly', priority: 0.6,
+    llms: 'Tools', title: 'CSV Viewer', desc: 'Open a CSV in the browser, sort, search, keep columns, clean, and export CSV or Excel; nothing uploaded.' },
+  { loc: '/csv2app', view: 'csv2app.ejs', changefreq: 'monthly', priority: 0.6,
+    llms: 'Tools', title: 'CSV2App', desc: 'Turn a CSV into a searchable, filterable mini app with column profiles and a record view; nothing uploaded.' },
+  { loc: '/logo-generator', view: 'logo-generator.ejs', changefreq: 'monthly', priority: 0.6,
+    llms: 'Tools', title: 'Placeholder Logo Generator', desc: 'Wordmark plus geometric shape, exported as an SVG with outlined text or a PNG.' },
+  { loc: '/project-tracker', view: 'project-tracker.ejs', changefreq: 'monthly', priority: 0.5,
+    llms: 'Tools', title: 'Project Tracker', desc: 'Single-page tracker for projects, bugs, features, tasks and notes, saved to a JSON file or browser storage.' }
+];
+
 // sitemap.xml (includes static pages + blog slugs)
 app.get('/sitemap.xml', (req, res) => {
   try {
-    // Base URLs you want indexed. `view` is the template file whose mtime
-    // becomes <lastmod> (omitted if the file can't be stat'ed).
-    const urls = [
-      { loc: '/', view: 'index.ejs', changefreq: 'weekly', priority: 1.0 },
-      { loc: '/blog', view: 'blog/index.ejs', changefreq: 'weekly', priority: 0.7 },
-      { loc: '/tutorials', view: 'tutorials/index.ejs', changefreq: 'monthly', priority: 0.7 },
-      { loc: '/about', view: 'about.ejs', changefreq: 'yearly', priority: 0.4 },
-      { loc: '/contact', view: 'contact.ejs', changefreq: 'yearly', priority: 0.3 },
-      { loc: '/scad', view: 'scad.ejs', changefreq: 'monthly', priority: 0.4 },
-      { loc: '/utility', view: 'utility.ejs', changefreq: 'monthly', priority: 0.5 },
-      { loc: '/ohms-law', view: 'ohms-law.ejs', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/resistor', view: 'resistor.ejs', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/555', view: '555.ejs', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/voltage-divider', view: 'voltage-divider.ejs', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/led-resistor', view: 'led-resistor.ejs', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/passphrases', view: 'passphrases.ejs', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/csv-viewer', view: 'csv-viewer.ejs', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/csv2app', view: 'csv2app.ejs', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/logo-generator', view: 'logo-generator.ejs', changefreq: 'monthly', priority: 0.6 },
-      { loc: '/project-tracker', view: 'project-tracker.ejs', changefreq: 'monthly', priority: 0.5 }
-    ];
+    const urls = STATIC_PAGES.map(u => ({ loc: u.loc, view: u.view, changefreq: u.changefreq, priority: u.priority }));
 
     urls.forEach(u => {
       try {
@@ -177,6 +192,42 @@ app.get('/sitemap.xml', (req, res) => {
   } catch (err) {
     console.error('sitemap.xml error:', err);
     res.status(500).type('text/plain').send('Error generating sitemap');
+  }
+});
+
+// llms.txt (https://llmstxt.org): a plain-markdown map of the site for
+// LLMs, built from STATIC_PAGES plus the blog and tutorial loaders.
+app.get('/llms.txt', (req, res) => {
+  try {
+    const line = (title, loc, desc) => `- [${title}](${SITE_URL}${loc})` + (desc ? `: ${String(desc).replace(/\s+/g, ' ').trim()}` : '');
+    const out = [
+      '# TronKits',
+      '',
+      '> TronKits is a free workbench site by George Clay: electronics calculators (resistor color code, 555 timer, voltage divider, LED resistor, Ohm\'s law), an OpenSCAD box generator, small browser-based data and dev utilities, beginner tutorials for OpenSCAD and Raspberry Pi, and field notes on electronics and building with AI. No login; most tools run entirely in the browser.',
+      '',
+      `About the author and how the tools handle data: ${SITE_URL}/about`,
+      '',
+      '## Tools',
+      ''
+    ];
+    STATIC_PAGES.filter(p => p.llms === 'Tools').forEach(p => out.push(line(p.title, p.loc, p.desc)));
+
+    out.push('', '## Tutorials', '');
+    out.push(line('All tutorials', '/tutorials', 'Index of step-by-step tutorials.'));
+    try {
+      require('./lib/tutorials').getAllTutorials().forEach(t => out.push(line(t.title, `/tutorials/${t.slug}`, t.description)));
+    } catch (e) { console.error('llms.txt tutorials:', e); }
+
+    out.push('', '## Blog', '');
+    out.push(line('All field notes', '/blog', 'Index of blog posts.'));
+    try {
+      require('./lib/blog').getAllPosts().forEach(p => out.push(line(p.title, `/blog/${p.slug}`, p.description)));
+    } catch (e) { console.error('llms.txt blog:', e); }
+
+    res.type('text/plain; charset=utf-8').send(out.join('\n') + '\n');
+  } catch (err) {
+    console.error('llms.txt error:', err);
+    res.status(500).type('text/plain').send('Error generating llms.txt');
   }
 });
 

@@ -5,4 +5,55 @@ Disallow: /admin
 Disallow: /api
 Disallow: /private
 
+# AI crawlers: TronKits opts in to AI crawling and citation (training crawlers included).
+# A named group replaces the * group for that bot, so the Disallows repeat.
+
+User-agent: GPTBot
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /private
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /private
+
+User-agent: Claude-Web
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /private
+
+User-agent: anthropic-ai
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /private
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /private
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /private
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /private
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /private
+
 Sitemap: https://tronkits.com/sitemap.xml
