@@ -69,6 +69,7 @@
         <div class="tk-hero__btns" style="margin-top:24px; gap:10px">
           <button type="button" id="calcBtn" class="tk-btn tk-btn--accent">Calculate →</button>
           <button type="button" id="clearBtn" class="tk-btn tk-btn--ghost">Clear</button>
+          <button type="button" id="copyLink" class="tk-btn tk-btn--ghost tk-btn--sm" style="align-self:center">Copy link</button>
         </div>
 
         <div id="msg" class="tk-status-msg"></div>
@@ -104,9 +105,15 @@
   </div>
 </section>
 
+<script src="/js/share-link.js"></script>
 <script>
 (() => {
   const LN2 = Math.log(2);
+  // Field the last calculation filled in; kept out of the shareable URL so a
+  // shared link still has exactly three inputs
+  let lastSolved = null;
+  const FIELDS = ["r1","r2","c","f"];
+  const DEFAULT_UNIT = { r1:"1e3", r2:"1e3", c:"1e-6", f:"1" };
 
   const getVal = (id, unitId) => {
     const v = parseFloat(document.getElementById(id).value);
@@ -186,6 +193,7 @@
       showMsg("Those values lead to an impossible result. Check signs/units and try again.");
       return;
     }
+    lastSolved = FIELDS.find(id => !filled[id]);
 
     R1 = getVal("r1","r1Unit");
     R2 = getVal("r2","r2Unit");
@@ -221,12 +229,35 @@
     clearMsg();
   };
 
-  document.getElementById("calcBtn").addEventListener("click", calc);
-  document.getElementById("clearBtn").addEventListener("click", clearAll);
-  ["r1","r2","c","f"].forEach(function(id) {
+  // Shareable URL (?r1=1&r2=10&c=10): the typed values plus non-default units
+  const syncUrl = () => {
+    const fields = {};
+    FIELDS.forEach(id => {
+      const unit = document.getElementById(id + "Unit").value;
+      if (id !== lastSolved) fields[id] = document.getElementById(id).value;
+      if (unit !== DEFAULT_UNIT[id]) fields[id + "u"] = unit;
+    });
+    TKShare.write(fields);
+  };
+
+  document.getElementById("calcBtn").addEventListener("click", () => { calc(); syncUrl(); });
+  document.getElementById("clearBtn").addEventListener("click", () => { clearAll(); lastSolved = null; syncUrl(); });
+  FIELDS.forEach(function(id) {
     var el = document.getElementById(id);
-    el.addEventListener('focus', function() { el.value = ""; clearMsg(); });
+    el.addEventListener('focus', function() { el.value = ""; clearMsg(); if (id === lastSolved) lastSolved = null; syncUrl(); });
+    el.addEventListener('input', syncUrl);
+    document.getElementById(id + "Unit").addEventListener('change', syncUrl);
   });
+
+  // Pre-fill from the URL; solve straight away when exactly three are given
+  const qs = TKShare.params();
+  FIELDS.forEach(id => {
+    TKShare.setSelect(document.getElementById(id + "Unit"), qs.get(id + "u"));
+    const v = TKShare.num(qs.get(id));
+    if (v !== null) document.getElementById(id).value = v;
+  });
+  if (FIELDS.filter(id => document.getElementById(id).value !== "").length === 3) calc();
+  TKShare.bindCopy(document.getElementById("copyLink"));
 })();
 </script>
 

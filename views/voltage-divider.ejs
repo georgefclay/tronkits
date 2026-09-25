@@ -77,6 +77,7 @@
         <div class="tk-hero__btns" style="margin-top:24px; gap:10px">
           <button type="button" id="calcBtn" class="tk-btn tk-btn--accent">Calculate →</button>
           <button type="button" id="clearBtn" class="tk-btn tk-btn--ghost">Clear</button>
+          <button type="button" id="copyLink" class="tk-btn tk-btn--ghost tk-btn--sm" style="align-self:center">Copy link</button>
         </div>
         <div id="msg" class="tk-status-msg"></div>
       </form>
@@ -110,8 +111,15 @@
   </div>
 </section>
 
+<script src="/js/share-link.js"></script>
 <script>
 (() => {
+  // Field the last calculation filled in; kept out of the shareable URL so a
+  // shared link still has the right number of inputs
+  let lastSolved = null;
+  const FIELDS = ["vin","vout","r1","r2","rl"];
+  const UNITS = { r1:"r1Unit", r2:"r2Unit", rl:"rlUnit" };
+
   const getVal = (id, unitId=null) => {
     const el = document.getElementById(id);
     if (!el) return null;
@@ -235,6 +243,8 @@
       showMsg("Those values lead to an impossible result. Check units and ensure Vin > Vout > 0, resistances > 0.");
       return;
     }
+    const filledMap = { vin:vin_filled, vout:vout_filled, r1:r1_filled, r2:r2_filled, rl:rl_filled };
+    lastSolved = FIELDS.filter(id => useLoad || id !== "rl").find(id => !filledMap[id]);
 
     Vin = getVal("vin");
     Vout = getVal("vout");
@@ -280,16 +290,52 @@
     document.getElementById("detailsWrap").style.display="none";
   };
 
+  // Shareable URL (?vin=12&r1=4.7&r2=3.3, plus &l=1&rl=10 with a load)
+  const syncUrl = () => {
+    const useLoad = document.getElementById("useLoad").checked;
+    const fields = { l: useLoad ? "1" : "" };
+    FIELDS.forEach(id => {
+      if (id === "rl" && !useLoad) return;
+      if (id !== lastSolved) fields[id] = document.getElementById(id).value;
+      if (UNITS[id]) {
+        const unit = document.getElementById(UNITS[id]).value;
+        if (unit !== "1e3") fields[id + "u"] = unit;
+      }
+    });
+    TKShare.write(fields);
+  };
+
   document.getElementById("useLoad").addEventListener("change", (e)=>{
     document.getElementById("rlWrap").style.display = e.target.checked ? "" : "none";
     document.getElementById("vdModeLabel").textContent = e.target.checked ? "WITH LOAD · 4 OF 5" : "NO LOAD · 3 OF 4";
+    syncUrl();
   });
-  document.getElementById("calcBtn").addEventListener("click", calc);
-  document.getElementById("clearBtn").addEventListener("click", clearAll);
-  ["vin","vout","r1","r2","rl"].forEach(id => {
+  document.getElementById("calcBtn").addEventListener("click", () => { calc(); syncUrl(); });
+  document.getElementById("clearBtn").addEventListener("click", () => { clearAll(); lastSolved = null; syncUrl(); });
+  FIELDS.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.addEventListener("focus", () => { el.value=""; clearMsg(); });
+    if (el) el.addEventListener("focus", () => { el.value=""; clearMsg(); if (id === lastSolved) lastSolved = null; syncUrl(); });
+    if (el) el.addEventListener("input", syncUrl);
+    if (UNITS[id]) document.getElementById(UNITS[id]).addEventListener("change", syncUrl);
   });
+
+  // Pre-fill from the URL; solve straight away when the count is right
+  const qs = TKShare.params();
+  if (qs.get("l") === "1") {
+    const cb = document.getElementById("useLoad");
+    cb.checked = true;
+    cb.dispatchEvent(new Event("change"));
+  }
+  FIELDS.forEach(id => {
+    if (UNITS[id]) TKShare.setSelect(document.getElementById(UNITS[id]), qs.get(id + "u"));
+    const v = TKShare.num(qs.get(id));
+    if (v !== null) document.getElementById(id).value = v;
+  });
+  const useLoadNow = document.getElementById("useLoad").checked;
+  const given = FIELDS.filter(id => (useLoadNow || id !== "rl") && document.getElementById(id).value !== "").length;
+  if (given === (useLoadNow ? 4 : 3)) calc();
+  if (qs.toString()) syncUrl(); // the load toggle above rewrote the URL early
+  TKShare.bindCopy(document.getElementById("copyLink"));
 })();
 </script>
 

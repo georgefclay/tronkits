@@ -90,8 +90,9 @@
           </div>
         </div>
       </div>
-      <div style="margin-top:18px">
+      <div style="margin-top:18px; display:flex; flex-wrap:wrap; gap:10px; align-items:center">
         <button type="button" id="clear-btn" class="tk-btn tk-btn--ghost">Clear</button>
+        <button type="button" id="copyLink" class="tk-btn tk-btn--ghost tk-btn--sm">Copy link</button>
       </div>
     </div>
   </div>
@@ -122,6 +123,7 @@
   </div>
 </section>
 
+<script src="/js/share-link.js"></script>
 <script>
 (function() {
   const keys = ['E', 'I', 'R', 'P'];
@@ -206,11 +208,19 @@
     setStatus('CALCULATED · LIVE', 'ok');
   }
 
+  // Shareable URL: only the values the user typed (?e=12&r=220)
+  function syncUrl() {
+    const fields = {};
+    keys.forEach(k => { if (state[k] === 'user') fields[k.toLowerCase()] = inputs[k].value; });
+    TKShare.write(fields);
+  }
+
   keys.forEach(k => {
     inputs[k].addEventListener('input', () => {
       inputs[k].classList.remove('is-calculated');
       state[k] = inputs[k].value === '' ? 'empty' : 'user';
       compute();
+      syncUrl();
     });
   });
 
@@ -221,7 +231,17 @@
       state[k] = 'empty';
     });
     setStatus('FILL ANY TWO FIELDS');
+    syncUrl();
   });
+
+  // Pre-fill from the URL, then compute
+  const qs = TKShare.params();
+  keys.forEach(k => {
+    const v = TKShare.num(qs.get(k.toLowerCase()));
+    if (v !== null) { inputs[k].value = v; state[k] = 'user'; }
+  });
+  if (keys.some(k => state[k] === 'user')) compute();
+  TKShare.bindCopy(document.getElementById('copyLink'));
 })();
 </script>
 

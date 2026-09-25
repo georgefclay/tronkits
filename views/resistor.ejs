@@ -75,6 +75,8 @@
           <span class="accent">$ </span><span id="rkTermCmd">—</span><br>
           <span class="muted">→ </span><span id="rkTermOut">—</span>
         </div>
+
+        <button type="button" id="copyLink" class="tk-btn tk-btn--ghost tk-btn--sm" style="margin-top:18px; color:var(--paper); border-color:var(--paper)">Copy link</button>
       </div>
     </div>
   </div>
@@ -183,6 +185,7 @@
   </div>
 </section>
 
+<script src="/js/share-link.js"></script>
 <script>
 // ── Resistor color reference: defined once in EJS at the top of this view ──
 var RESISTOR_COLORS = <%- JSON.stringify(RESISTOR_COLORS) %>;
@@ -466,6 +469,41 @@ function renderRev() {
   document.getElementById('rkRevModeLabel').textContent = state.mode + '-BAND MODE';
   document.getElementById('rkRevTcWrap').style.display = state.mode === 6 ? '' : 'none';
   renderPreview();
+  syncUrl();
+}
+
+// ── Shareable URL: ?m=4&b=4-7-2-10&rv=4.7&ru=1000 ───────────────────────────
+// b = band indices into RESISTOR_COLORS; rv/ru/rt/rc = the reverse lookup.
+// Not written until the page has finished its first render.
+var urlReady = false;
+function syncUrl() {
+  if (!urlReady) return;
+  TKShare.write({
+    m:  state.mode,
+    b:  state.bands.slice(0, state.mode).join('-'),
+    rv: document.getElementById('rkRevValue').value,
+    ru: document.getElementById('rkRevUnit').value === '1' ? '' : document.getElementById('rkRevUnit').value,
+    rt: String(revState.tolPct) === '5' ? '' : revState.tolPct,
+    rc: state.mode === 6 ? revState.tcoPpm : ''
+  });
+}
+function loadFromUrl() {
+  var qs = TKShare.params();
+  var m = Number(qs.get('m'));
+  if ([4, 5, 6].indexOf(m) === -1) return false;
+  var bands = (qs.get('b') || '').split('-').map(Number);
+  if (bands.length < m || bands.slice(0, m).some(function(i){ return !(Number.isInteger(i) && i >= 0 && i < RESISTOR_COLORS.length); })) return false;
+  state.mode = m;
+  state.bands = bands.slice(0, m);
+  validateBands();
+  var rv = TKShare.num(qs.get('rv'));
+  if (rv !== null) document.getElementById('rkRevValue').value = rv;
+  TKShare.setSelect(document.getElementById('rkRevUnit'), qs.get('ru'));
+  TKShare.setSelect(document.getElementById('rkRevTol'), qs.get('rt'));
+  TKShare.setSelect(document.getElementById('rkRevTc'), qs.get('rc'));
+  document.querySelectorAll('.tk-mode-btn').forEach(function(b){ b.classList.toggle('is-active', Number(b.dataset.mode) === m); });
+  renderAll();
+  return true;
 }
 
 // ── Mode switching ──────────────────────────────────────────────────────────
@@ -533,7 +571,10 @@ buildRevSelects();
   el.addEventListener('input', renderRev);
   el.addEventListener('change', renderRev);
 });
-setMode(5);
+if (!loadFromUrl()) setMode(5);
+urlReady = true;
+if (location.search) syncUrl();
+TKShare.bindCopy(document.getElementById('copyLink'));
 </script>
 
 <!-- ============================== EXPLAINER ============================== -->

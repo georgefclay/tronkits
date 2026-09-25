@@ -61,6 +61,7 @@
         <div class="tk-hero__btns" style="margin-top:18px; gap:10px">
           <button type="button" id="calcBtn" class="tk-btn tk-btn--accent">Calculate →</button>
           <button type="button" id="clearBtn" class="tk-btn tk-btn--ghost">Clear</button>
+          <button type="button" id="copyLink" class="tk-btn tk-btn--ghost tk-btn--sm" style="align-self:center">Copy link</button>
         </div>
         <div id="msg" class="tk-status-msg"></div>
       </form>
@@ -118,6 +119,7 @@
   </p>
 </section>
 
+<script src="/js/share-link.js"></script>
 <script>
 (() => {
   const E12 = [1.0,1.2,1.5,1.8,2.2,2.7,3.3,3.9,4.7,5.6,6.8,8.2];
@@ -239,12 +241,42 @@
     document.getElementById("detailsWrap").style.display="none";
   };
 
-  document.getElementById("calcBtn").addEventListener("click", calc);
-  document.getElementById("clearBtn").addEventListener("click", clearAll);
+  // Shareable URL (?vs=12&vf=3.2&i=20&n=3); defaults are left out
+  const syncUrl = () => {
+    const iu = document.getElementById("iUnit").value;
+    const n = document.getElementById("nled").value;
+    const e = document.getElementById("esel").value;
+    TKShare.write({
+      vs: document.getElementById("vs").value,
+      vf: document.getElementById("vf").value,
+      i:  document.getElementById("i").value,
+      iu: iu === "1e-3" ? "" : iu,
+      n:  n === "1" ? "" : n,
+      e:  e === "none" ? "" : e
+    });
+  };
+
+  document.getElementById("calcBtn").addEventListener("click", () => { calc(); syncUrl(); });
+  document.getElementById("clearBtn").addEventListener("click", () => { clearAll(); syncUrl(); });
   ["vs","vf","i","nled"].forEach(id => {
     const el = document.getElementById(id);
-    el.addEventListener("focus", ()=>{ if (id!=="nled") el.value=""; clearMsg(); });
+    el.addEventListener("focus", ()=>{ if (id!=="nled") el.value=""; clearMsg(); syncUrl(); });
+    el.addEventListener("input", syncUrl);
   });
+  ["iUnit","esel"].forEach(id => document.getElementById(id).addEventListener("change", syncUrl));
+
+  // Pre-fill from the URL; calculate when the required inputs are there
+  const qs = TKShare.params();
+  [["vs","vs"],["vf","vf"],["i","i"]].forEach(([k,id]) => {
+    const v = TKShare.num(qs.get(k));
+    if (v !== null) document.getElementById(id).value = v;
+  });
+  const qn = qs.get("n");
+  if (qn && /^\d+$/.test(qn) && Number(qn) >= 1) document.getElementById("nled").value = qn;
+  TKShare.setSelect(document.getElementById("iUnit"), qs.get("iu"));
+  TKShare.setSelect(document.getElementById("esel"), qs.get("e"));
+  if (["vs","vf","i"].every(id => document.getElementById(id).value !== "")) calc();
+  TKShare.bindCopy(document.getElementById("copyLink"));
 
   setTimeout(updateColorTable, 0);
 })();
