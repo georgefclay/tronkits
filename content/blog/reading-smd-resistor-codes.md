@@ -1,7 +1,7 @@
 ---
 title: "Reading SMD Resistor Codes: 3-Digit, 4-Digit and EIA-96"
 slug: "reading-smd-resistor-codes"
-date: "2026-09-26"
+date: "2026-09-25"
 description: "How to read the tiny numbers on SMD resistors: 3-digit codes like 472, 4-digit codes like 4702, EIA-96 codes like 01C, and what R and 000 mean."
 tags: ["electronics", "resistors", "smd", "utilities"]
 ---
