@@ -84,6 +84,13 @@ app.get('/', (req, res) => {
   });
 });
 
+app.get('/about', (req, res) => {
+  res.render('about', {
+    title: 'About George Clay & TronKits | TronKits',
+    metaDescription: 'Who builds TronKits: George Clay, a tinkerer running free electronics calculators and OpenSCAD tools from a Raspberry Pi. How the tools work and how AI is used.'
+  });
+});
+
 app.get('/tutorials', (req, res) => {
   res.render('tutorials', {
     title: 'Tutorials – OpenSCAD, Raspberry Pi & Beginner Electronics | TronKits',
@@ -108,6 +115,7 @@ app.get('/sitemap.xml', (req, res) => {
       { loc: '/', view: 'index.ejs', changefreq: 'weekly', priority: 1.0 },
       { loc: '/blog', view: 'blog/index.ejs', changefreq: 'weekly', priority: 0.7 },
       { loc: '/tutorials', view: 'tutorials.ejs', changefreq: 'monthly', priority: 0.7 },
+      { loc: '/about', view: 'about.ejs', changefreq: 'yearly', priority: 0.4 },
       { loc: '/contact', view: 'contact.ejs', changefreq: 'yearly', priority: 0.3 },
       { loc: '/scad', view: 'scad.ejs', changefreq: 'monthly', priority: 0.4 },
       { loc: '/utility', view: 'utility.ejs', changefreq: 'monthly', priority: 0.5 },

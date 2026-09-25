@@ -13,7 +13,7 @@
         var d = post.date;
         var dateStr = d ? (d.toISOString().slice(0,10)) : '';
       %>
-      <time datetime="<%= dateStr %>"><%= dateStr %></time> · TRONKITS FIELD NOTES
+      <time datetime="<%= dateStr %>"><%= dateStr %></time> · BY <a href="/about" rel="author" style="color:inherit">GEORGE CLAY</a> · TRONKITS FIELD NOTES
     </div>
     <% if (post.tags && post.tags.length) { %>
       <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:32px">
@@ -39,7 +39,7 @@
     description: post.description || post.excerpt || '',
     datePublished: dateStr,
     dateModified: post.updated ? post.updated.toISOString().slice(0,10) : dateStr,
-    author: { '@type': 'Person', name: 'George Clay' },
+    author: { '@type': 'Person', name: 'George Clay', url: siteUrl + '/about' },
     publisher: { '@type': 'Organization', name: 'TronKits', url: siteUrl },
     mainEntityOfPage: canonicalUrl,
     url: canonicalUrl

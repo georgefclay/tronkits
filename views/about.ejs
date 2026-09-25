@@ -1,0 +1,204 @@
+<% var currentPage = 'about'; %>
+<%- include('../partials/header') %>
+
+<section class="tk-hero--tight" style="padding-bottom:28px">
+  <div class="tk-breadcrumb">// HOME / ABOUT</div>
+  <h1 class="tk-h1">
+    About TronKits.<br>
+    <span class="tk-h1__sub">One tinkerer, one Raspberry Pi, a drawer full of calculators.</span>
+  </h1>
+</section>
+
+<!-- ============================== WHO I AM =============================== -->
+<section class="tk-section-tight">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">01</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// Who I am</div>
+      <h2 class="tk-h2">George Clay</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-prose" style="margin:0">
+    <!-- TODO(george): add a photo here if you want one (e.g. /images/george.jpg, ~400px square). -->
+    <p>
+      I'm George Clay, and I build TronKits. I'm a self-taught tinkerer: I learn by
+      building something, breaking it, and writing down what fixed it. This site is where
+      those notes and the little tools I kept rebuilding for myself end up.
+    </p>
+    <!-- TODO(george): one or two sentences of background — what you do (or did) for a living, and how long you've been at the bench. Kept generic on purpose until you fill it in. -->
+    <p>
+      I first learned the resistor color code
+      <a href="/blog/reading-resistor-color-code">in the Navy</a>, and I still keep a printed
+      color-code chart taped to the wall behind my workbench. These days most of my
+      projects are a mix of electronics, 3D-printed enclosures designed in OpenSCAD, and
+      small web apps.
+    </p>
+    <p>
+      Since early 2026 I've been building a lot with AI. I use Claude, ChatGPT and Gemini
+      as a <a href="/blog/building-a-team-with-multiple-ai-models">team</a> &mdash; passing a
+      design from one model to the next and asking each what is missing &mdash; and that
+      process took one idea, an AI-driven hog trap, all the way to a provisional patent
+      application for a distributed edge-AI capture system. I wrote up the good and the bad
+      of that in <a href="/blog/journey-into-ai">The Journey Into AI</a>.
+    </p>
+    <!-- TODO(george): where you're based, if you want it public. -->
+  </div>
+</section>
+
+<!-- ========================== WHAT THIS SITE IS ========================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">02</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// What this site is</div>
+      <h2 class="tk-h2">A workbench, not a magazine</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-2col">
+    <div class="tk-card tk-card--flat">
+      <div class="tk-kicker tk-mb-18">// WHAT'S HERE</div>
+      <ul class="tk-body" style="font-size:15px; padding-left:18px; margin:0">
+        <li style="margin-bottom:8px"><strong>Electronics calculators</strong> &mdash;
+          <a href="/resistor">resistor color code</a>, <a href="/555">555 timer</a>,
+          <a href="/voltage-divider">voltage divider</a>, <a href="/led-resistor">LED resistor</a>
+          and <a href="/ohms-law">Ohm's law</a>.</li>
+        <li style="margin-bottom:8px"><strong>An <a href="/scad">OpenSCAD box generator</a></strong>
+          that writes the code for a parametric box and can render it to an STL.</li>
+        <li style="margin-bottom:8px"><strong><a href="/tutorials">Tutorials</a></strong> &mdash;
+          OpenSCAD boxes, and setting up a Raspberry Pi as a Node.js web server.</li>
+        <li style="margin-bottom:8px"><strong>Small dev utilities</strong> &mdash;
+          <a href="/csv-viewer">CSV viewer</a>, <a href="/csv2app">CSV2App</a>,
+          <a href="/passphrases">passphrase generator</a>,
+          <a href="/logo-generator">logo generator</a> and a
+          <a href="/project-tracker">project tracker</a>.</li>
+        <li><strong><a href="/blog">Field notes</a></strong> &mdash; write-ups on the tools,
+          the electronics behind them, and working with AI.</li>
+      </ul>
+    </div>
+
+    <div class="tk-card tk-card--flat">
+      <div class="tk-kicker tk-mb-18">// WHERE IT RUNS</div>
+      <p class="tk-body" style="font-size:15px; margin-bottom:12px">
+        TronKits is served from a Raspberry Pi sitting in a colocation rack. It runs a
+        Node.js (Express) app, kept alive by PM2, behind an Nginx reverse proxy, with a UFW
+        firewall in front. OpenSCAD is installed on the same Pi for STL rendering.
+      </p>
+      <p class="tk-body" style="font-size:15px; margin-bottom:0">
+        The whole setup, from SD card to static IP, is written up step by step in the
+        <a href="/tutorials">Raspberry Pi colocation tutorial</a>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== HOW TOOLS WORK ============================ -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">03</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// How the tools work</div>
+      <h2 class="tk-h2">Free, no login, and where your data goes</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-prose" style="margin:0 0 24px">
+    <p>
+      Every tool is free and none of them need an account. Most run entirely in your
+      browser, so nothing you type or load leaves your machine. Two need the server, and
+      they're marked below so you know exactly what is sent.
+    </p>
+  </div>
+
+  <div class="tk-card" style="padding:0; overflow-x:auto">
+    <table class="tk-table">
+      <thead>
+        <tr><th>Tool</th><th>Runs</th><th>What reaches the server</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Resistor, 555, divider, LED, Ohm's law</td><td>Browser</td><td>Nothing &mdash; the maths is JavaScript on the page</td></tr>
+        <tr><td>CSV Viewer, CSV2App</td><td>Browser</td><td>Nothing &mdash; your file is parsed locally and never uploaded</td></tr>
+        <tr><td>Logo generator</td><td>Browser</td><td>Nothing &mdash; the SVG is built on the page</td></tr>
+        <tr><td>Project tracker</td><td>Browser</td><td>Nothing &mdash; data stays in local storage or a JSON file you pick</td></tr>
+        <tr><td>Passphrase generator</td><td>Server</td><td>Only the length, count and exact-length setting; passphrases are generated by a script on the Pi and returned, not saved</td></tr>
+        <tr><td>OpenSCAD box &rarr; STL</td><td>Server</td><td>The OpenSCAD code; the Pi renders it with OpenSCAD and saves the <code>.scad</code> and <code>.stl</code> files so you can download them</td></tr>
+        <tr><td>Contact form</td><td>Server</td><td>Your name, email and message, stored so I can reply</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="tk-body" style="font-size:14px; margin-top:18px; max-width:760px">
+    Like most web servers, this one keeps a plain access log: the time, IP address and URL
+    of each request. There are no ads and no analytics scripts.
+  </p>
+</section>
+
+<!-- ============================== AI POLICY ============================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">04</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// Who wrote what</div>
+      <h2 class="tk-h2">How I use AI on this site</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-prose" style="margin:0">
+    <p>
+      I write some posts and tutorials myself and have AI write others. I'm not hiding
+      either. For the AI-written ones, Claude works from a voice file built from my own
+      writing, I edit the result, strip out the obvious AI tells, and make sure I agree with
+      every claim before it goes up. The long version is in
+      <a href="/blog/ai-slop">AI Slop?</a>
+    </p>
+    <p>Every post from here on ends with one of two bylines, so you always know:</p>
+    <blockquote><em>I, George Clay, wrote this post in whole. AI was used to clean up my grammar/spelling, and point out any gaps in continuity.</em></blockquote>
+    <blockquote><em>This blog post was written by AI using the voice of George Clay's writings. Edited by George Clay.</em></blockquote>
+    <p>
+      Some older posts predate the rule and have no byline. Much of the site's code was
+      written with Claude Code, too.
+    </p>
+  </div>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-cta-strip">
+    <div style="flex:1">
+      <div class="tk-cta-strip__kicker">// GET IN TOUCH</div>
+      <h3>Found a bug, or want a tool that isn't here?</h3>
+      <p>Send a note. I usually reply within a few days.</p>
+    </div>
+    <a href="/contact" class="tk-btn tk-btn--accent" style="flex-shrink:0">Contact →</a>
+  </div>
+</section>
+
+<%
+  // AboutPage + Person structured data. Built as objects so JSON.stringify
+  // handles quoting; "<" is escaped so nothing can close the script tag.
+  var __person = {
+    '@type': 'Person',
+    '@id': siteUrl + '/about#george',
+    name: 'George Clay',
+    url: siteUrl + '/about',
+    // TODO(george): add public profile URLs (GitHub, LinkedIn, etc.) — helps
+    // search engines tie the byline to you. Left empty rather than guessed.
+    sameAs: []
+  };
+  var __ld = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: title,
+    description: metaDescription,
+    url: canonicalUrl,
+    mainEntity: __person,
+    publisher: { '@type': 'Organization', name: 'TronKits', url: siteUrl }
+  };
+%>
+<script type="application/ld+json"><%- JSON.stringify(__ld).replace(/</g, '\\u003c') %></script>
+
+<%- include('../partials/footer') %>

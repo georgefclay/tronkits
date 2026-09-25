@@ -4,7 +4,7 @@ slug: "ai-slop"
 date: "2026-07-21"
 description: "A lot of AI writing is slop. It doesn't have to be. Here's how I use AI to write some of my posts, and why I always say who wrote what."
 tags: ["AI", "writing", "blogging"]
-draft: true
+draft: false
 ---
 
 A popular thing to say right now is "AI Slop". And I have to say that a lot of AI writing is "slop". But, does it have to be?
