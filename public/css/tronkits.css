@@ -466,6 +466,9 @@ main.tk-main {
 .tk-stamp--green  { border-color: var(--green);  color: var(--green); }
 .tk-stamp--accent { border-color: var(--accent); color: var(--accent); }
 .tk-stamp--red    { border-color: var(--red);    color: var(--red); }
+/* Home hero stamp: hangs off the drawing's right edge on wide screens; kept
+   inside the viewport once the hero stacks (its rotation adds ~7px) */
+.tk-hero__stamp { position: absolute; top: 24px; right: -20px; transform: rotate(8deg); width: 104px; height: 104px; }
 
 /* ─── Code block ───────────────────────────────────────────── */
 .tk-code {
@@ -1653,6 +1656,7 @@ input[type="file"].tk-input { padding: 8px 10px; cursor: pointer; }
   .tk-section, .tk-hero, .tk-hero--tight, .tk-band-deep, .tk-footer { padding-left: 20px; padding-right: 20px; }
   .tk-section-tight { padding-left: 20px; padding-right: 20px; }
   .tk-hero__grid { grid-template-columns: 1fr; gap: 40px; }
+  .tk-hero__stamp { right: 8px; }
   .tk-h1 { font-size: 48px; }
   .tk-h1--xl { font-size: 56px; }
   .tk-h1__sub { font-size: 24px; }

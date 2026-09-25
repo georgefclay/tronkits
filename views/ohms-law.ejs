@@ -1,4 +1,4 @@
-<% var currentPage = 'utilities'; %>
+<% locals.currentPage = 'utilities'; %>
 <%- include('../partials/header') %>
 
 <section class="tk-hero--tight" style="padding-bottom:28px">
@@ -94,6 +94,7 @@
         <button type="button" id="clear-btn" class="tk-btn tk-btn--ghost">Clear</button>
         <button type="button" id="copyLink" class="tk-btn tk-btn--ghost tk-btn--sm">Copy link</button>
       </div>
+      <div id="ohmReadout" class="tk-mono" aria-live="polite" style="margin-top:16px; text-transform:none; letter-spacing:0.04em; color:var(--ink); font-size:13px"></div>
     </div>
   </div>
 </section>
@@ -124,6 +125,7 @@
 </section>
 
 <script src="/js/share-link.js"></script>
+<script src="/js/tk-format.js"></script>
 <script>
 (function() {
   const keys = ['E', 'I', 'R', 'P'];
@@ -134,6 +136,8 @@
     state[k] = 'empty';
   });
   const statusMsg = document.getElementById('ohmStatus');
+  const readout = document.getElementById('ohmReadout');
+  const UNIT = { E: 'V', I: 'A', R: 'Ω', P: 'W' };
 
   function fmt(n) {
     if (!isFinite(n)) return '';
@@ -155,6 +159,7 @@
   }
   function compute() {
     clearCalculated();
+    readout.textContent = '';
     const userKeys = keys.filter(k => state[k] === 'user');
     if (userKeys.length < 2) { setStatus('FILL ANY TWO FIELDS'); return; }
     if (userKeys.length > 2) { setStatus('CLEAR ONE — ONLY TWO INPUTS NEEDED'); return; }
@@ -205,6 +210,8 @@
         state[k] = 'calculated';
       }
     });
+    // Readable summary with engineering prefixes (the inputs keep plain numbers)
+    readout.textContent = '→ ' + keys.map(k => k + ' = ' + fmtSI(results[k], UNIT[k])).join(' · ');
     setStatus('CALCULATED · LIVE', 'ok');
   }
 
@@ -230,6 +237,7 @@
       inputs[k].classList.remove('is-calculated');
       state[k] = 'empty';
     });
+    readout.textContent = '';
     setStatus('FILL ANY TWO FIELDS');
     syncUrl();
   });
@@ -269,7 +277,9 @@
     <p>
       <strong>Example.</strong> 12&nbsp;V across a 220&nbsp;Ω resistor:
       <code>I = 12 / 220 = 0.0545 A</code> (54.5&nbsp;mA) and
-      <code>P = 12² / 220 = 0.655 W</code>.
+      <code>P = 12² / 220 = 0.655 W</code>. The calculator fills the inputs with plain numbers
+      and prints the same result underneath with prefixes: <code>I = 54.55 mA</code>,
+      <code>P = 654.5 mW</code>.
     </p>
     <p>
       <strong>Gotcha: check the power, not just the value.</strong> If that 220&nbsp;Ω is an

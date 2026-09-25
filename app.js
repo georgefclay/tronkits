@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 require('dotenv').config();
 
 // NEW: Passphrase API router (Option 2: Node/Express calling Python)
@@ -421,9 +422,50 @@ app.get('/ohms-law', (req, res) => {
 });
 
 // --- OpenSCAD STL generation ---
-app.post('/generate-stl', (req, res) => {
+// Each render runs OpenSCAD on the Pi, so cap how often one IP can ask.
+// Same key setup as routes/7who-scan.js: Cloudflare's client-IP header first,
+// then req.ip collapsed to its /56 for IPv6 by ipKeyGenerator.
+const stlLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 10,                // 10 renders per window per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { trustProxy: false },
+  keyGenerator: (req) => req.headers['cf-connecting-ip'] || ipKeyGenerator(req.ip),
+  message: 'Too many STL renders from this address. Try again in 15 minutes.'
+});
+const MAX_SCAD_BYTES = 64 * 1024;
+
+// Rendered files are only needed long enough to download: delete .scad/.stl
+// files older than 24 hours, at startup and then hourly.
+const STL_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+function cleanupStlDir() {
+  fs.readdir(STL_DIR, (err, files) => {
+    if (err) {
+      if (err.code !== 'ENOENT') console.error('STL cleanup: readdir failed:', err.message);
+      return;
+    }
+    const cutoff = Date.now() - STL_MAX_AGE_MS;
+    files.filter(f => /\.(scad|stl)$/i.test(f)).forEach(f => {
+      const file = path.join(STL_DIR, f);
+      fs.stat(file, (statErr, st) => {
+        if (statErr || !st.isFile() || st.mtimeMs >= cutoff) return;
+        fs.unlink(file, (unlinkErr) => {
+          if (unlinkErr) console.error('STL cleanup: unlink failed:', f, unlinkErr.message);
+        });
+      });
+    });
+  });
+}
+cleanupStlDir();
+setInterval(cleanupStlDir, 60 * 60 * 1000).unref();
+
+app.post('/generate-stl', stlLimiter, (req, res) => {
   const scadCode = req.body.scad;
-  if (!scadCode) return res.status(400).send('Missing SCAD code');
+  if (!scadCode || typeof scadCode !== 'string') return res.status(400).send('Missing SCAD code');
+  if (Buffer.byteLength(scadCode, 'utf8') > MAX_SCAD_BYTES) {
+    return res.status(413).send('SCAD code is too large (64 KB maximum)');
+  }
 
   // Store path, varies between Windows and Linux
   const spath = process.env.STL_PATH;
@@ -444,10 +486,7 @@ app.post('/generate-stl', (req, res) => {
     }
 
     res.json({ url: `/stl_output/${id}.stl` });
-
-    // Optional cleanup
-    // fs.unlink(scadFile, () => {});
-    // fs.unlink(stlFile, () => {});
+    // Both files are removed by cleanupStlDir() once they are 24 hours old
   });
 });
 

@@ -1,7 +1,7 @@
 import argparse
 import csv
 import json
-import random
+import secrets
 import sys
 from pathlib import Path
 
@@ -66,14 +66,14 @@ def apply_random_first_letter_case(word_list: list[str]) -> list[str]:
         w = w.strip()
         if not w:
             continue
-        if random.choice([True, False]):
+        if secrets.choice([True, False]):
             out.append(w[:1].upper() + w[1:].lower())
             any_upper = True
         else:
             out.append(w.lower())
 
     if out and not any_upper:
-        idx = random.randrange(len(out))
+        idx = secrets.randbelow(len(out))
         out[idx] = out[idx][:1].upper() + out[idx][1:]
 
     return out
@@ -82,21 +82,21 @@ def apply_random_first_letter_case(word_list: list[str]) -> list[str]:
 def random_sep(exact_mode: bool) -> str:
     """Return a separator (digit or symbol). Exact mode sometimes returns 2 chars."""
     if not exact_mode:
-        return random.choice(DIGITS_1 + SYMS_1)
+        return secrets.choice(DIGITS_1 + SYMS_1)
 
-    r = random.random()
-    if r < 0.70:
-        return random.choice(DIGITS_1 + SYMS_1)
-    if r < 0.85:
-        return random.choice(DIGITS_2 + SYMS_2)
-    return random.choice(MIXED_2)
+    r = secrets.randbelow(100)  # 0-99: 70% one char, 15% two of a kind, 15% mixed
+    if r < 70:
+        return secrets.choice(DIGITS_1 + SYMS_1)
+    if r < 85:
+        return secrets.choice(DIGITS_2 + SYMS_2)
+    return secrets.choice(MIXED_2)
 
 
 def build_candidate(words_by_pos: dict[str, list[str]], num_words: int, exact_mode: bool) -> str:
     raw_words: list[str] = []
     for i in range(num_words):
         pos = POS_ORDER[i % len(POS_ORDER)]
-        raw_words.append(random.choice(words_by_pos[pos]))
+        raw_words.append(secrets.choice(words_by_pos[pos]))
 
     chosen_words = apply_random_first_letter_case(raw_words)
 
@@ -124,20 +124,20 @@ def enforce_digit_and_symbol(candidate: str, exact_mode: bool, target_length: in
     if not sep_positions:
         if not exact_mode:
             if not has_symbol:
-                chars.append(random.choice(SYMS_1))
+                chars.append(secrets.choice(SYMS_1))
             if not has_digit:
-                chars.append(random.choice(DIGITS_1))
+                chars.append(secrets.choice(DIGITS_1))
             return "".join(chars)
         raise RuntimeError("No separator positions found to enforce digit/symbol in exact mode.")
 
     if exact_mode:
         if not has_digit:
-            i = random.choice(sep_positions)
-            chars[i] = random.choice(DIGITS_1)
+            i = secrets.choice(sep_positions)
+            chars[i] = secrets.choice(DIGITS_1)
         if not has_symbol:
             choices = [i for i in sep_positions if not chars[i].isdigit()] or sep_positions
-            i = random.choice(choices)
-            chars[i] = random.choice(SYMS_1)
+            i = secrets.choice(choices)
+            chars[i] = secrets.choice(SYMS_1)
         fixed = "".join(chars)
         if target_length is not None and len(fixed) != target_length:
             raise RuntimeError("Exact-length enforcement altered length (unexpected).")
@@ -145,9 +145,9 @@ def enforce_digit_and_symbol(candidate: str, exact_mode: bool, target_length: in
 
     # minimum mode
     if not has_symbol:
-        chars.append(random.choice(SYMS_1))
+        chars.append(secrets.choice(SYMS_1))
     if not has_digit:
-        chars.append(random.choice(DIGITS_1))
+        chars.append(secrets.choice(DIGITS_1))
     return "".join(chars)
 
 
@@ -166,7 +166,7 @@ def generate_one(words_by_pos: dict[str, list[str]], target_length: int, exact: 
     for _ in range(max_attempts):
         min_words = max(2, target_length // 9)
         max_words = max(2, target_length // 4 + 3)
-        num_words = random.randint(min_words, max_words)
+        num_words = min_words + secrets.randbelow(max_words - min_words + 1)
 
         candidate = build_candidate(words_by_pos, num_words=num_words, exact_mode=True)
         if len(candidate) != target_length:

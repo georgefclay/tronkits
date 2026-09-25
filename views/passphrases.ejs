@@ -1,4 +1,4 @@
-<% var currentPage = 'utilities'; %>
+<% locals.currentPage = 'utilities'; %>
 <%- include('../partials/header') %>
 
 <section class="tk-hero--tight" style="padding-bottom:28px">
@@ -105,11 +105,12 @@
       phrase is about 50 bits. More words is the cheapest way to add strength.
     </p>
     <p>
-      <strong>When not to use it.</strong> The words are chosen with Python's standard
-      <code>random</code> module, which is fine for everyday account passwords but is not a
-      cryptographically secure generator, and the phrase is created on a server you don't
-      control. For a password-manager master password or a disk-encryption key, use your
-      password manager's own generator or dice-based Diceware instead.
+      <strong>Where the randomness comes from.</strong> Every choice (each word, separator and
+      capital letter) is made with Python's <code>secrets</code> module, which draws from the
+      operating system's cryptographically secure random number generator, the same source used
+      for encryption keys. The one thing it can't change is that the phrase is created on a
+      server you don't control, so for a password-manager master password or a disk-encryption
+      key you may still prefer your password manager's own generator or dice-based Diceware.
     </p>
   </div>
 </section>
@@ -118,6 +119,10 @@
 <%- include('../partials/tool_faq', {
   n: '02',
   faqs: [
+    {
+      "q": "Is the passphrase generator cryptographically secure?",
+      "a": "Yes. Words, separators and capitalization are all chosen with Python's secrets module, which uses the operating system's cryptographically secure random number generator rather than the predictable random module."
+    },
     {
       "q": "Are the generated passphrases stored or logged?",
       "a": "No. They are generated on the server, sent back to your browser and not saved. The server's access log records the request URL, which only contains the length, count and exact-length settings, never the passphrases."
@@ -154,6 +159,7 @@
       "Minimum or exact length from 12 to 128 characters",
       "Generate 1 to 50 at a time",
       "One-click copy or copy all",
+      "Cryptographically secure randomness (Python secrets module)",
       "Passphrases are not stored or logged"
     ]
   }

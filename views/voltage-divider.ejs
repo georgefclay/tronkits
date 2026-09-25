@@ -1,4 +1,4 @@
-<% var currentPage = 'utilities'; %>
+<% locals.currentPage = 'utilities'; %>
 <%- include('../partials/header') %>
 
 <section class="tk-hero--tight" style="padding-bottom:28px">
@@ -112,6 +112,7 @@
 </section>
 
 <script src="/js/share-link.js"></script>
+<script src="/js/tk-format.js"></script>
 <script>
 (() => {
   // Field the last calculation filled in; kept out of the shareable URL so a
@@ -141,17 +142,6 @@
   };
   const clearMsg = () => { const m = document.getElementById("msg"); m.className="tk-status-msg"; m.textContent=""; };
 
-  const pretty = (x, unit="") => {
-    if (!Number.isFinite(x)) return "—";
-    const exps = [
-      {k:1e-12, s:"p"}, {k:1e-9, s:"n"}, {k:1e-6, s:"µ"}, {k:1e-3, s:"m"},
-      {k:1, s:""}, {k:1e3, s:"k"}, {k:1e6, s:"M"}
-    ];
-    let best = exps.reduce((acc,e)=>{
-      const v = x/e.k; return (Math.abs(v)>=1 && Math.abs(v)<1000 && Math.abs(v)<Math.abs(acc.v))?{v,s:e.s}:acc;
-    }, {v:x, s:""});
-    return (Math.abs(best.v)>=1000? x.toExponential(3): best.v.toFixed(3)) + (unit? " "+best.s+unit : "");
-  };
 
   const calc = () => {
     clearMsg();
@@ -261,16 +251,16 @@
     const P_RL = isFinite(RL) ? (I_RL**2) * RL : 0;
 
     const rows = [
-      ['Effective R2 (R2′)', pretty(R2eq, 'Ω')],
-      ['Vin', pretty(Vin, 'V')],
-      ['Vout', pretty(Vout, 'V')],
-      ['Current through R1', pretty(I_total, 'A')],
-      ['Current through R2', pretty(I_R2, 'A')]
+      ['Effective R2 (R2′)', fmtSI(R2eq, 'Ω')],
+      ['Vin', fmtSI(Vin, 'V')],
+      ['Vout', fmtSI(Vout, 'V')],
+      ['Current through R1', fmtSI(I_total, 'A')],
+      ['Current through R2', fmtSI(I_R2, 'A')]
     ];
-    if (isFinite(RL)) rows.push(['Current through RL', pretty(I_RL, 'A')]);
-    rows.push(['Power in R1', pretty(P_R1, 'W')]);
-    rows.push(['Power in R2', pretty(P_R2, 'W')]);
-    if (isFinite(RL)) rows.push(['Power in RL', pretty(P_RL, 'W')]);
+    if (isFinite(RL)) rows.push(['Current through RL', fmtSI(I_RL, 'A')]);
+    rows.push(['Power in R1', fmtSI(P_R1, 'W')]);
+    rows.push(['Power in R2', fmtSI(P_R2, 'W')]);
+    if (isFinite(RL)) rows.push(['Power in RL', fmtSI(P_RL, 'W')]);
 
     const ul = document.getElementById("resultsList");
     ul.innerHTML = rows.map(r=>`<li><span>${r[0]}</span><strong>${r[1]}</strong></li>`).join("");

@@ -1,4 +1,4 @@
-<% var currentPage = 'utilities'; %>
+<% locals.currentPage = 'utilities'; %>
 <%
   // Resistor color reference (matches design handoff). Used server-side to
   // render the reference table and emitted to the client for the calculator.
@@ -159,7 +159,7 @@
     </div>
   </div>
 
-  <div style="margin-top:36px; background:var(--white); border:1.5px solid var(--ink); overflow:hidden">
+  <div style="margin-top:36px; background:var(--white); border:1.5px solid var(--ink); overflow-x:auto">
     <div class="tk-card-headed__head">
       <span>// FULL COLOR TABLE</span>
       <span class="yellow">REFERENCE</span>
@@ -191,10 +191,12 @@
 var RESISTOR_COLORS = <%- JSON.stringify(RESISTOR_COLORS) %>;
 
 // ── State: bands as indices into RESISTOR_COLORS ────────────────────────────
-// default: orange, orange, brown, brown, brown, gold = 330 Ω ± 5% 5-band
+// default 5-band: orange, orange, black, black, gold = 330 × 1 = 330 Ω ± 5%
+// (plus a brown 100 ppm/K tempco slot for 6-band). setMode() re-encodes the
+// same value for 4-band: orange, orange, brown, gold = 33 × 10 = 330 Ω ± 5%.
 var state = {
   mode: 5,
-  bands: [3, 3, 1, 1, 10, 0]
+  bands: [3, 3, 0, 0, 10, 1]
 };
 
 // ── Pure helpers ────────────────────────────────────────────────────────────
@@ -507,21 +509,40 @@ function loadFromUrl() {
 }
 
 // ── Mode switching ──────────────────────────────────────────────────────────
+// 4-band: [d, d, mult, tol]
+// 5-band: [d, d, d, mult, tol]
+// 6-band: [d, d, d, mult, tol, tempco]
+// Switching between 2 and 3 digits re-encodes the same value where the
+// color code allows it (33 × 10 ⇄ 330 × 1); tolerance and tempco carry over.
 function setMode(m) {
-  state.mode = m;
-  // Ensure band indices are valid for new mode
-  // 4-band: [d, d, mult, tol]
-  // 5-band: [d, d, d, mult, tol]
-  // 6-band: [d, d, d, mult, tol, tempco]
-  while (state.bands.length < m) state.bands.push(0);
-  if (m === 4) {
-    // Keep d1, d2; move mult/tol from prior positions if shrinking
-    state.bands = [state.bands[0], state.bands[1], state.bands[2], state.bands[3]];
-  } else if (m === 5) {
-    state.bands = [state.bands[0], state.bands[1], state.bands[2] || 1, state.bands[3] || 1, state.bands[4] || 10];
-  } else {
-    state.bands = [state.bands[0], state.bands[1], state.bands[2] || 1, state.bands[3] || 1, state.bands[4] || 10, state.bands[5] || 1];
+  var prev = state.mode;
+  var b = state.bands.slice();
+  var prevDigits = prev === 4 ? 2 : 3;
+  var digits = b.slice(0, prevDigits);
+  var multIdx = b[prevDigits];
+  var tolIdx = b[prevDigits + 1];
+  var tcIdx = b[prevDigits + 2] !== undefined ? b[prevDigits + 2] : 1; // brown, 100 ppm/K
+  var mult = RESISTOR_COLORS[multIdx].mult;
+
+  if (prev !== 4 && m === 4) {
+    // 3 digits → 2: drop the third digit, multiplier × 10
+    var up = findColorByMult(mult * 10);
+    if (RESISTOR_COLORS[digits[0]].digit === 0) {
+      digits = [digits[1], digits[2]];            // 0,4,7 × m → 4,7 × m
+    } else {
+      digits = [digits[0], digits[1]];
+      if (up !== -1) multIdx = up;
+    }
+  } else if (prev === 4 && m !== 4) {
+    // 2 digits → 3: append a zero, multiplier ÷ 10 (or lead with a zero)
+    var down = findColorByMult(mult / 10);
+    if (down !== -1) { digits = [digits[0], digits[1], 0]; multIdx = down; }
+    else             { digits = [0, digits[0], digits[1]]; }
   }
+
+  state.mode = m;
+  // the tempco slot is kept (unused) outside 6-band so it survives a round trip
+  state.bands = digits.concat([multIdx, tolIdx, tcIdx]);
   // Coerce each band into a valid color for its role
   validateBands();
   document.querySelectorAll('.tk-mode-btn').forEach(function(b){ b.classList.toggle('is-active', Number(b.dataset.mode) === m); });

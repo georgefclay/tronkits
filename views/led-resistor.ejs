@@ -1,4 +1,4 @@
-<% var currentPage = 'utilities'; %>
+<% locals.currentPage = 'utilities'; %>
 <%- include('../partials/header') %>
 
 <section class="tk-hero--tight" style="padding-bottom:28px">
@@ -120,6 +120,7 @@
 </section>
 
 <script src="/js/share-link.js"></script>
+<script src="/js/tk-format.js"></script>
 <script>
 (() => {
   const E12 = [1.0,1.2,1.5,1.8,2.2,2.7,3.3,3.9,4.7,5.6,6.8,8.2];
@@ -137,17 +138,6 @@
   const showMsg = (t, type="error") => { const m=document.getElementById("msg"); m.className="tk-status-msg is-"+type; m.textContent=t; };
   const clearMsg = () => { const m=document.getElementById("msg"); m.className="tk-status-msg"; m.textContent=""; };
 
-  const pretty = (x, unit="") => {
-    if (!Number.isFinite(x)) return "—";
-    const exps = [
-      {k:1e-12, s:"p"}, {k:1e-9, s:"n"}, {k:1e-6, s:"µ"}, {k:1e-3, s:"m"},
-      {k:1, s:""}, {k:1e3, s:"k"}, {k:1e6, s:"M"}
-    ];
-    let best = exps.reduce((acc,e)=>{
-      const v = x/e.k; return (Math.abs(v)>=1 && Math.abs(v)<1000 && Math.abs(v)<Math.abs(acc.v))?{v,s:e.s}:acc;
-    }, {v:x, s:""});
-    return (Math.abs(best.v)>=1000? x.toExponential(3): best.v.toFixed(3)) + (unit? " "+best.s+unit : "");
-  };
 
   const roundE = (R) => {
     const mode = document.getElementById("esel").value;
@@ -217,14 +207,15 @@
     const wattSteps = [0.125, 0.25, 0.5, 1, 2];
     const recWatt = wattSteps.find(w => w >= P_R*2) || (P_R*2);
 
+    const FRACTION_W = { 0.125: '⅛ W', 0.25: '¼ W', 0.5: '½ W' };
     const results = [
-      ['Exact R',                pretty(R_exact, 'Ω')],
-      [seriesName + ' rounded up', pretty(R_rec, 'Ω')],
-      ['Voltage drop across R',  pretty(Vdrop, 'V')],
-      ['Current',                pretty(I, 'A')],
-      ['Power in R',             pretty(P_R, 'W')],
-      ['Suggested wattage rating', '≥ ' + pretty(recWatt, 'W')],
-      ['LEDs power (N=' + N + ')', pretty(P_LED, 'W')]
+      ['Exact R',                fmtSI(R_exact, 'Ω')],
+      [seriesName + ' rounded up', fmtSI(R_rec, 'Ω')],
+      ['Voltage drop across R',  fmtSI(Vdrop, 'V')],
+      ['Current',                fmtSI(I, 'A')],
+      ['Power in R',             fmtSI(P_R, 'W')],
+      ['Suggested wattage rating', '≥ ' + fmtSI(recWatt, 'W') + (FRACTION_W[recWatt] ? ' (' + FRACTION_W[recWatt] + ')' : '')],
+      ['LEDs power (N=' + N + ')', fmtSI(P_LED, 'W')]
     ];
 
     document.getElementById("resultsList").innerHTML = results.map(r=>`<li><span>${r[0]}</span><strong>${r[1]}</strong></li>`).join("");
@@ -306,8 +297,9 @@
     <p>
       <strong>Example.</strong> Three white LEDs (Vf ≈ 3.2&nbsp;V each) in series on 12&nbsp;V at
       20&nbsp;mA: <code>(12 − 3 × 3.2) / 0.020 = 120 Ω</code>, which is a standard E12 value.
-      The resistor dissipates <code>0.020² × 120 = 0.048 W</code>, and the calculator suggests
-      a rating of at least 0.125&nbsp;W, about twice the real dissipation.
+      The resistor dissipates <code>0.020² × 120 = 0.048 W</code> (the calculator shows
+      48&nbsp;mW), and it suggests a rating of at least 125&nbsp;mW (⅛&nbsp;W), about twice the
+      real dissipation.
     </p>
     <p>
       <strong>Gotcha: Vf isn't a constant.</strong> It varies by color (about 2.0&nbsp;V for red

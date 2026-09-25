@@ -1,4 +1,4 @@
-<% var currentPage = 'home'; %>
+<% locals.currentPage = 'home'; %>
 <%
   // "Last updated" = newest blog post date (stable across requests), else a fixed date
   var __lastUpdated = (typeof latestPosts !== 'undefined' && latestPosts && latestPosts[0] && latestPosts[0].date)
@@ -121,7 +121,7 @@
           <text x="290" y="296" font-family="Space Grotesk, sans-serif" font-size="13" fill="#E25C2C" font-weight="600" font-style="italic">this glows 🎉</text>
         </g>
       </svg>
-      <div class="tk-stamp tk-stamp--green" style="position:absolute; top:24px; right:-20px; transform:rotate(8deg); width:104px; height:104px">
+      <div class="tk-stamp tk-stamp--green tk-hero__stamp">
         WELCOME · BENCH · 2026
       </div>
     </div>

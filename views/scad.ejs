@@ -1,4 +1,4 @@
-<% var currentPage = 'utilities'; %>
+<% locals.currentPage = 'utilities'; %>
 <% locals.needsBootstrap = true; /* jQuery: $(...) handlers and $.ajax for STL render */ %>
 <%- include('../partials/header') %>
 
@@ -141,8 +141,10 @@ document.addEventListener('DOMContentLoaded', function() {
         showMsg("STL ready. Downloading...", "success");
         window.location.href = res.url;
       },
-      error: function () {
-        showMsg("Failed to render STL.", "error");
+      error: function (xhr) {
+        // 413 (code too large) and 429 (render limit) carry a readable message
+        var why = (xhr && (xhr.status === 413 || xhr.status === 429) && xhr.responseText) ? xhr.responseText : "Failed to render STL.";
+        showMsg(why, "error");
       }
     });
   });
@@ -259,8 +261,9 @@ document.addEventListener('DOMContentLoaded', function() {
       render it there, or click <em>Render STL</em>. Rendering happens on the server: the code
       in the text box is sent to the Raspberry Pi that runs this site, OpenSCAD turns it into an
       STL, and your browser downloads it. The <code>.scad</code> and <code>.stl</code> files are
-      saved on the server under a random file name and are not deleted automatically. Rendering
-      can take a while; the server allows up to 10 minutes.
+      saved on the server under a random file name and deleted automatically after 24 hours.
+      Rendering can take a while; the server allows up to 10 minutes, and each address can
+      render 10 models every 15 minutes.
     </p>
     <p>
       <strong>Gotcha: the lid has zero clearance.</strong> The template sets
@@ -286,7 +289,7 @@ document.addEventListener('DOMContentLoaded', function() {
     },
     {
       "q": "Is my design uploaded when I render an STL?",
-      "a": "Yes. Rendering needs the server, so the OpenSCAD code is sent to it, and the .scad and .stl files are stored there under a random file name. Copying the code and rendering it in your own copy of OpenSCAD keeps everything local."
+      "a": "Yes. Rendering needs the server, so the OpenSCAD code is sent to it, and the .scad and .stl files are stored there under a random file name and deleted after 24 hours. Copying the code and rendering it in your own copy of OpenSCAD keeps everything local."
     },
     {
       "q": "Why doesn't the lid fit my box?",
