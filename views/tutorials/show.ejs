@@ -1,0 +1,89 @@
+<% var currentPage = 'tutorials'; %>
+<%- include('../../partials/header') %>
+<%
+  var t = tutorial;
+  var __catLabel = { openscad:'OpenSCAD', pi:'Raspberry Pi', electronics:'Electronics', linux:'Linux' };
+  var __catTag   = { openscad:'accent', pi:'green', electronics:'blue', linux:'violet' };
+  var __diffLabel = ['', 'Beginner', 'Intermediate', 'Advanced'];
+  var __n = Math.max(1, Math.min(3, Number(t.difficulty) || 1));
+  var __stars = '★★★'.slice(0, __n) + '☆☆☆'.slice(0, 3 - __n);
+  var dateStr = t.date ? t.date.toISOString().slice(0,10) : '';
+
+  // Related tools, fixed per category
+  var __related = {
+    openscad: [
+      { href:'/scad', name:'OpenSCAD Box Generator', sub:'Set the dimensions, get the code or an STL' }
+    ],
+    pi: [
+      { href:'/blog', name:'Field notes', sub:'Write-ups from running this site on a Pi' }
+    ],
+    electronics: [
+      { href:'/ohms-law', name:"Ohm's Law Calculator", sub:'V, I, R and P from any two' },
+      { href:'/led-resistor', name:'LED Resistor Calculator', sub:'Series resistor and power rating' }
+    ],
+    linux: [
+      { href:'/blog', name:'Field notes', sub:'More from the workbench' }
+    ]
+  }[t.category] || [];
+%>
+
+<style>
+  /* Tutorial step headings sit under the page h1 — keep them bench-sized */
+  .tk-tut-body h2 { font-size: 24px; }
+</style>
+
+<section class="tk-section">
+  <div class="tk-breadcrumb">// HOME / <a href="/tutorials" style="color:inherit">TUTORIALS</a> / <%= t.title.toUpperCase().slice(0, 40) %></div>
+
+  <article style="max-width:760px; margin:0 auto">
+    <a href="/tutorials" class="tk-mono" style="text-decoration:none; display:inline-block; margin-bottom:24px; color:var(--accent)">← BACK TO TUTORIALS</a>
+
+    <h1 class="tk-h1" style="font-size:52px; margin-bottom:18px"><%= t.title %></h1>
+
+    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin-bottom:32px">
+      <span class="tk-tag tk-tag--<%= __catTag[t.category] || 'accent' %>">● <%= (__catLabel[t.category] || t.category || '').toUpperCase() %></span>
+      <span class="tk-mono" aria-label="Difficulty <%= __n %> of 3"><%= __stars %> <%= __diffLabel[__n].toUpperCase() %></span>
+      <span class="tk-mono"><%= t.steps %> STEPS · ~<%= t.minutes %> MIN</span>
+      <span class="tk-mono"><time datetime="<%= dateStr %>"><%= dateStr %></time> · BY <a href="/about" rel="author" style="color:inherit">GEORGE CLAY</a></span>
+    </div>
+
+    <div class="tk-prose tk-tut-body"><%- t.html %></div>
+
+    <% if (__related.length) { %>
+      <div style="margin-top:48px">
+        <div class="tk-kicker tk-mb-18">// RELATED TOOLS</div>
+        <div class="tk-2col" style="gap:18px">
+          <% __related.forEach(function(r){ %>
+            <a href="<%= r.href %>" class="tk-card" style="text-decoration:none; display:block">
+              <h3 class="tk-h3" style="margin:0 0 4px"><%= r.name %> →</h3>
+              <div class="tk-body" style="font-size:14px; color:var(--ink-soft)"><%= r.sub %></div>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <a href="/tutorials" class="tk-btn tk-btn--ghost" style="margin-top:40px">← Back to tutorials</a>
+  </article>
+</section>
+
+<%
+  // TechArticle structured data (same escaping approach as BlogPosting)
+  var __ld = {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: t.title,
+    description: t.description || t.excerpt || '',
+    datePublished: dateStr,
+    dateModified: t.updated ? t.updated.toISOString().slice(0,10) : dateStr,
+    author: { '@type': 'Person', name: 'George Clay', url: siteUrl + '/about' },
+    publisher: { '@type': 'Organization', name: 'TronKits', url: siteUrl },
+    mainEntityOfPage: canonicalUrl,
+    url: canonicalUrl,
+    proficiencyLevel: __n === 3 ? 'Expert' : 'Beginner',
+    keywords: (t.tags || []).join(', ')
+  };
+%>
+<script type="application/ld+json"><%- JSON.stringify(__ld).replace(/</g, '\\u003c') %></script>
+
+<%- include('../../partials/footer') %>

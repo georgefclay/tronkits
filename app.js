@@ -73,14 +73,19 @@ app.use((req, res, next) => {
 // --- Routes ---
 app.get('/', (req, res) => {
   var latestPosts = [];
+  var tutorialCount = 0;
   try {
     const { getAllPosts } = require('./lib/blog');
     latestPosts = getAllPosts().slice(0, 3);
   } catch (e) { console.error('latestPosts loader failed:', e); }
+  try {
+    tutorialCount = require('./lib/tutorials').getAllTutorials().length;
+  } catch (e) { console.error('tutorials loader failed:', e); }
   res.render('index', {
     title: 'TronKits – Electronics Calculators, OpenSCAD & Raspberry Pi Tutorials',
     metaDescription: 'Free electronics calculators, an OpenSCAD box generator and beginner tutorials for Raspberry Pi and basic electronics. Runs in your browser, no login.',
-    latestPosts
+    latestPosts,
+    tutorialCount
   });
 });
 
@@ -91,12 +96,6 @@ app.get('/about', (req, res) => {
   });
 });
 
-app.get('/tutorials', (req, res) => {
-  res.render('tutorials', {
-    title: 'Tutorials – OpenSCAD, Raspberry Pi & Beginner Electronics | TronKits',
-    metaDescription: 'Free step-by-step tutorials for beginners: build a parametric box in OpenSCAD, host a Node site on a Raspberry Pi behind Nginx, and blink an LED the right way.'
-  });
-});
 
 // Passphrase API (existing route file)
 
@@ -106,6 +105,9 @@ app.get('/tutorials', (req, res) => {
 const blogRoutes = require('./routes/blog');
 app.use('/blog', blogRoutes);
 
+// Tutorials (Markdown-powered, content/tutorials/*.md)
+app.use('/tutorials', require('./routes/tutorials'));
+
 // sitemap.xml (includes static pages + blog slugs)
 app.get('/sitemap.xml', (req, res) => {
   try {
@@ -114,7 +116,7 @@ app.get('/sitemap.xml', (req, res) => {
     const urls = [
       { loc: '/', view: 'index.ejs', changefreq: 'weekly', priority: 1.0 },
       { loc: '/blog', view: 'blog/index.ejs', changefreq: 'weekly', priority: 0.7 },
-      { loc: '/tutorials', view: 'tutorials.ejs', changefreq: 'monthly', priority: 0.7 },
+      { loc: '/tutorials', view: 'tutorials/index.ejs', changefreq: 'monthly', priority: 0.7 },
       { loc: '/about', view: 'about.ejs', changefreq: 'yearly', priority: 0.4 },
       { loc: '/contact', view: 'contact.ejs', changefreq: 'yearly', priority: 0.3 },
       { loc: '/scad', view: 'scad.ejs', changefreq: 'monthly', priority: 0.4 },
@@ -148,6 +150,15 @@ app.get('/sitemap.xml', (req, res) => {
     } catch (_) {
       // ignore — blog loader not present yet
     }
+
+    // Tutorials, same treatment as blog posts
+    try {
+      const { getAllTutorials } = require('./lib/tutorials');
+      getAllTutorials().forEach(t => {
+        const lastmod = (t.date && t.date.getTime() > 0) ? t.date.toISOString().slice(0, 10) : undefined;
+        urls.push({ loc: `/tutorials/${t.slug}`, lastmod, changefreq: 'monthly', priority: 0.6 });
+      });
+    } catch (_) { /* no tutorials */ }
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>\n` +
       `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +

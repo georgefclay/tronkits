@@ -42,8 +42,7 @@
       </div>
 
       <div class="tk-stats">
-        <%# Tutorial count is hand-maintained — update when tutorials are added to views/tutorials.ejs %>
-        <div><div class="tk-stats__n">03</div><div class="tk-stats__label">Tutorials</div></div>
+        <div><div class="tk-stats__n"><%= String(typeof tutorialCount !== 'undefined' ? tutorialCount : 0).padStart(2, '0') %></div><div class="tk-stats__label">Tutorials</div></div>
         <div><div class="tk-stats__n">06</div><div class="tk-stats__label">Calculators</div></div>
         <div><div class="tk-stats__n">∞</div><div class="tk-stats__label">Side quests</div></div>
       </div>
@@ -141,7 +140,7 @@
   </div>
 
   <div class="tk-tut-grid">
-    <a class="tk-tut-card" href="/tutorials">
+    <a class="tk-tut-card" href="/tutorials/openscad-simple-box">
       <div class="tk-tut-card__visual tk-graph-paper-mini">
         <svg width="160" height="120" viewBox="0 0 160 120" aria-hidden="true">
           <g stroke="#15263A" stroke-width="1.5" fill="none" stroke-linejoin="round">
@@ -164,7 +163,7 @@
       </div>
     </a>
 
-    <a class="tk-tut-card" href="/tutorials">
+    <a class="tk-tut-card" href="/tutorials/raspberry-pi-node-nginx-colocation">
       <div class="tk-tut-card__visual tk-graph-paper-mini">
         <svg width="160" height="120" viewBox="0 0 160 120" aria-hidden="true">
           <rect x="20" y="25" width="120" height="80" rx="4" fill="#2D8F60" stroke="#15263A" stroke-width="1.5" />
@@ -190,28 +189,23 @@
       </div>
     </a>
 
-    <a class="tk-tut-card" href="/tutorials">
+    <a class="tk-tut-card" href="/tutorials/openscad-rounded-box">
       <div class="tk-tut-card__visual tk-graph-paper-mini">
-        <svg width="170" height="120" viewBox="0 0 170 120" aria-hidden="true">
-          <path d="M 20 60 L 50 60" stroke="#15263A" stroke-width="1.5" fill="none" />
-          <path d="M 110 60 L 150 60" stroke="#15263A" stroke-width="1.5" fill="none" />
-          <polyline points="50,60 56,52 64,68 72,52 80,68 88,52 96,68 104,52 110,60" fill="none" stroke="#15263A" stroke-width="1.5" />
-          <text x="80" y="44" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#4A5B72">R1</text>
-          <g transform="translate(150 60)">
-            <polygon points="-2,-12 -2,12 14,0" fill="#E25C2C" stroke="#15263A" stroke-width="1.5" stroke-linejoin="round" />
-            <line x1="14" y1="-12" x2="14" y2="12" stroke="#15263A" stroke-width="1.5" />
-            <path d="M 16 -10 L 22 -16 M 18 -6 L 24 -12 M 20 -2 L 26 -8" stroke="#E25C2C" stroke-width="1.5" stroke-linecap="round" />
+        <svg width="160" height="120" viewBox="0 0 160 120" aria-hidden="true">
+          <g stroke="#15263A" stroke-width="1.5" fill="none" stroke-linejoin="round">
+            <rect x="30" y="40" width="100" height="60" rx="14" fill="#EDE5CD" />
+            <rect x="40" y="50" width="80" height="40" rx="8" fill="#F5EFDD" stroke-dasharray="3 2" />
           </g>
-          <text x="85" y="100" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-style="italic" font-size="13" fill="#4A5B72">"hello, world."</text>
+          <text x="80" y="24" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#4A5B72">offset(r) · offset(−r)</text>
         </svg>
       </div>
       <div class="tk-tut-card__body">
         <div class="tk-tut-card__meta-row">
-          <span class="tk-tag tk-tag--blue">ELECTRONICS</span>
-          <span class="tk-tut-card__meta">4 STEPS · ~10 MIN</span>
+          <span class="tk-tag tk-tag--accent">OPENSCAD</span>
+          <span class="tk-tut-card__meta">3 STEPS · ~12 MIN</span>
         </div>
-        <h3 class="tk-h3">Blink an LED, properly</h3>
-        <p>Why you need a resistor. How to pick one. And why your LED keeps dying.</p>
+        <h3 class="tk-h3">Rounded corners with offset()</h3>
+        <p>Two-pass offset trick: expand then contract. Cleaner than minkowski(), no slow renders.</p>
         <div class="tk-tut-card__cta">READ →</div>
       </div>
     </a>

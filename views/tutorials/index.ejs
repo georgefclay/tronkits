@@ -1,0 +1,129 @@
+<% var currentPage = 'tutorials'; %>
+<%- include('../../partials/header') %>
+<%
+  // Presentation lookups for front-matter values
+  var __catLabel = { openscad:'OpenSCAD', pi:'Raspberry Pi', electronics:'Electronics', linux:'Linux' };
+  var __catTag   = { openscad:'accent', pi:'green', electronics:'blue', linux:'violet' };
+  var __catColor = { openscad:'var(--accent)', pi:'var(--green)', electronics:'var(--blue)', linux:'var(--violet)' };
+  var __stars = function(n){ n = Math.max(1, Math.min(3, Number(n) || 1)); return '★★★'.slice(0, n) + '☆☆☆'.slice(0, 3 - n); };
+  var __list = (typeof tutorials !== 'undefined' && tutorials) ? tutorials : [];
+%>
+
+<section class="tk-hero--tight">
+  <div class="tk-breadcrumb">// HOME / TUTORIALS</div>
+
+  <div class="tk-flex-between tk-mb-32">
+    <h1 class="tk-h1">
+      Tutorials.<br>
+      <span class="tk-h1__sub">Read once, ship forever.</span>
+    </h1>
+    <div class="tk-stamp tk-stamp--accent" style="transform:rotate(-6deg); width:88px; height:88px">SHELF · 01 · 2026</div>
+  </div>
+
+  <div class="tk-filter-bar">
+    <div class="tk-filter-bar__label">FILTER</div>
+    <button type="button" class="tk-filter-bar__btn is-active" data-filter="all">All</button>
+    <button type="button" class="tk-filter-bar__btn" data-filter="openscad">OpenSCAD</button>
+    <button type="button" class="tk-filter-bar__btn" data-filter="pi">Raspberry Pi</button>
+    <button type="button" class="tk-filter-bar__btn" data-filter="electronics">Electronics</button>
+    <button type="button" class="tk-filter-bar__btn" data-filter="linux">Linux</button>
+    <label class="tk-filter-bar__search">
+      <span aria-hidden="true">🔍</span>
+      <input type="search" id="tutSearch" placeholder="search..." aria-label="Search tutorials" autocomplete="off">
+    </label>
+  </div>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-tut-list">
+    <% __list.forEach(function(t, i){
+         var cat = t.category || 'openscad';
+         var dateStr = t.date ? t.date.toISOString().slice(0,10) : '';
+    %>
+      <a href="/tutorials/<%= t.slug %>" class="tk-tut-row" data-cat="<%= cat %>"
+         data-text="<%= (t.title + ' ' + (t.description || '')).toLowerCase() %>">
+        <div class="tk-tut-row__visual tk-graph-paper-mini">
+          <span class="tk-tut-row__badge">#<%= String(i + 1).padStart(2, '0') %></span>
+          <% if (cat === 'pi') { %>
+            <svg width="120" height="80" viewBox="0 0 160 120" aria-hidden="true">
+              <rect x="20" y="25" width="120" height="80" rx="4" fill="#2D8F60" stroke="#15263A" stroke-width="1.5" />
+              <rect x="60" y="50" width="40" height="40" fill="#15263A" />
+              <text x="80" y="74" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#F5EFDD">BCM</text>
+            </svg>
+          <% } else if (cat === 'electronics') { %>
+            <svg width="120" height="80" viewBox="0 0 170 120" aria-hidden="true">
+              <path d="M 20 60 L 50 60 M 110 60 L 150 60" stroke="#15263A" stroke-width="1.5" fill="none" />
+              <polyline points="50,60 56,52 64,68 72,52 80,68 88,52 96,68 104,52 110,60" fill="none" stroke="#15263A" stroke-width="1.5" />
+            </svg>
+          <% } else { %>
+            <%# OpenSCAD (and fallback): a box; rounded corners when the slug says so %>
+            <svg width="110" height="80" viewBox="0 0 110 80" aria-hidden="true">
+              <g stroke="#15263A" stroke-width="1.5" fill="none" stroke-linejoin="round">
+                <rect x="20" y="30" width="70" height="40" rx="<%= /rounded/.test(t.slug) ? 12 : 0 %>" fill="#EDE5CD" />
+                <line x1="20" y1="42" x2="90" y2="42" stroke-dasharray="2 2" />
+              </g>
+            </svg>
+          <% } %>
+        </div>
+        <div class="tk-tut-row__body">
+          <div class="tk-tut-row__meta-row">
+            <span class="tk-tag tk-tag--<%= __catTag[cat] || 'accent' %>"><%= (__catLabel[cat] || cat).toUpperCase() %></span>
+            <time datetime="<%= dateStr %>" style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-faint)"><%= dateStr %></time>
+          </div>
+          <h3 class="tk-h3"><%= t.title %></h3>
+          <p><%= t.description %></p>
+          <div class="tk-tut-row__footer">
+            <span><%= t.steps %> STEPS · ~<%= t.minutes %> MIN · <span style="color:<%= __catColor[cat] || 'var(--accent)' %>; font-weight:700" aria-label="Difficulty <%= t.difficulty %> of 3"><%= __stars(t.difficulty) %></span></span>
+            <span style="color:var(--ink); font-weight:700">READ →</span>
+          </div>
+        </div>
+      </a>
+    <% }) %>
+  </div>
+  <p id="tutEmpty" class="tk-body" style="display:none; font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--ink-soft); margin-top:18px">
+    No tutorials match that filter yet.
+  </p>
+</section>
+
+<script>
+  (function(){
+    // Old single-page anchors (/tutorials#tut-...) → their own URLs
+    var legacy = {
+      '#tut-simple-box':  '/tutorials/openscad-simple-box',
+      '#tut-rounded-box': '/tutorials/openscad-rounded-box',
+      '#tut-pi-node':     '/tutorials/raspberry-pi-node-nginx-colocation'
+    };
+    function goLegacy(){ if (legacy[location.hash]) { location.replace(legacy[location.hash]); return true; } }
+    if (goLegacy()) return;
+    window.addEventListener('hashchange', goLegacy);
+
+    // Category buttons + free-text search, combined
+    var cat = 'all';
+    var search = document.getElementById('tutSearch');
+    var rows = document.querySelectorAll('.tk-tut-row');
+    var empty = document.getElementById('tutEmpty');
+
+    function apply(){
+      var q = search.value.trim().toLowerCase();
+      var shown = 0;
+      rows.forEach(function(r){
+        var ok = (cat === 'all' || r.dataset.cat === cat) && (!q || r.dataset.text.indexOf(q) !== -1);
+        r.style.display = ok ? '' : 'none';
+        if (ok) shown++;
+      });
+      empty.style.display = shown ? 'none' : '';
+    }
+
+    document.querySelectorAll('.tk-filter-bar__btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        document.querySelectorAll('.tk-filter-bar__btn').forEach(function(b){ b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        cat = btn.dataset.filter;
+        apply();
+      });
+    });
+    search.addEventListener('input', apply);
+  })();
+</script>
+
+<%- include('../../partials/footer') %>
