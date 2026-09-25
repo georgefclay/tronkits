@@ -17,13 +17,12 @@
   <%
     // --- Social sharing (Open Graph + Twitter) ---
     // Driven by the same per-route locals as the <title>/description above.
-    // og:image is only emitted when a route sets `ogImage`, so pages without a
-    // dedicated image don't point crawlers at a broken or wrong picture.
+    // og:image falls back to the site-wide wordmark card when a route doesn't
+    // set its own `ogImage`, so every shared link gets a preview.
     var __ogUrl   = (typeof canonicalUrl !== 'undefined' && canonicalUrl) ? canonicalUrl : (typeof siteUrl !== 'undefined' ? siteUrl : '');
     var __ogDesc  = (typeof metaDescription !== 'undefined') ? metaDescription : '';
-    var __ogImg   = (typeof ogImage !== 'undefined' && ogImage)
-                      ? ((/^https?:\/\//.test(ogImage) ? '' : (typeof siteUrl !== 'undefined' ? siteUrl : '')) + ogImage)
-                      : '';
+    var __ogSrc   = (typeof ogImage !== 'undefined' && ogImage) ? ogImage : '/images/og-default.png';
+    var __ogImg   = (/^https?:\/\//.test(__ogSrc) ? '' : (typeof siteUrl !== 'undefined' ? siteUrl : '')) + __ogSrc;
   %>
   <meta property="og:type" content="<%= (typeof ogType !== 'undefined' && ogType) ? ogType : 'website' %>">
   <meta property="og:site_name" content="TronKits">
@@ -41,7 +40,9 @@
   <% if (__ogDesc) { %><meta name="twitter:description" content="<%= __ogDesc %>"><% } %>
   <% if (__ogImg)  { %><meta name="twitter:image" content="<%= __ogImg %>"><% } %>
 
+  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
