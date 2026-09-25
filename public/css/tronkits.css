@@ -1116,7 +1116,7 @@ main.tk-main {
 .tk-result-terminal .accent { color: var(--accent); }
 .tk-result-terminal .muted  { color: #B8C2D0; }
 
-.tk-mode-btns { display: flex; gap: 8px; }
+.tk-mode-btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .tk-mode-btn {
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;

@@ -126,6 +126,8 @@ const STATIC_PAGES = [
     llms: 'Tools', title: "Ohm's Law Calculator", desc: 'Enter any two of voltage, current, resistance and power to get the other two.' },
   { loc: '/resistor', view: 'resistor.ejs', changefreq: 'monthly', priority: 0.6,
     llms: 'Tools', title: 'Resistor Color Code Calculator', desc: '4, 5 and 6-band decoder with tolerance and tempco, plus value-to-bands reverse lookup.' },
+  { loc: '/capacitor-code', view: 'capacitor-code.ejs', changefreq: 'monthly', priority: 0.6,
+    llms: 'Tools', title: 'Capacitor Code Calculator', desc: 'Decode 3-digit capacitor codes (104, 473J), tolerance letters and 4R7/n47/2u2 markings into pF, nF and µF, or find the code for a value.' },
   { loc: '/555', view: '555.ejs', changefreq: 'monthly', priority: 0.6,
     llms: 'Tools', title: '555 Timer Calculator', desc: 'Astable mode: solve R1, R2, C or frequency from the other three, with duty cycle and high/low times.' },
   { loc: '/voltage-divider', view: 'voltage-divider.ejs', changefreq: 'monthly', priority: 0.6,
@@ -354,6 +356,13 @@ app.get('/resistor', (req, res) => {
   res.render('resistor', {
     title: 'Resistor Color Code Calculator – 4, 5 & 6 Band | TronKits',
     metaDescription: 'Free resistor color code calculator. Pick band colors for 4, 5 or 6-band resistors and get resistance, tolerance and temperature coefficient instantly. Reverse lookup from a value to bands included.'
+  });
+});
+
+app.get('/capacitor-code', (req, res) => {
+  res.render('capacitor-code', {
+    title: 'Capacitor Code Calculator – 104, 473J, 4n7 Decoder | TronKits',
+    metaDescription: 'Free capacitor code calculator. Decode 3-digit codes like 104 or 473J, tolerance letters and 4R7 / 2u2 markings into pF, nF and µF, or find the code for a value.'
   });
 });
 

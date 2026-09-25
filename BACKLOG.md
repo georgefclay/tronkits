@@ -9,7 +9,7 @@ Ideas for new utilities and blog posts. Check off as completed.
 ### Electronics calculators (highest fit with existing tools)
 
 - [x] **Ohm's Law & Power Calculator** — `/ohms-law` (E, I, R, P from any two)
-- [ ] **Capacitor code decoder** — read 3-digit codes (104 → 100nF), tantalum/electrolytic markings
+- [x] **Capacitor code decoder** — `/capacitor-code` (3-digit codes, tolerance letters, R/n/u markers, reverse lookup; electrolytics print the value directly)
 - [ ] **SMD resistor code decoder** — 3-digit, 4-digit, and EIA-96
 - [ ] **RC / RL filter designer** — cutoff frequency, time constant for debouncing/filtering
 - [ ] **Wire gauge (AWG)** — current capacity, resistance, voltage drop over distance
@@ -34,7 +34,7 @@ Ideas for new utilities and blog posts. Check off as completed.
 ### Top 3 to build next (biggest audience pull, cheapest to build)
 
 1. Ohm's Law (done)
-2. Capacitor code decoder
+2. Capacitor code decoder (done)
 3. SMD resistor code decoder
 
 ---

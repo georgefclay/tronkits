@@ -1,0 +1,510 @@
+<% locals.currentPage = 'utilities'; %>
+<%
+  // Fixed-unit number for the reference table and the pF/nF/µF readout:
+  // 4 significant figures, trailing zeros dropped, thousands separators, and
+  // no exponent notation for tiny values (0.00000022 µF, not 2.2e-7).
+  // Mirrored by fixedStr() in the page script below.
+  function fixedStr(x) {
+    if (!isFinite(x)) return '—';
+    var r = Number(x.toPrecision(4));
+    var s = (r !== 0 && Math.abs(r) < 1e-6) ? r.toFixed(12).replace(/0+$/, '').replace(/\.$/, '') : String(r);
+    var parts = s.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts.join('.');
+  }
+
+  // Common codes: significant digits 10, 22, 47 × multiplier digit 0–5,
+  // sorted by value so the table reads as a ladder.
+  var CAP_CODES = [];
+  [10, 22, 47].forEach(function(d){
+    for (var m = 0; m <= 5; m++) CAP_CODES.push({ code: String(d) + m, pF: d * Math.pow(10, m) });
+  });
+  CAP_CODES.sort(function(a, b){ return a.pF - b.pF; });
+
+  // EIA tolerance letters. abs = ± picofarads (small caps), pct = ± percent,
+  // Z is asymmetric (+80 / −20 %).
+  var CAP_TOLS = [
+    { letter:'B', label:'±0.1 pF',  abs:0.1 },
+    { letter:'C', label:'±0.25 pF', abs:0.25 },
+    { letter:'D', label:'±0.5 pF',  abs:0.5 },
+    { letter:'F', label:'±1%',      pct:1 },
+    { letter:'G', label:'±2%',      pct:2 },
+    { letter:'J', label:'±5%',      pct:5 },
+    { letter:'K', label:'±10%',     pct:10 },
+    { letter:'M', label:'±20%',     pct:20 },
+    { letter:'Z', label:'+80% / −20%', plus:80, minus:20 }
+  ];
+  var TOL_NOTES = {
+    B:'small (under 10 pF) C0G/NP0 parts', C:'small (under 10 pF) C0G/NP0 parts', D:'small (under 10 pF) C0G/NP0 parts',
+    F:'precision film and C0G', G:'precision film and C0G', J:'film and C0G ceramic',
+    K:'X7R ceramic, film', M:'general-purpose ceramic', Z:'Y5V / Z5U decoupling ceramics'
+  };
+%>
+<%- include('../partials/header') %>
+
+<section class="tk-hero--tight" style="padding-bottom:28px">
+  <div class="tk-breadcrumb">// HOME / TOOLBOX / CAPACITOR CODE</div>
+  <div class="tk-flex-between">
+    <div>
+      <h1 class="tk-h1" style="font-size:64px">Capacitor codes.</h1>
+      <p class="tk-lede" style="margin-top:12px; margin-bottom:0; max-width:620px">
+        Type the number printed on the cap (<code class="tk-inline">104</code>, <code class="tk-inline">473J</code>, <code class="tk-inline">4n7</code>) and get the value in pF, nF and µF. Or work backwards from a value to its code.
+      </p>
+    </div>
+    <div class="tk-mode-btns">
+      <button type="button" class="tk-mode-btn is-active" data-mode="code">CODE → VALUE</button>
+      <button type="button" class="tk-mode-btn" data-mode="rev">VALUE → CODE</button>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section-tight">
+  <div class="tk-resistor-grid">
+    <!-- Input -->
+    <div class="tk-card-headed">
+      <div class="tk-card-headed__head">
+        <span id="ccInputHead">INPUT · PRINTED CODE</span>
+        <span class="yellow" id="ccFormat">3-DIGIT CODE</span>
+      </div>
+      <div class="tk-card-headed__body" style="padding:24px 24px">
+        <div id="ccCodePane">
+          <label class="tk-label" for="ccCode">// Code on the capacitor</label>
+          <input type="text" id="ccCode" class="tk-input" value="104" maxlength="8" autocomplete="off" autocapitalize="off" spellcheck="false"
+                 style="font-family:'JetBrains Mono', monospace; font-size:28px; font-weight:700; letter-spacing:0.08em; padding:12px 14px">
+          <div class="tk-mono" style="margin:16px 0 8px">Try one</div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px" id="ccExamples">
+            <% ['104','103','473J','222K','104Z','47','4R7','n47','4n7','2u2','229','228'].forEach(function(c){ %>
+              <button type="button" class="tk-btn tk-btn--ghost tk-btn--sm" data-code="<%= c %>" style="text-transform:none"><%= c %></button>
+            <% }) %>
+          </div>
+          <div class="tk-mono" style="margin-top:18px; text-transform:none; letter-spacing:0.04em; line-height:1.6">
+            3 digits: two significant digits, then the number of zeros, in pF (8 = ×0.01, 9 = ×0.1).<br>
+            1–2 digits: the value in pF as printed. R / p, n or u in place of a decimal point: pF, nF or µF.<br>
+            A trailing letter is the tolerance (see the table below).
+          </div>
+        </div>
+
+        <div id="ccRevPane" style="display:none">
+          <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end">
+            <div style="flex:1 1 180px">
+              <label class="tk-label" for="ccRevValue">// Capacitance</label>
+              <input type="number" id="ccRevValue" class="tk-input" value="100" step="any" min="0">
+            </div>
+            <div style="flex:0 0 110px">
+              <label class="tk-label" for="ccRevUnit">// Unit</label>
+              <select id="ccRevUnit" class="tk-select" style="width:100%">
+                <option value="p">pF</option>
+                <option value="n" selected>nF</option>
+                <option value="u">µF</option>
+              </select>
+            </div>
+          </div>
+          <div class="tk-mono" style="margin-top:18px; text-transform:none; letter-spacing:0.04em; line-height:1.6">
+            The 3-digit code holds two significant digits, so values are rounded to 2 significant
+            figures. It covers 0.1 pF to 99 µF; bigger (electrolytic) parts print the value directly.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="tk-card-headed tk-card-headed--ink">
+      <div class="tk-card-headed__head">
+        <span>// DECODED · CAPACITANCE</span>
+        <span>↻ LIVE</span>
+      </div>
+      <div class="tk-card-headed__body" style="padding:28px 24px 24px">
+        <div class="tk-result-mini-label" id="ccMainLabel">NOMINAL VALUE</div>
+        <div class="tk-result-value" id="ccMain">—</div>
+        <div class="tk-result-tol" id="ccTol">—</div>
+
+        <div class="tk-result-minmax" style="grid-template-columns:1fr 1fr 1fr">
+          <div>
+            <div class="tk-result-mini-label">PICOFARADS</div>
+            <div class="tk-result-mini-value" id="ccPF" style="font-size:18px; word-break:break-all">—</div>
+          </div>
+          <div>
+            <div class="tk-result-mini-label">NANOFARADS</div>
+            <div class="tk-result-mini-value" id="ccNF" style="font-size:18px; word-break:break-all">—</div>
+          </div>
+          <div>
+            <div class="tk-result-mini-label">MICROFARADS</div>
+            <div class="tk-result-mini-value" id="ccUF" style="font-size:18px; word-break:break-all">—</div>
+          </div>
+        </div>
+
+        <div class="tk-result-minmax" id="ccRange">
+          <div>
+            <div class="tk-result-mini-label">MIN</div>
+            <div class="tk-result-mini-value" id="ccMin">—</div>
+          </div>
+          <div>
+            <div class="tk-result-mini-label">MAX</div>
+            <div class="tk-result-mini-value" id="ccMax">—</div>
+          </div>
+        </div>
+
+        <div class="tk-result-terminal">
+          <span class="accent">$ </span><span id="ccTermCmd">—</span><br>
+          <span class="muted">→ </span><span id="ccTermOut">—</span>
+        </div>
+
+        <button type="button" id="copyLink" class="tk-btn tk-btn--ghost tk-btn--sm" style="margin-top:18px; color:var(--paper); border-color:var(--paper)">Copy link</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">01</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// Cheat sheet</div>
+      <h2 class="tk-h2">Common capacitor codes</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-3col">
+    <div class="tk-edu-card">
+      <div class="tk-edu-card__num">01</div>
+      <h4>Two digits, then zeros</h4>
+      <p>The first two digits are the value; the third says how many zeros follow. 473 is 47 and three zeros.</p>
+    </div>
+    <div class="tk-edu-card">
+      <div class="tk-edu-card__num">02</div>
+      <h4>Always picofarads</h4>
+      <p>The answer is in pF. Divide by 1,000 for nF and by 1,000,000 for µF: 47,000 pF = 47 nF = 0.047 µF.</p>
+    </div>
+    <div class="tk-edu-card">
+      <div class="tk-edu-card__num">03</div>
+      <h4>A letter is tolerance</h4>
+      <p>J, K and M after the code mean ±5%, ±10% and ±20%. The letter is not part of the value.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:36px; background:var(--white); border:1.5px solid var(--ink); overflow-x:auto">
+    <div class="tk-card-headed__head">
+      <span>// 3-DIGIT CODES · 10 / 22 / 47 × 10⁰–10⁵</span>
+      <span class="yellow">REFERENCE</span>
+    </div>
+    <table class="tk-table" id="ccTable">
+      <thead>
+        <tr>
+          <th>CODE</th>
+          <th>pF</th>
+          <th>nF</th>
+          <th>µF</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% CAP_CODES.forEach(function(r){ %>
+          <tr><td style="font-weight:700"><%= r.code %></td><td><%= fixedStr(r.pF) %></td><td><%= fixedStr(r.pF / 1e3) %></td><td><%= fixedStr(r.pF / 1e6) %></td></tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:24px; background:var(--white); border:1.5px solid var(--ink); overflow-x:auto">
+    <div class="tk-card-headed__head">
+      <span>// TOLERANCE LETTERS</span>
+      <span class="yellow">EIA</span>
+    </div>
+    <table class="tk-table" id="ccTolTable">
+      <thead>
+        <tr>
+          <th>LETTER</th>
+          <th>TOLERANCE</th>
+          <th>TYPICAL ON</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% CAP_TOLS.forEach(function(t){ %>
+          <tr><td style="font-weight:700"><%= t.letter %></td><td class="tol-active"><%= t.label %></td><td class="muted"><%= TOL_NOTES[t.letter] %></td></tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<script src="/js/share-link.js"></script>
+<script src="/js/tk-format.js"></script>
+<script>
+(function(){
+  var CAP_TOLS = <%- JSON.stringify(CAP_TOLS) %>;
+  var ZEROS = ['no zeros', 'one zero', 'two zeros', 'three zeros', 'four zeros', 'five zeros', 'six zeros'];
+  var SUP = { '-': '⁻', '0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹' };
+  var MARKER = {
+    R: { unit: 'pF', scale: 1,   name: 'R' },
+    P: { unit: 'pF', scale: 1,   name: 'p' },
+    N: { unit: 'nF', scale: 1e3, name: 'n' },
+    U: { unit: 'µF', scale: 1e6, name: 'u' }
+  };
+  var $ = function(id){ return document.getElementById(id); };
+  var mode = 'code';
+
+  function fixedStr(x) {
+    if (!isFinite(x)) return '—';
+    var r = Number(x.toPrecision(4));
+    var s = (r !== 0 && Math.abs(r) < 1e-6) ? r.toFixed(12).replace(/0+$/, '').replace(/\.$/, '') : String(r);
+    var parts = s.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts.join('.');
+  }
+  function pow10(e) { return '10' + String(e).split('').map(function(c){ return SUP[c]; }).join(''); }
+  function findTol(letter) {
+    for (var i = 0; i < CAP_TOLS.length; i++) if (CAP_TOLS[i].letter === letter) return CAP_TOLS[i];
+    return null;
+  }
+
+  // ── Decode a printed code → { pF, tol, format, reading } or { error } ──────
+  function decode(raw) {
+    var s = String(raw || '').replace(/\s+/g, '').replace(/[µμ]/g, 'u').toUpperCase();
+    if (!s) return { error: 'type a code, e.g. 104' };
+    var m, pF, format, reading, tol = null;
+
+    // Optional trailing tolerance letter
+    // (none of B C D F G J K M Z doubles as a decimal marker, so it's unambiguous)
+    var tm = /^(.*\d.*?)([BCDFGJKMZ])$/.exec(s);
+    if (tm) { tol = findTol(tm[2]); s = tm[1]; }
+
+    if ((m = /^(\d)(\d)(\d)$/.exec(s))) {
+      var sig = Number(m[1] + m[2]);
+      var d = Number(m[3]);
+      if (d === 7) return { error: 'multiplier digit 7 is not used in the EIA code' };
+      var exp = d === 8 ? -2 : d === 9 ? -1 : d;
+      pF = sig * Math.pow(10, exp);
+      format = '3-DIGIT CODE';
+      reading = m[1] + ', ' + m[2] + ', then ' +
+        (exp >= 0 ? ZEROS[exp] : (exp === -1 ? '× 0.1' : '× 0.01')) +
+        ' → ' + fixedStr(pF) + ' pF';
+    } else if ((m = /^(\d{1,2})$/.exec(s))) {
+      pF = Number(m[1]);
+      format = 'DIRECT pF';
+      reading = m[1] + ' is the value as printed → ' + fixedStr(pF) + ' pF';
+    } else if ((m = /^(\d*)([RPNU])(\d*)$/.exec(s)) && (m[1] + m[3]).length > 0) {
+      var mk = MARKER[m[2]];
+      var num = Number((m[1] || '0') + '.' + (m[3] || '0'));
+      pF = num * mk.scale;
+      format = 'DECIMAL MARKER · ' + mk.unit;
+      reading = (m[1] || '') + mk.name + (m[3] || '') + ': ' + mk.name + ' is the decimal point, in ' + mk.unit +
+        ' → ' + fixedStr(num) + ' ' + mk.unit + (mk.unit === 'pF' ? '' : ' (' + fixedStr(pF) + ' pF)');
+    } else {
+      return { error: 'not a capacitor code this tool reads' };
+    }
+    if (tol) reading += ' · ' + tol.letter + ' = ' + tol.label;
+    return { pF: Number(pF.toPrecision(12)), tol: tol, format: format + (tol ? ' + TOLERANCE' : ''), reading: reading };
+  }
+
+  function tolRange(pF, tol) {
+    if (!tol) return null;
+    if (tol.abs !== undefined) return { min: pF - tol.abs, max: pF + tol.abs };
+    if (tol.pct !== undefined) return { min: pF * (1 - tol.pct / 100), max: pF * (1 + tol.pct / 100) };
+    return { min: pF * (1 - tol.minus / 100), max: pF * (1 + tol.plus / 100) };
+  }
+
+  // ── Encode a value in pF → 3-digit code ──────────────────────────────────
+  function encode(pF) {
+    if (!(pF > 0) || !isFinite(pF)) return { error: 'value must be greater than 0' };
+    var e = Math.floor(Math.log10(pF) + 1e-9) - 1;
+    var mant = Math.round(pF / Math.pow(10, e));
+    if (mant >= 100) { mant = Math.round(mant / 10); e += 1; }
+    if (e < -2) return { error: 'below 0.1 pF: too small for a 3-digit code' };
+    if (e > 6)  return { error: 'above 99 µF: parts this big print the value directly' };
+    var digit = e === -2 ? 8 : e === -1 ? 9 : e;
+    var code = (mant < 10 ? '0' : '') + mant + digit;
+    var resolved = Number((mant * Math.pow(10, e)).toPrecision(12));
+    return { code: code, mant: mant, exp: e, resolved: resolved, exact: Math.abs(resolved - pF) / pF < 1e-9 };
+  }
+
+  function setUnits(pF) {
+    $('ccPF').textContent = fixedStr(pF);
+    $('ccNF').textContent = fixedStr(pF / 1e3);
+    $('ccUF').textContent = fixedStr(pF / 1e6);
+  }
+  function clearOut(msg) {
+    $('ccMain').textContent = '—';
+    $('ccTol').textContent = '—';
+    ['ccPF', 'ccNF', 'ccUF', 'ccMin', 'ccMax'].forEach(function(id){ $(id).textContent = '—'; });
+    $('ccTermOut').textContent = msg;
+  }
+
+  function renderCode() {
+    var raw = $('ccCode').value;
+    var r = decode(raw);
+    $('ccMainLabel').textContent = 'NOMINAL VALUE';
+    $('ccRange').style.display = '';
+    $('ccTermCmd').textContent = raw.trim() || '—';
+    if (r.error) { $('ccFormat').textContent = 'UNKNOWN FORMAT'; clearOut(r.error); return; }
+    $('ccFormat').textContent = r.format;
+    $('ccMain').textContent = fmtSI(r.pF * 1e-12, 'F');
+    setUnits(r.pF);
+    var range = tolRange(r.pF, r.tol);
+    $('ccTol').textContent = r.tol ? r.tol.label + ' tolerance (' + r.tol.letter + ')' : 'no tolerance letter';
+    $('ccMin').textContent = range ? fmtSI(range.min * 1e-12, 'F') : '—';
+    $('ccMax').textContent = range ? fmtSI(range.max * 1e-12, 'F') : '—';
+    $('ccTermOut').textContent = r.reading;
+  }
+
+  function renderRev() {
+    var v = Number($('ccRevValue').value);
+    var unit = $('ccRevUnit').value;
+    var scale = unit === 'u' ? 1e6 : unit === 'n' ? 1e3 : 1;
+    var pF = v * scale;
+    var r = encode(pF);
+    $('ccMainLabel').textContent = '3-DIGIT CODE';
+    $('ccRange').style.display = 'none';
+    $('ccFormat').textContent = 'REVERSE LOOKUP';
+    $('ccTermCmd').textContent = ($('ccRevValue').value || '—') + ' ' + (unit === 'u' ? 'µF' : unit + 'F');
+    if (r.error || !$('ccRevValue').value) { clearOut(r.error || 'enter a value'); return; }
+    $('ccMain').textContent = r.code;
+    $('ccTol').textContent = (r.exact ? '= ' : '≈ ') + fmtSI(r.resolved * 1e-12, 'F') + (r.exact ? ' exactly' : ' (nearest 2-digit value)');
+    setUnits(r.resolved);
+    $('ccTermOut').textContent = fixedStr(r.resolved) + ' pF = ' + r.mant + ' × ' + pow10(r.exp) + ' → ' + r.code;
+  }
+
+  function render() { if (mode === 'rev') renderRev(); else renderCode(); syncUrl(); }
+
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll('.tk-mode-btn').forEach(function(b){ b.classList.toggle('is-active', b.dataset.mode === m); });
+    $('ccCodePane').style.display = m === 'rev' ? 'none' : '';
+    $('ccRevPane').style.display = m === 'rev' ? '' : 'none';
+    $('ccInputHead').textContent = m === 'rev' ? 'INPUT · TARGET VALUE' : 'INPUT · PRINTED CODE';
+    render();
+  }
+
+  // ── Shareable URL: ?c=104K (decode) or ?v=100&u=n (reverse) ───────────────
+  var urlReady = false;
+  function syncUrl() {
+    if (!urlReady) return;
+    if (mode === 'rev') TKShare.write({ v: $('ccRevValue').value, u: $('ccRevUnit').value });
+    else TKShare.write({ c: $('ccCode').value.replace(/\s+/g, '') });
+  }
+  function loadFromUrl() {
+    var qs = TKShare.params();
+    var c = qs.get('c');
+    var v = TKShare.num(qs.get('v'));
+    if (c !== null && /^[0-9A-Za-zµμ.]{1,8}$/.test(c)) { $('ccCode').value = c; return 'code'; }
+    if (v !== null) {
+      $('ccRevValue').value = v;
+      TKShare.setSelect($('ccRevUnit'), qs.get('u'));
+      return 'rev';
+    }
+    return null;
+  }
+
+  document.querySelectorAll('.tk-mode-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){ setMode(btn.dataset.mode); });
+  });
+  document.querySelectorAll('#ccExamples [data-code]').forEach(function(btn){
+    btn.addEventListener('click', function(){ $('ccCode').value = btn.dataset.code; render(); });
+  });
+  $('ccCode').addEventListener('input', render);
+  ['ccRevValue', 'ccRevUnit'].forEach(function(id){
+    $(id).addEventListener('input', render);
+    $(id).addEventListener('change', render);
+  });
+
+  var fromUrl = loadFromUrl();
+  setMode(fromUrl || 'code');
+  urlReady = true;
+  if (location.search) syncUrl();
+  TKShare.bindCopy($('copyLink'));
+
+  // exposed for testing
+  window.TKCap = { decode: decode, encode: encode };
+})();
+</script>
+
+<!-- ============================== EXPLAINER ============================== -->
+<section class="tk-section">
+  <div class="tk-section-head">
+    <div class="tk-section-head__n">02</div>
+    <div class="tk-section-head__body">
+      <div class="tk-section-head__kicker">// Worked example</div>
+      <h2 class="tk-h2">Why 104 isn't 104 farads</h2>
+    </div>
+    <div class="tk-section-head__rule"></div>
+  </div>
+
+  <div class="tk-prose" style="margin:0">
+    <p>
+      Small ceramic and film capacitors don't have room for "100 nF", so they carry a
+      three-digit EIA code instead. The first two digits are the significant figures, the third
+      is how many zeros to add, and the answer is <strong>always in picofarads</strong>. The
+      third digit only runs 0 to 6 for zeros; 8 means ×0.01 and 9 means ×0.1, for values under
+      10&nbsp;pF.
+    </p>
+    <p>
+      So <code>104</code> is <code>10 × 10⁴ = 100,000 pF</code>, which is 100&nbsp;nF or
+      0.1&nbsp;µF. Read it as 104 farads and you'd be expecting a supercapacitor the size of a
+      battery, not a blue blob the size of a lentil.
+    </p>
+    <p>
+      <strong>Example.</strong> A yellow film cap reads <code>473J</code>. The digits are 47,
+      the 3 adds three zeros: <code>47,000 pF = 47 nF = 0.047 µF</code>. The J is the tolerance
+      letter, ±5%, so the real part sits anywhere from 44.65&nbsp;nF to 49.35&nbsp;nF.
+    </p>
+    <p>
+      Some parts skip the code: a lone <code>47</code> (one or two digits) is just 47&nbsp;pF,
+      and a letter in the middle is the decimal point and the unit at once:
+      <code>4R7</code> = 4.7&nbsp;pF, <code>n47</code> = 0.47&nbsp;nF, <code>4n7</code> =
+      4.7&nbsp;nF and <code>2u2</code> = 2.2&nbsp;µF.
+    </p>
+    <p>
+      <strong>Gotcha: electrolytics don't use the code.</strong> Aluminium electrolytic cans
+      print the real value and voltage, e.g. <code>100µF 25V</code>, plus a stripe marking the
+      negative lead. If a can says <code>100</code>, it means 100&nbsp;µF, not 10&nbsp;pF. The
+      three-digit code is for the small stuff, and it is always picofarads; a <code>101</code>
+      is 100&nbsp;pF, not 101 of anything.
+    </p>
+  </div>
+</section>
+
+<!-- ================================ FAQ ================================= -->
+<%- include('../partials/tool_faq', {
+  n: '03',
+  faqs: [
+    {
+      "q": "What does 104 mean on a capacitor?",
+      "a": "It is 10 followed by four zeros, in picofarads: 100,000 pF, which is 100 nF or 0.1 µF. It is the most common decoupling capacitor value on a board."
+    },
+    {
+      "q": "What does 103, 473 or 222 mean on a capacitor?",
+      "a": "Take the first two digits and add the number of zeros given by the third, in picofarads. 103 is 10,000 pF (10 nF), 473 is 47,000 pF (47 nF) and 222 is 2,200 pF (2.2 nF)."
+    },
+    {
+      "q": "What is the K or J after the capacitor code?",
+      "a": "It is the tolerance letter, not part of the value. J is ±5%, K is ±10% and M is ±20%, so 104K is 100 nF ±10%, anywhere from 90 nF to 110 nF. Small parts can use B, C or D (±0.1, ±0.25 or ±0.5 pF), and Z means +80% / −20%."
+    },
+    {
+      "q": "What does 4R7 or n47 mean on a capacitor?",
+      "a": "The letter is the decimal point and tells you the unit. R (or p) means picofarads, so 4R7 is 4.7 pF. n means nanofarads, so n47 is 0.47 nF (470 pF) and 4n7 is 4.7 nF. u means microfarads, so 2u2 is 2.2 µF."
+    },
+    {
+      "q": "How do I find the code for 100 nF?",
+      "a": "Convert to picofarads first: 100 nF is 100,000 pF, which is 10 followed by four zeros, so the code is 104. Likewise 4.7 µF is 4,700,000 pF, 47 followed by five zeros, which is 475."
+    },
+    {
+      "q": "Are the numbers on electrolytic capacitors a code?",
+      "a": "No. Electrolytic capacitors are big enough to print the value and voltage directly, for example 100µF 25V, usually with a stripe marking the negative lead. The three-digit code is used on small ceramic and film capacitors."
+    }
+  ],
+  app: {
+    "name": "TronKits Capacitor Code Calculator",
+    "path": "/capacitor-code",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "A free, browser-based capacitor code decoder: read 3-digit EIA codes such as 104 or 473J, tolerance letters, and R/n/u decimal-marker codes such as 4R7 or 2u2, with the value in pF, nF and µF, plus a reverse lookup from a value to its code. No login.",
+    "featureList": [
+      "Decode 3-digit capacitor codes including the 8 and 9 multipliers",
+      "Tolerance letters B, C, D, F, G, J, K, M and Z with min and max",
+      "R, p, n and u decimal-marker codes such as 4R7, n47 and 2u2",
+      "Value shown in pF, nF and µF at once",
+      "Reverse lookup from a capacitance to its 3-digit code",
+      "Runs entirely in the browser"
+    ]
+  }
+}) %>
+
+<%- include('../partials/footer') %>
