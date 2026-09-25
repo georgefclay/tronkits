@@ -11,11 +11,20 @@ tool to be used in a logo, commercially, without attribution.
   playfair-display-700.woff   Playfair Display    (c) Claus Eggers Sorensen
 
 Files sourced from the Fontsource distribution of Google Fonts.
+
+Site text fonts (the same OFL 1.1 licence; variable-weight latin/greek
+subsets downloaded from Google Fonts):
+
+  space-grotesk-latin-var.woff2    Space Grotesk    400–700
+  jetbrains-mono-latin-var.woff2   JetBrains Mono   400–700
+  jetbrains-mono-greek-var.woff2   JetBrains Mono   400–700
+
 Full OFL 1.1 text: https://openfontlicense.org
 
 -----------------------------------------------------------------------
 
 Copyright 2020 The Space Grotesk Project Authors (https://github.com/floriankarsten/space-grotesk)
+Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:

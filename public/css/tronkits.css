@@ -3,6 +3,33 @@
    Cream paper · ink navy · solder orange · LED green
    ───────────────────────────────────────────────────────────── */
 
+/* ─── Fonts (self-hosted variable woff2, latin subsets from Google Fonts) ── */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/space-grotesk-latin-var.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-var.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* Greek subset: Ω and µ-style symbols in calculator results */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-greek-var.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+
 :root {
   --paper:      #F5EFDD;
   --paper-deep: #EDE5CD;
@@ -23,6 +50,31 @@
 }
 
 * { box-sizing: border-box; }
+
+/* ─── Base (the bits of Bootstrap's reboot the design relied on) ──
+   Bootstrap now loads only on the pages that still need it, so the
+   element defaults the .tk-* classes were tuned against live here.
+   Element selectors only, so every .tk-* rule still wins. */
+*::before, *::after { box-sizing: border-box; }
+h1, h2, h3, h4, h5, h6 { margin-top: 0; margin-bottom: 0.5rem; font-weight: 500; line-height: 1.2; }
+p, ul, ol, dl { margin-top: 0; margin-bottom: 1rem; }
+ul ul, ol ol, ul ol, ol ul { margin-bottom: 0; }
+a { text-decoration: none; background-color: transparent; }
+a:hover { text-decoration: underline; }
+img, svg { vertical-align: middle; }
+svg { overflow: hidden; }
+table { border-collapse: collapse; }
+th { text-align: inherit; }
+label { display: inline-block; margin-bottom: 0.5rem; }
+button, input, select, textarea, optgroup { margin: 0; font-family: inherit; font-size: inherit; line-height: inherit; }
+button, select { text-transform: none; }
+textarea { overflow: auto; resize: vertical; }
+pre { margin-top: 0; margin-bottom: 1rem; overflow: auto; }
+blockquote, figure { margin: 0 0 1rem; }
+hr { box-sizing: content-box; height: 0; overflow: visible; }
+::-webkit-file-upload-button { font: inherit; -webkit-appearance: button; }
+code { font-size: 87.5%; color: #e83e8c; word-wrap: break-word; }
+a > code, pre code { color: inherit; }
 
 html, body {
   margin: 0;
