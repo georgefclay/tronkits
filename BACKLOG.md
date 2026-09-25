@@ -50,11 +50,12 @@ Ideas for new utilities and blog posts. Check off as completed.
 - [ ] Voltage dividers under load: why your output sags and how to fix it → `/voltage-divider`
 - [ ] 555 astable vs monostable: which one do you actually need? → `/555`
 - [x] Ohm's law in 5 minutes with the Eagle mnemonic → `/blog/ohms-law-in-5-minutes`
+- [x] Reading SMD resistor codes: 3-digit, 4-digit and EIA-96 → `/blog/reading-smd-resistor-codes`
 
 ### Beginner electronics (broad search volume, evergreen)
 
 - [ ] Your first breadboard circuit: a blinking LED, properly explained
-- [ ] Decoding capacitor markings (104 ≠ 104 farads)
+- [x] Decoding capacitor markings (104 ≠ 104 farads) → `/blog/decoding-capacitor-markings`
 - [ ] Pull-up vs pull-down resistors — what they do and when to use which
 - [ ] How to read a schematic without panicking
 - [ ] The 5 most common multimeter mistakes (and how to avoid them)
@@ -83,5 +84,5 @@ Ideas for new utilities and blog posts. Check off as completed.
 ### Top 3 to write next (SEO leverage × ease of writing)
 
 1. Reading Resistor Color Codes (done)
-2. Decoding capacitor markings — sets up future capacitor decoder utility
+2. Decoding capacitor markings (done)
 3. Ohm's law in 5 minutes with the Eagle mnemonic — drives traffic to the new calculator
